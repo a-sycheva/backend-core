@@ -70,4 +70,33 @@ class LeadStorageTest {
     assertThat(result).containsExactly(firstLead, secondLead);
     assertThat(result).hasSize(2);
   }
+
+  @Test
+  void shouldAddFirstNullEmailLead() {
+    LeadStorage leads = new LeadStorage();
+
+    Lead firtsLead = new Lead("123", "notnull@mail.ru", "123", "comp1", "NEW");
+    Lead secondLead = new Lead("123", null, "123", "comp1", "NEW");
+
+    leads.add(firtsLead);
+    leads.add(secondLead);
+
+    assertThat(leads.size()).isEqualTo(2);
+    assertThat(leads.findAll()).containsExactlyInAnyOrder(firtsLead, secondLead);
+
+  }
+
+  @Test
+  void shouldThrowExceptionWhenSomeNullEmailLeadsAdded() {
+
+    LeadStorage leads = new LeadStorage();
+
+    Lead firtsLead = new Lead("123", null, "123", "comp1", "NEW");
+    Lead secondLead = new Lead("123", null, "123", "comp1", "NEW");
+
+    leads.add(firtsLead);
+
+    assertThatThrownBy(()->leads.add(secondLead))
+        .isInstanceOf(NullPointerException.class);
+  }
 }
