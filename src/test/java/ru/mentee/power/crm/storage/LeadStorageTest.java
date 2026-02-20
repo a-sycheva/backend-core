@@ -72,31 +72,19 @@ class LeadStorageTest {
   }
 
   @Test
-  void shouldAddFirstNullEmailLead() {
-    LeadStorage leads = new LeadStorage();
-
-    Lead firtsLead = new Lead("123", "notnull@mail.ru", "123", "comp1", "NEW");
-    Lead secondLead = new Lead("123", null, "123", "comp1", "NEW");
-
-    leads.add(firtsLead);
-    leads.add(secondLead);
-
-    assertThat(leads.size()).isEqualTo(2);
-    assertThat(leads.findAll()).containsExactlyInAnyOrder(firtsLead, secondLead);
-
-  }
-
-  @Test
-  void shouldThrowExceptionWhenSomeNullEmailLeadsAdded() {
-
+  void shouldAddNullEmailLeadWithoutDuplicate() {
     LeadStorage leads = new LeadStorage();
 
     Lead firtsLead = new Lead("123", null, "123", "comp1", "NEW");
-    Lead secondLead = new Lead("123", null, "123", "comp1", "NEW");
+    Lead secondLead = new Lead("456", "notnull@mail.ru", "321", "comp2", "NEW");
+    Lead thirdLead = new Lead("789", null, "789", "comp3", "NEW");
 
     leads.add(firtsLead);
+    leads.add(secondLead);
+    leads.add(thirdLead);
 
-    assertThatThrownBy(()->leads.add(secondLead))
-        .isInstanceOf(NullPointerException.class);
+    assertThat(leads.size()).isEqualTo(2);
+    assertThat(leads.findAll()).containsOnly(firtsLead, secondLead);
   }
+
 }
