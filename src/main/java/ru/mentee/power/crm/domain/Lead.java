@@ -1,48 +1,28 @@
 package ru.mentee.power.crm.domain;
 
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
-public class Lead {
+public record Lead (UUID id,
+                    Contact contact,
+                    String company,
+                    String status) {
 
-  private UUID id;
-  private String email;
-  private  String phone;
-  private String company;
-  private  String status;
+  public Lead {
+    if (id == null) {
+      throw new IllegalArgumentException("Id can`t be empty");
+    }
 
-  public Lead (UUID id, String email, String phone, String company, String status) {
-    this.id = id;
-    this.email = email;
-    this.phone = phone;
-    this.company = company;
-    this.status = status;
-  }
+    if (status == null || status.isEmpty()) {
+      throw new IllegalArgumentException("Status can`t be empty");
+    } else if (!Set.of("NEW", "QUALIFIED", "CONVERTED").contains(status)) {
+      throw new IllegalArgumentException("Invalid status!");
+    }
 
-  public UUID getId() {
-    return id;
-  }
-
-  public String getEmail() {
-    return email;
-  }
-
-  public String getPhone() {
-    return phone;
-  }
-
-  public String getCompany() {
-    return company;
-  }
-
-  public String getStatus() {
-    return status;
-  }
-
-  @Override
-  public String toString() {
-    return "Lead{id='" + id + "', email='" + email
-        + "', phone='" + phone + "', company='" + company + "', status='" + status + "'}";
+    if (contact == null) {
+      throw new IllegalArgumentException("Contact can`t be empty");
+    }
   }
 
   @Override

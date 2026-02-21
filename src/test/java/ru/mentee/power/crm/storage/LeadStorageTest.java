@@ -6,6 +6,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
+import ru.mentee.power.crm.domain.Address;
+import ru.mentee.power.crm.domain.Contact;
 import ru.mentee.power.crm.domain.Lead;
 
 class LeadStorageTest {
@@ -13,7 +15,11 @@ class LeadStorageTest {
   @Test
   void shouldAddLeadWhenLeadIsUnique() {
 
-    Lead lead = new Lead(UUID.randomUUID(), "ivan@mail.ru", "+71234567890", "TechCorp", "NEW");
+    Address address = new Address("NY", "123 Main st.", "123456");
+    Contact contact = new Contact("mail@example.ru", "+71234567890", address);
+
+    Lead lead = new Lead(UUID.randomUUID(), contact, "TestCorp", "NEW");
+
     LeadStorage leadStorage = new LeadStorage();
 
     boolean added = leadStorage.add(lead);
@@ -26,10 +32,12 @@ class LeadStorageTest {
   @Test
   void shouldRejectDuplicateWhenEmailAlreadyExists() {
 
-    Lead existingLead = new Lead(UUID.randomUUID(), "ivan@mail.ru",
-        "+71234567890", "TechCorp", "NEW");
-    Lead duplicateLead = new Lead(UUID.randomUUID(), "ivan@mail.ru",
-        "+70987654321", "ITCorp", "NEW");
+    Address address = new Address("NY", "123 Main st.", "123456");
+    Contact contact = new Contact("mail@example.ru", "+71234567890", address);
+
+    Lead existingLead = new Lead(UUID.randomUUID(), contact, "TestCorp", "NEW");
+    Lead duplicateLead = new Lead(UUID.randomUUID(), contact, "TestCorp", "NEW");
+
     LeadStorage storage = new LeadStorage();
     storage.add(existingLead);
 
@@ -45,17 +53,20 @@ class LeadStorageTest {
 
     LeadStorage storage = new LeadStorage();
 
+    Address address = new Address("NY", "123 Main st.", "123456");
+
     for (int index = 0; index < 100; index++) {
 
-      storage.add(new Lead(UUID.randomUUID(), "lead" + index + "@mail.ru",
-          "+71234567890", "Company", "NEW"));
+      Contact contact = new Contact("lead" + index + "@mail.ru", "+71234567890", address);
+
+      storage.add(new Lead(UUID.randomUUID(), contact, "Company", "NEW"));
 
     }
 
-    Lead hunfredFirstLead = new Lead(UUID.randomUUID(), "lead101@mail.ru",
-        "+71234567890", "Company", "NEW");
+    Contact contact = new Contact("lead101@mail.ru", "+71234567890", address);
+    Lead hundredFirstLead = new Lead(UUID.randomUUID(), contact, "Company", "NEW");
 
-    assertThatThrownBy(() -> storage.add(hunfredFirstLead))
+    assertThatThrownBy(() -> storage.add(hundredFirstLead))
         .isInstanceOf(IllegalStateException.class)
         .hasMessageContaining("Storage is full");
 
@@ -64,11 +75,15 @@ class LeadStorageTest {
   @Test
   void shouldReturnOnlyAddedLeadsWhenFindAllCalled() {
 
+    Address address = new Address("NY", "123 Main st.", "123456");
+    Contact firstContact = new Contact("ivan@mail.ru", "+71234567890", address);
+    Contact secondContact = new Contact("mariya@mail.ru", "+70987654321", address);
+
+    Lead firstLead = new Lead(UUID.randomUUID(), firstContact, "TestCorp", "NEW");
+    Lead secondLead = new Lead(UUID.randomUUID(), secondContact, "ITCorp", "NEW");
+
     LeadStorage storage = new LeadStorage();
-    Lead firstLead = new Lead(UUID.randomUUID(), "ivan@mail.ru",
-        "+71234567890", "TechCorp", "NEW");
-    Lead secondLead = new Lead(UUID.randomUUID(), "mariya@mail.ru",
-        "++70987654321", "ITCorp", "NEW");
+
     storage.add(firstLead);
     storage.add(secondLead);
 
@@ -77,21 +92,4 @@ class LeadStorageTest {
     assertThat(result).containsExactly(firstLead, secondLead);
     assertThat(result).hasSize(2);
   }
-
-  @Test
-  void shouldAddNullEmailLeadWithoutDuplicate() {
-    LeadStorage leads = new LeadStorage();
-
-    Lead firtsLead = new Lead("123", null, "123", "comp1", "NEW");
-    Lead secondLead = new Lead("456", "notnull@mail.ru", "321", "comp2", "NEW");
-    Lead thirdLead = new Lead("789", null, "789", "comp3", "NEW");
-
-    leads.add(firtsLead);
-    leads.add(secondLead);
-    leads.add(thirdLead);
-
-    assertThat(leads.size()).isEqualTo(2);
-    assertThat(leads.findAll()).containsOnly(firtsLead, secondLead);
-  }
-
 }
