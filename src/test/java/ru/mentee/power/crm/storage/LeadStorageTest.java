@@ -3,6 +3,8 @@ package ru.mentee.power.crm.storage;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
+import java.util.UUID;
+
 import org.junit.jupiter.api.Test;
 import ru.mentee.power.crm.domain.Lead;
 
@@ -11,7 +13,7 @@ class LeadStorageTest {
   @Test
   void shouldAddLeadWhenLeadIsUnique() {
 
-    Lead lead = new Lead("1", "ivan@mail.ru", "+71234567890", "TechCorp", "NEW");
+    Lead lead = new Lead(UUID.randomUUID(), "ivan@mail.ru", "+71234567890", "TechCorp", "NEW");
     LeadStorage leadStorage = new LeadStorage();
 
     boolean added = leadStorage.add(lead);
@@ -24,8 +26,10 @@ class LeadStorageTest {
   @Test
   void shouldRejectDuplicateWhenEmailAlreadyExists() {
 
-    Lead existingLead = new Lead("1", "ivan@mail.ru", "+71234567890", "TechCorp", "NEW");
-    Lead duplicateLead = new Lead("2", "ivan@mail.ru", "+70987654321", "ITCorp", "NEW");
+    Lead existingLead = new Lead(UUID.randomUUID(), "ivan@mail.ru",
+        "+71234567890", "TechCorp", "NEW");
+    Lead duplicateLead = new Lead(UUID.randomUUID(), "ivan@mail.ru",
+        "+70987654321", "ITCorp", "NEW");
     LeadStorage storage = new LeadStorage();
     storage.add(existingLead);
 
@@ -43,12 +47,13 @@ class LeadStorageTest {
 
     for (int index = 0; index < 100; index++) {
 
-      storage.add(new Lead(String.valueOf(index), "lead" + index + "@mail.ru",
+      storage.add(new Lead(UUID.randomUUID(), "lead" + index + "@mail.ru",
           "+71234567890", "Company", "NEW"));
 
     }
 
-    Lead hunfredFirstLead = new Lead("101", "lead101@mail.ru", "+71234567890", "Company", "NEW");
+    Lead hunfredFirstLead = new Lead(UUID.randomUUID(), "lead101@mail.ru",
+        "+71234567890", "Company", "NEW");
 
     assertThatThrownBy(() -> storage.add(hunfredFirstLead))
         .isInstanceOf(IllegalStateException.class)
@@ -60,8 +65,10 @@ class LeadStorageTest {
   void shouldReturnOnlyAddedLeadsWhenFindAllCalled() {
 
     LeadStorage storage = new LeadStorage();
-    Lead firstLead = new Lead("1", "ivan@mail.ru", "+71234567890", "TechCorp", "NEW");
-    Lead secondLead = new Lead("2", "mariya@mail.ru", "++70987654321", "ITCorp", "NEW");
+    Lead firstLead = new Lead(UUID.randomUUID(), "ivan@mail.ru",
+        "+71234567890", "TechCorp", "NEW");
+    Lead secondLead = new Lead(UUID.randomUUID(), "mariya@mail.ru",
+        "++70987654321", "ITCorp", "NEW");
     storage.add(firstLead);
     storage.add(secondLead);
 
