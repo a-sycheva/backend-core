@@ -70,4 +70,21 @@ class LeadStorageTest {
     assertThat(result).containsExactly(firstLead, secondLead);
     assertThat(result).hasSize(2);
   }
+
+  @Test
+  void shouldAddNullEmailLeadWithoutDuplicate() {
+    LeadStorage leads = new LeadStorage();
+
+    Lead firtsLead = new Lead("123", null, "123", "comp1", "NEW");
+    Lead secondLead = new Lead("456", "notnull@mail.ru", "321", "comp2", "NEW");
+    Lead thirdLead = new Lead("789", null, "789", "comp3", "NEW");
+
+    leads.add(firtsLead);
+    leads.add(secondLead);
+    leads.add(thirdLead);
+
+    assertThat(leads.size()).isEqualTo(2);
+    assertThat(leads.findAll()).containsOnly(firtsLead, secondLead);
+  }
+
 }
