@@ -1,8 +1,8 @@
 package ru.mentee.power.crm.storage;
 
-import ru.mentee.power.crm.domain.Lead;
-
 import java.util.Objects;
+
+import ru.mentee.power.crm.domain.Lead;
 
 public class LeadStorage {
   private Lead[] leads = new Lead[100];
@@ -11,7 +11,7 @@ public class LeadStorage {
 
     for (int index = 0; index < leads.length; index++) {
       if (leads[index] != null
-          && Objects.equals(leads[index].getEmail(), lead.getEmail())) {
+          && Objects.equals(leads[index].contact().email(), lead.contact().email())) {
         return  false;
       }
     }
