@@ -20,6 +20,10 @@ public record Lead (UUID id,
       throw new IllegalArgumentException("Invalid status!");
     }
 
+    if (company == null || company.isEmpty()) {
+      throw new IllegalArgumentException("Company can`t be empty");
+    }
+
     if (contact == null) {
       throw new IllegalArgumentException("Contact can`t be empty");
     }
