@@ -10,7 +10,7 @@ import ru.mentee.power.crm.domain.Repository;
 
 public class InMemoryLeadRepository implements Repository<Lead> {
 
-  private ArrayList<Lead> storage = new ArrayList<>();
+  private final ArrayList<Lead> storage = new ArrayList<>();
 
   @Override
   public void add(Lead lead) {
