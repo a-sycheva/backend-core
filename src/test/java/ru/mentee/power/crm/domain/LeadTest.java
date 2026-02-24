@@ -149,6 +149,16 @@ class LeadTest {
         .isInstanceOf(IllegalArgumentException.class).hasMessage("Invalid status!");
   }
 
+  @Test
+  void shouldThrowExceptionWhenCompanyIsNull() {
+
+    Address address = new Address("NY", "123 Main st.", "123456");
+    Contact contact = new Contact("mail@example.ru", "+71234567890", address);
+
+    assertThatThrownBy(() -> new Lead(UUID.randomUUID(), contact, null, "NEW"))
+        .isInstanceOf(IllegalArgumentException.class).hasMessage("Company can`t be empty");
+  }
+
   void findByID (UUID id) {
     // в рамках учебного приложения здесь пусто
     //важна проверка типобезопасности
