@@ -1,4 +1,4 @@
-package ru.mentee.power.crm.infrastructure;
+package ru.mentee.power.crm.repository;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;

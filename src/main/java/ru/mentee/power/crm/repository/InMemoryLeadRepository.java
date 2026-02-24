@@ -1,4 +1,4 @@
-package ru.mentee.power.crm.infrastructure;
+package ru.mentee.power.crm.repository;
 
 import java.util.ArrayList;
 import java.util.List;
