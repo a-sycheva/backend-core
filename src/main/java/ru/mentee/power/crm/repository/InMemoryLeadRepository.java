@@ -1,53 +1,51 @@
 package ru.mentee.power.crm.repository;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import ru.mentee.power.crm.domain.Lead;
-import ru.mentee.power.crm.domain.Repository;
+import ru.mentee.power.crm.model.Lead;
 
-public class InMemoryLeadRepository implements Repository<Lead> {
+public class InMemoryLeadRepository implements LeadRepository<Lead> {
 
-  private final ArrayList<Lead> storage = new ArrayList<>();
-
-  @Override
-  public void add(Lead lead) {
-
-    if (storage.contains(lead)) {
-      throw new IllegalArgumentException("This lead already exists!");
-    }
-    storage.add(lead);
-  }
+  private final Map<UUID, Lead> storage = new HashMap<>();
+  private final Map<String, UUID> emailIndex = new HashMap<>();
 
   @Override
-  public void remove(UUID id) {
+  public Lead save(Lead lead) {
 
-    if (!storage.removeIf(lead -> lead.id().equals(id))) {
-      throw new IllegalArgumentException("This lead does not exists!");
-    }
+    storage.put(lead.id(), lead);
+    emailIndex.put(lead.email(), lead.id());
+    return lead;
   }
 
   @Override
   public Optional<Lead> findById(UUID id) {
+    return Optional.ofNullable(storage.get(id));
+  }
 
-    return storage.stream().filter(lead -> lead.id()
-        .equals(id)).findFirst();
+  @Override
+  public Optional<Lead> findByEmail(String email) {
+    UUID id = emailIndex.get(email);
+    if (id == null) {
+      return Optional.empty();
+    }
+    return Optional.ofNullable(storage.get(id));
   }
 
   @Override
   public List<Lead> findAll() {
+    return new ArrayList<>(storage.values());
+  }
 
-    List<Lead> leads = new ArrayList<>();
-
-    for (Lead lead : storage) {
-
-      if (lead != null) {
-        leads.add(lead);
-      }
-
+  @Override
+  public void delete(UUID id) {
+    Lead lead = storage.remove(id);
+    if (lead != null) {
+      emailIndex.remove(lead.email());
     }
-    return leads;
   }
 }

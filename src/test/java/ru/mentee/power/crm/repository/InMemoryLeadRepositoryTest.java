@@ -1,157 +1,132 @@
 package ru.mentee.power.crm.repository;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 import java.util.UUID;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.mentee.power.crm.domain.Address;
-import ru.mentee.power.crm.domain.Contact;
-import ru.mentee.power.crm.domain.Lead;
+import ru.mentee.power.crm.model.Lead;
+import ru.mentee.power.crm.model.LeadStatus;
 
 class InMemoryLeadRepositoryTest {
+  InMemoryLeadRepository leadRepository;
+  private Lead lead;
+  private UUID leadId;
+
+  @BeforeEach
+  void setUp() {
+    leadId = UUID.randomUUID();
+    leadId = UUID.randomUUID();
+    lead = new Lead(leadId, "test@example.ru", "SomeCompany", LeadStatus.NEW);
+
+    leadRepository = new InMemoryLeadRepository();
+  }
 
   @Test
   void  shouldAddLeadWhenDataIsValid () {
-
-    Address address = new Address("NY", "123 Main st.", "123456");
-    Contact contact = new Contact("mail@example.ru", "+71234567890", address);
-
-    Lead lead = new Lead(UUID.randomUUID(), contact, "TestCorp", "NEW");
-
-    InMemoryLeadRepository leadRepository = new InMemoryLeadRepository();
-
-    leadRepository.add(lead);
+    leadRepository.save(lead);
 
     assertThat(leadRepository.findAll().size()).isEqualTo(1);
   }
 
   @Test
-  void shouldThrowExceptionWhenAddDuplicateByIdLeads() {
-    Address firstAddress = new Address("NY", "123 Main st.", "123456");
-    Contact firstContact = new Contact("mail@example.ru", "+71234567890", firstAddress);
+  void shouldNotAddDuplicateByIdLeads() {
 
-    Address secondAddress = new Address("NY", "123 Main st.", "123456");
-    Contact secondContact = new Contact("mail@example.ru", "+71234567890", secondAddress);
+    Lead duplicatedLead = new Lead(leadId, "test1@example.ru", "FirstCompany", LeadStatus.NEW);
 
-    UUID id = UUID.randomUUID();
+    leadRepository.save(lead);
 
-    Lead firstLead = new Lead(id, firstContact, "TestCorp", "NEW");
-    Lead secondLead = new Lead(id, secondContact, "TestCorp", "NEW");
-
-    InMemoryLeadRepository leadRepository = new InMemoryLeadRepository();
-
-    leadRepository.add(firstLead);
-
-    assertThatThrownBy(() -> leadRepository.add(secondLead))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("This lead already exists!");
+    assertThat(leadRepository.findAll().size()).isEqualTo(1);
   }
 
   @Test
   void shouldReturnEmptyWhenFindByNullId() {
-    Address address = new Address("NY", "123 Main st.", "123456");
-    Contact contact = new Contact("mail@example.ru", "+71234567890", address);
-
-    Lead lead = new Lead(UUID.randomUUID(), contact, "TestCorp", "NEW");
-
-    InMemoryLeadRepository leadRepository = new InMemoryLeadRepository();
-
-    leadRepository.add(lead);
-
     assertThat(leadRepository.findById(null)).isNotPresent();
   }
 
   @Test
   void shouldReturnEmptyWhenTryToFindDontExistLead() {
-    Address address = new Address("NY", "123 Main st.", "123456");
-    Contact contact = new Contact("mail@example.ru", "+71234567890", address);
-
-    Lead lead = new Lead(UUID.randomUUID(), contact, "TestCorp", "NEW");
-
-    InMemoryLeadRepository leadRepository = new InMemoryLeadRepository();
-
-    leadRepository.add(lead);
-
     assertThat(leadRepository.findById(UUID.randomUUID())).isNotPresent();
   }
 
   @Test
   void shouldReturnLeadWhenTryToFindExistLead() {
-    Address address = new Address("NY", "123 Main st.", "123456");
-    Contact contact = new Contact("mail@example.ru", "+71234567890", address);
 
-    Lead firstLead = new Lead(UUID.randomUUID(), contact, "TestCorp", "NEW");
-    Lead secondLead = new Lead(UUID.randomUUID(), contact, "TestCorp", "NEW");
+    Lead secondLead = new Lead(UUID.randomUUID(), "test2@example.ru",
+        "SomeCompany", LeadStatus.NEW);
 
-    InMemoryLeadRepository leadRepository = new InMemoryLeadRepository();
+    leadRepository.save(lead);
+    leadRepository.save(secondLead);
 
-    leadRepository.add(firstLead);
-    leadRepository.add(secondLead);
+    Lead foundLead = leadRepository.findById(lead.id()).orElse(null);
 
-    Lead foundLead = leadRepository.findById(firstLead.id()).orElse(null);
+    assertThat(foundLead).isEqualTo(lead);
+  }
 
-    assertThat(foundLead).isEqualTo(firstLead);
+  @Test
+  void shouldReturnEmptyWhenFindByNullEmail() {
+    assertThat(leadRepository.findByEmail(null)).isNotPresent();
+  }
+
+  @Test
+  void shouldReturnEmptyWhenTryToFindByEmailDontExistLead() {
+    assertThat(leadRepository.findByEmail("no@exist.ru")).isNotPresent();
+  }
+
+  @Test
+  void shouldReturnLeadWhenTryToFindByEmailExistLead() {
+
+    Lead secondLead = new Lead(UUID.randomUUID(), "test2@example.ru",
+        "SomeCompany", LeadStatus.NEW);
+
+    leadRepository.save(lead);
+    leadRepository.save(secondLead);
+
+    Lead foundLead = leadRepository.findByEmail("test@example.ru").orElse(null);
+
+    assertThat(foundLead).isEqualTo(lead);
   }
 
   @Test
   void shouldRemoveLeadWhenItCalled() {
-    Address address = new Address("NY", "123 Main st.", "123456");
-    Contact contact = new Contact("mail@example.ru", "+71234567890", address);
 
-    Lead firstLead = new Lead(UUID.randomUUID(), contact, "TestCorp", "NEW");
-    Lead secondLead = new Lead(UUID.randomUUID(), contact, "TestCorp", "NEW");
-    Lead thirdLead = new Lead(UUID.randomUUID(), contact, "TestCorp", "NEW");
-    Lead fourthLead = new Lead(UUID.randomUUID(), contact, "TestCorp", "NEW");
-    Lead fivesLead = new Lead(UUID.randomUUID(), contact, "TestCorp", "NEW");
+    Lead secondLead = new Lead(UUID.randomUUID(), "test2@example.ru",
+        "SecondCompany", LeadStatus.NEW);
+    Lead thirdLead = new Lead(UUID.randomUUID(), "test3@example.ru",
+        "ThirdCompany", LeadStatus.NEW);
+    Lead fourthLead = new Lead(UUID.randomUUID(), "test4@example.ru",
+        "FourthCompany", LeadStatus.NEW);
+    Lead fivesLead = new Lead(UUID.randomUUID(), "test5@example.ru",
+        "FivesCompany", LeadStatus.NEW);
 
-    InMemoryLeadRepository leadRepository = new InMemoryLeadRepository();
+    leadRepository.save(lead);
+    leadRepository.save(secondLead);
+    leadRepository.save(thirdLead);
+    leadRepository.save(fourthLead);
+    leadRepository.save(fivesLead);
 
-    leadRepository.add(firstLead);
-    leadRepository.add(secondLead);
-    leadRepository.add(thirdLead);
-    leadRepository.add(fourthLead);
-    leadRepository.add(fivesLead);
-
-    leadRepository.remove(thirdLead.id());
+    leadRepository.delete(thirdLead.id());
 
     assertThat(leadRepository.findAll().size()).isEqualTo(4);
     assertThat(leadRepository.findById(thirdLead.id())).isNotPresent();
   }
 
   @Test
-  void shouldThrowExceptionWhenRemoveNonExistentLead() {
-    Address address = new Address("NY", "123 Main st.", "123456");
-    Contact contact = new Contact("mail@example.ru", "+71234567890", address);
-
-    Lead lead = new Lead(UUID.randomUUID(), contact, "TestCorp", "NEW");
-
-    InMemoryLeadRepository leadRepository = new InMemoryLeadRepository();
-
-    leadRepository.add(lead);
-
-    assertThatThrownBy(() -> leadRepository.remove(UUID.randomUUID()))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("This lead does not exists!");
+  void shouldIgnoreWhenRemoveNonExistentLead() {
+    assertThat(leadRepository.findAll().size()).isEqualTo(0);
   }
 
   @Test
   void shouldNotChangeInternalStorage() {
 
-    Address address = new Address("NY", "123 Main st.", "123456");
-    Contact contact = new Contact("mail@example.ru", "+71234567890", address);
+    Lead secondLead = new Lead(UUID.randomUUID(), "test2@example.ru",
+        "SecondCompany", LeadStatus.NEW);
 
-    Lead firstLead = new Lead(UUID.randomUUID(), contact, "TestCorp", "NEW");
-    Lead secondLead = new Lead(UUID.randomUUID(), contact, "TestCorp", "NEW");
-
-    InMemoryLeadRepository leadRepository = new InMemoryLeadRepository();
-
-    leadRepository.add(firstLead);
+    leadRepository.save(lead);
 
     leadRepository.findAll().add(secondLead);
 
     assertThat(leadRepository.findAll().size()).isEqualTo(1);
   }
-
 }
