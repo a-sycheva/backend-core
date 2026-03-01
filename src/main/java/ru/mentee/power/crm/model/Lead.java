@@ -1,12 +1,12 @@
 package ru.mentee.power.crm.model;
 
 import java.util.Objects;
+import java.util.UUID;
 
-public record Lead(String id,
+public record Lead(UUID id,
                    String email,
-                   String phone,
                    String company,
-                   String status) {
+                   LeadStatus status) {
 
   @Override
   public boolean equals(Object o) {
