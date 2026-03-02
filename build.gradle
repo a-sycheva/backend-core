@@ -24,7 +24,7 @@ java {
 }
 
 application {
-    mainClass = 'ru.mentee.power.Main'
+    mainClass = 'ru.mentee.power.crm.Main'
 
 }
 
