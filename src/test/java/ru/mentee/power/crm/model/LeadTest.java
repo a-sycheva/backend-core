@@ -2,9 +2,9 @@ package ru.mentee.power.crm.model;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-import org.junit.jupiter.api.Test;
-
 import java.util.UUID;
+
+import org.junit.jupiter.api.Test;
 
 class LeadTest {
 
@@ -19,7 +19,8 @@ class LeadTest {
 
   @Test
   void shouldReturnFalseWhenEqualsNullOrNoninstanceObjects() {
-    Lead firstLead = new Lead(UUID.randomUUID(), "test1@example.ru", "+71234567890", LeadStatus.NEW);
+    Lead firstLead = new Lead(UUID.randomUUID(), "test1@example.ru",
+        "+71234567890", LeadStatus.NEW);
     String someString = "some string";
 
     assertThat(firstLead.equals(null)).isFalse();

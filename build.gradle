@@ -3,6 +3,7 @@ plugins {
     id 'application'
     id 'checkstyle'
     id 'jacoco'
+    id 'com.bakdata.mockito' version '1.9.0'
 }
 
 check.dependsOn checkstyleMain
@@ -39,6 +40,15 @@ dependencies {
 
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+    testImplementation 'org.mockito:mockito-core:5.14.2'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.14.2'
+
+    implementation 'net.bytebuddy:byte-buddy:1.17.6'
+    implementation 'net.bytebuddy:byte-buddy-agent:1.17.6'
+
+    testImplementation 'net.bytebuddy:byte-buddy:1.17.6'
+    testImplementation 'net.bytebuddy:byte-buddy-agent:1.17.6'
 
 }
 
