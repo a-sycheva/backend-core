@@ -17,7 +17,8 @@ import ru.mentee.power.crm.service.LeadService;
 public class LeadListServlet extends HttpServlet {
 
   @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
     System.out.println("GET /leads request received");
 
     ServletContext context = getServletContext();
@@ -47,13 +48,13 @@ public class LeadListServlet extends HttpServlet {
     writer.println("</thead>");
     writer.println("<tbody>");
 
-      for (Lead lead : leads) {
-        writer.println("<tr>");
-        writer.println("<td>" + lead.email() + "</td>");
-        writer.println("<td>" + lead.company() + "</td>");
-        writer.println("<td>" + lead.status() + "</td>");
-        writer.println("</tr>");
-      }
+    for (Lead lead : leads) {
+      writer.println("<tr>");
+      writer.println("<td>" + lead.email() + "</td>");
+      writer.println("<td>" + lead.company() + "</td>");
+      writer.println("<td>" + lead.status() + "</td>");
+      writer.println("</tr>");
+    }
 
     writer.println("</tbody>");
     writer.println("</table>");
