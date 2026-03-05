@@ -6,10 +6,18 @@ import static org.mockito.Mockito.when;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+
+import gg.jte.ContentType;
+import gg.jte.TemplateEngine;
+import gg.jte.output.WriterOutput;
+import gg.jte.resolve.DirectoryCodeResolver;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -35,6 +43,8 @@ class LeadListServletTest {
   @Mock
   private LeadService mockService;
 
+  TemplateEngine templateEngine;
+
   @BeforeEach
   void setUp () {
     servlet = new LeadListServlet() {
@@ -43,6 +53,9 @@ class LeadListServletTest {
         return mockContext;
       }
     };
+    Path templatePath = Path.of("src/main/jte");
+    DirectoryCodeResolver codeResolver = new DirectoryCodeResolver(templatePath);
+    templateEngine = TemplateEngine.create(codeResolver, ContentType.Html);
   }
 
   @Test
@@ -59,19 +72,20 @@ class LeadListServletTest {
     StringWriter stringWriter = new StringWriter();
     PrintWriter printWriter = new PrintWriter(stringWriter);
     when(mockResp.getWriter()).thenReturn(printWriter);
-
     when(mockContext.getAttribute("LeadService")).thenReturn(mockService);
     when(mockService.findAll()).thenReturn(leads);
+
+    servlet.templateEngine = templateEngine;
 
     servlet.doGet(mockReq, mockResp);
 
     verify(mockService).findAll();
 
     String htmlResp = stringWriter.toString();
-    assertThat(htmlResp).contains("<head><title>CRM - Lead List</title></head>")
-        .contains("<th>Email</th>").
-        contains("<td>" + firstLead.email() + "</td>").
-        contains("<td>" + secondLead.email() + "</td>").
+    assertThat(htmlResp).contains("<title>CRM - Lead Management</title>")
+        .contains("Email</th>").
+        contains(firstLead.email() + "</td>").
+        contains(secondLead.email() + "</td>").
         contains("</html>");
   }
 
@@ -80,13 +94,23 @@ class LeadListServletTest {
     StringWriter stringWriter = new StringWriter();
     PrintWriter printWriter = new PrintWriter(stringWriter);
     when(mockResp.getWriter()).thenReturn(printWriter);
-
     when(mockContext.getAttribute("LeadService")).thenReturn(mockService);
+
+    servlet.templateEngine = templateEngine;
 
     servlet.doGet(mockReq, mockResp);
 
     verify(mockContext).getAttribute("LeadService");
     verify(mockResp).setContentType("text/html; charset=UTF-8");
     verify(mockResp).setStatus(200);
+  }
+
+  @Test
+  void shouldInitializeEngine() {
+    LeadListServlet servlet = new LeadListServlet();
+
+    servlet.init();
+
+    assertThat(servlet.getTemplateEngine()).isNotNull();
   }
 }

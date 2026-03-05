@@ -1,9 +1,15 @@
 package ru.mentee.power.crm.servlet;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import gg.jte.ContentType;
+import gg.jte.TemplateEngine;
+import gg.jte.output.WriterOutput;
+import gg.jte.resolve.DirectoryCodeResolver;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -15,6 +21,15 @@ import ru.mentee.power.crm.service.LeadService;
 
 @WebServlet("/leads")
 public class LeadListServlet extends HttpServlet {
+
+  TemplateEngine templateEngine;
+
+  @Override
+  public void init() {
+    Path templatePath = Path.of("src/main/jte");
+    DirectoryCodeResolver codeResolver = new DirectoryCodeResolver(templatePath);
+    this.templateEngine = TemplateEngine.create(codeResolver, ContentType.Html);
+  }
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -28,39 +43,18 @@ public class LeadListServlet extends HttpServlet {
 
     System.out.println("Found " + leads.size() + " leads");
 
+    Map<String, Object> model = new HashMap<>();
+    model.put("leads", leads);
+
     resp.setContentType("text/html; charset=UTF-8");
     resp.setStatus(200);
 
-    PrintWriter writer = resp.getWriter();
-
-    writer.println("<!DOCTYPE html>");
-    writer.println("<html>");
-    writer.println("<head><title>CRM - Lead List</title></head>");
-    writer.println("<body>");
-    writer.println("<h1>Lead List</h1>");
-    writer.println("<table border='1'>");
-    writer.println("<thead>");
-    writer.println("<tr>");
-    writer.println("<th>Email</th>");
-    writer.println("<th>Company</th>");
-    writer.println("<th>Status</th>");
-    writer.println("</tr>");
-    writer.println("</thead>");
-    writer.println("<tbody>");
-
-    for (Lead lead : leads) {
-      writer.println("<tr>");
-      writer.println("<td>" + lead.email() + "</td>");
-      writer.println("<td>" + lead.company() + "</td>");
-      writer.println("<td>" + lead.status() + "</td>");
-      writer.println("</tr>");
-    }
-
-    writer.println("</tbody>");
-    writer.println("</table>");
-    writer.println("</body>");
-    writer.println("</html>");
+    templateEngine.render("leads/list.jte", model, new WriterOutput(resp.getWriter()));
 
     System.out.println("Response sent successfully");
+  }
+
+  TemplateEngine getTemplateEngine() {
+    return templateEngine;
   }
 }

@@ -21,6 +21,7 @@ public class Main {
     leadService.addLead("text3@example.ru", "ThirdComp", LeadStatus.NEW);
     leadService.addLead("text4@example.ru", "ForthComp", LeadStatus.NEW);
     leadService.addLead("text5@example.ru", "FivesComp", LeadStatus.NEW);
+    leadService.addLead("<script>alert('XSS')</script>", "XssComp", LeadStatus.NEW);
 
     Tomcat tomcat = new Tomcat();
     tomcat.setPort(8080);
