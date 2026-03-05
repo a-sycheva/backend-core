@@ -8,15 +8,11 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-
 
 import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
-import gg.jte.output.WriterOutput;
 import gg.jte.resolve.DirectoryCodeResolver;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
