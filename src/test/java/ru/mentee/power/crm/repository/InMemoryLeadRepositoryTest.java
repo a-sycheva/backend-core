@@ -114,7 +114,17 @@ class InMemoryLeadRepositoryTest {
 
   @Test
   void shouldIgnoreWhenRemoveNonExistentLead() {
-    assertThat(leadRepository.findAll().size()).isEqualTo(0);
+    Lead secondLead = new Lead(UUID.randomUUID(), "test2@example.ru",
+        "SecondCompany", LeadStatus.NEW);
+    Lead thirdLead = new Lead(UUID.randomUUID(), "test3@example.ru",
+        "ThirdCompany", LeadStatus.NEW);
+
+    leadRepository.save(lead);
+    leadRepository.save(secondLead);
+
+    leadRepository.delete(thirdLead.id());
+
+    assertThat(leadRepository.findAll().size()).isEqualTo(2);
   }
 
   @Test
