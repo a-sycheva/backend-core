@@ -12,7 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class HelloCrmServerTest {
-  private final int port = 8081;
+  private final int port = 8082;
   static String host = "127.0.0.1";
   private HelloCrmServer server;
   static HttpClient client;
