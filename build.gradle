@@ -26,6 +26,7 @@ ext {
     tomcatVersion = '11.0.1'
     jteVersion = '3.1.15'
     springBootVersion = '3.5.7'
+    jteSpringBootVersion = '3.1.15'
 }
 
 java {
@@ -70,6 +71,8 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
+    implementation "gg.jte:jte-spring-boot-starter-3:${jteSpringBootVersion}"
+    implementation "gg.jte:jte:${jteVersion}"
 }
 
 jte {

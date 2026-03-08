@@ -3,7 +3,7 @@ package ru.mentee.power.crm.spring;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "ru.mentee.power.crm")
 public class Application {
   public static void main(String[] args) {
     SpringApplication.run(Application.class, args);
