@@ -4,13 +4,19 @@ plugins {
     id 'checkstyle'
     id 'jacoco'
     id 'com.bakdata.mockito' version '1.9.0'
-    id 'gg.jte.gradle' version '3.1.15'  // Добавить JTE plugin
+    id 'gg.jte.gradle' version '3.1.15'
+    id 'org.springframework.boot' version '3.5.7'
+    id 'io.spring.dependency-management' version '1.1.7'
 }
 
 check.dependsOn checkstyleMain
 
 group = 'ru.mentee.power'
 version = '1.0-SNAPSHOT'
+
+bootRun {
+    mainClass = "ru.mentee.power.crm.spring.Application"  // имя твоего Spring Boot класса
+}
 
 ext {
     junitVersion = '5.11.0'
@@ -19,6 +25,7 @@ ext {
     servletVersion = '6.1.0'
     tomcatVersion = '11.0.1'
     jteVersion = '3.1.15'
+    springBootVersion = '3.5.7'
 }
 
 java {
@@ -59,6 +66,9 @@ dependencies {
 
     implementation "gg.jte:jte:${jteVersion}"
     implementation "gg.jte:jte-runtime:${jteVersion}"
+
+    implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 }
 
@@ -107,7 +117,8 @@ jacocoTestReport {
     afterEvaluate {
         classDirectories.setFrom(files(classDirectories.files.collect { dir ->
             fileTree(dir: dir, exclude: [
-                    '**/Main.class'
+                    '**/Main.class',
+                    '**/Application.class'
             ])
         }))
     }
@@ -128,7 +139,8 @@ jacocoTestCoverageVerification {
     afterEvaluate {
         classDirectories.setFrom(files(classDirectories.files.collect { dir ->
             fileTree(dir: dir, exclude: [
-                    '**/Main.class'
+                    '**/Main.class',
+                    '**/Application.class'
             ])
         }))
     }
