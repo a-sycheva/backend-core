@@ -95,7 +95,7 @@ class LeadServiceTest {
       "CONTACTED, 5",
       "QUALIFIED, 2"
   })
-  void shouldReturnOnlyNeededLeads_whenFindByStatus(String status, int count) {
+  void shouldReturnOnlyNeededLeadsWhenFindByStatus(String status, int count) {
     service.addLead("one@example.com", "Company 1", LeadStatus.NEW);
     service.addLead("two@example.com", "Company 2", LeadStatus.CONTACTED);
     service.addLead("three@example.com", "Company 3", LeadStatus.QUALIFIED);
@@ -114,7 +114,7 @@ class LeadServiceTest {
   }
 
   @Test
-  void shouldReturnEmptyList_whenNoLeadsWithStatusQualified() {
+  void shouldReturnEmptyListWhenNoLeadsWithStatusQualified() {
     service.addLead("one@example.com", "Company 1", LeadStatus.NEW);
     service.addLead("two@example.com", "Company 2", LeadStatus.CONTACTED);
     service.addLead("three@example.com", "Company 3", LeadStatus.NEW);
@@ -125,7 +125,7 @@ class LeadServiceTest {
   }
 
   @Test
-  void shouldReturnEmptyList_whenNoLeadsWithStatusNew() {
+  void shouldReturnEmptyListWhenNoLeadsWithStatusNew() {
     service.addLead("one@example.com", "Company 1", LeadStatus.QUALIFIED);
     service.addLead("two@example.com", "Company 2", LeadStatus.CONTACTED);
     service.addLead("three@example.com", "Company 3", LeadStatus.QUALIFIED);
@@ -136,7 +136,7 @@ class LeadServiceTest {
   }
 
   @Test
-  void shouldReturnEmptyList_whenNoLeadsWithStatusContact() {
+  void shouldReturnEmptyListWhenNoLeadsWithStatusContact() {
     service.addLead("one@example.com", "Company 1", LeadStatus.NEW);
     service.addLead("two@example.com", "Company 2", LeadStatus.QUALIFIED);
     service.addLead("three@example.com", "Company 3", LeadStatus.NEW);
