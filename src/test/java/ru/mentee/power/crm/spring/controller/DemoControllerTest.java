@@ -29,9 +29,13 @@ class DemoControllerTest {
   void shouldShowDIStatus() throws Exception {
     mockMvc.perform(get("/demo"))
         .andExpect(status().isOk())
-        .andExpect(content().string(containsString("Constructor Injection (final): ✓ Injected")))
-        .andExpect(content().string(containsString("Field Injection (@Autowired field): ✓ Injected")))
-        .andExpect(content().string(containsString("Setter Injection (@Autowired setter): ✓ Injected")))
-        .andExpect(content().string(containsString("Recommendation: Use Constructor Injection with final fields.")));
+        .andExpect(content().string(containsString
+            ("Constructor Injection (final): ✓ Injected")))
+        .andExpect(content().string(containsString
+            ("Field Injection (@Autowired field): ✓ Injected")))
+        .andExpect(content().string(containsString
+            ("Setter Injection (@Autowired setter): ✓ Injected")))
+        .andExpect(content().string(containsString
+            ("Recommendation: Use Constructor Injection with final fields.")));
   }
 }

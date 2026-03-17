@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
@@ -22,7 +21,6 @@ import ru.mentee.power.crm.service.LeadService;
 
 @Controller
 @RequiredArgsConstructor
-//@RequestMapping("/leads")
 public class LeadController {
   private final LeadService leadService;
 
@@ -66,14 +64,14 @@ public class LeadController {
           HttpStatus.NOT_FOUND,
           "Cannot find lead with id " + id);
     } else {
-    model.addAttribute("lead", lead.get());
+      model.addAttribute("lead", lead.get());
     }
     return "spring/edit";
   }
 
   @PostMapping("/leads/{id}")
   public String updateLead(@PathVariable UUID id, @ModelAttribute Lead lead) {
-    leadService.update(id,lead);
+    leadService.update(id, lead);
     return "redirect:/leads";
   }
 

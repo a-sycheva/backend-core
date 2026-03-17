@@ -14,7 +14,7 @@ public class FieldInjectionProblemTest {
     // поэтому нет NPE
 
     assertThat(controller)
-        .extracting("constructorService","fieldRepository", "setterService")
+        .extracting("constructorService", "fieldRepository", "setterService")
         .containsOnlyNulls();
   }
 }
