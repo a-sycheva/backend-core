@@ -90,6 +90,8 @@ class LeadControllerTest {
     mockMvc.perform(post("/leads/" + UUID.randomUUID()))
         .andExpect(status().isNotFound());
 
+    mockMvc.perform(get("/leads/" + UUID.randomUUID() + "/edit"))
+        .andExpect(status().isNotFound());
   }
 
   @Test
