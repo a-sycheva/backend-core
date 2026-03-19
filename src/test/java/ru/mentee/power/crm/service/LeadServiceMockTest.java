@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.server.ResponseStatusException;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.repository.LeadRepository;
@@ -91,6 +92,30 @@ class LeadServiceMockTest {
     var inOrder = inOrder(mockRepository);
     inOrder.verify(mockRepository).findByEmail("test@example.com");
     inOrder.verify(mockRepository).save(any(Lead.class));
+  }
+
+  @Test
+  void shouldCallDeleteWhenLeadIsExist() {
+    UUID id = UUID.randomUUID();
+
+    Lead lead = new Lead(id, "test@example.ru",
+        "TestCorp", LeadStatus.NEW);
+
+    when(mockRepository.findById(any(UUID.class))).
+        thenReturn(Optional.of(lead));
+
+    service.delete(id);
+
+    verify(mockRepository).delete(id);
+  }
+
+  @Test
+  void shouldThrowExceptionWhenDeleteNotExistedLead() {
+    when(mockRepository.findById(any(UUID.class))).
+        thenReturn(Optional.empty());
+
+    assertThatThrownBy(() -> service.delete(UUID.randomUUID()))
+        .isInstanceOf(ResponseStatusException.class);
   }
 
 }
