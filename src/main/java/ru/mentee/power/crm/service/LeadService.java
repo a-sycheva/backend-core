@@ -66,6 +66,15 @@ public class LeadService {
     return repository.save(updLead);
   }
 
+  public void delete(UUID id) {
+    if (repository.findById(id).isEmpty()) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+          "Lead with id = " + id + "not exists!");
+    } else {
+      repository.delete(id);
+    }
+  }
+
   public List<Lead> findAll() {
     return repository.findAll();
   }

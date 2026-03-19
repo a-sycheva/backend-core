@@ -75,6 +75,18 @@ public class LeadController {
     return "redirect:/leads";
   }
 
+  @PostMapping("/leads/{id}/delete")
+  public String deleteLead(@PathVariable UUID id) {
+    if(leadService.findById(id).isEmpty()) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+          "Lead with id = " + id +"not exists");
+    } else {
+      leadService.delete(id);
+    }
+
+    return "redirect:/leads";
+  }
+
 }
 
 
