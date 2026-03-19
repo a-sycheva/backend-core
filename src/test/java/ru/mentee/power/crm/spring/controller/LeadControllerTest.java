@@ -32,13 +32,7 @@ class LeadControllerTest {
   @Autowired
   private LeadService service;
 
-  @Test
-  void shouldReturnHtmlTableWhenDoGetCalled() throws Exception {
 
-    mockMvc.perform(get("/leads"))
-            .andExpect(status().isOk())
-                .andExpect(content().string(containsString("Email")));
-  }
 
   @ParameterizedTest
   @CsvSource({

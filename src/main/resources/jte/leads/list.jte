@@ -47,6 +47,7 @@
                 <th class="px-4 py-2 text-left">Company</th>
                 <th class="px-4 py-2 text-left">Status</th>
                 <th class="px-4 py-2 text-left"></th>
+                <th class="px-4 py-2 text-left"></th>
             </tr>
             </thead>
             <tbody>
@@ -66,6 +67,19 @@
                         >
                             Редактировать
                         </a>
+                    </td>
+                    <td>
+                        <form action="/leads/${lead.id().toString()}/delete"
+                              method="post" class="inline"
+                              onclick="return confirm('Удалить лида c e-mail: ${lead.email()}?')"
+                        >
+                            <button
+                                    type="submit"
+                                    class="bg-red-600 text-white px-2 rounded hover:bg-red-700"
+                            >
+                                Удалить
+                            </button>
+                        </form>
                     </td>
                 </tr>
             @endfor
