@@ -132,8 +132,8 @@ class LeadServiceMockTest {
     leads.add(secondLead);
     when(mockRepository.findAll()).thenReturn(leads);
 
-    List<Lead> result = service.leadsList(null, null, null);
-    List<Lead> anotherResult = service.leadsList("", "", null);
+    List<Lead> result = service.findLeads(null, null, null);
+    List<Lead> anotherResult = service.findLeads("", "", null);
 
     assertThat(result).isEqualTo(leads);
     assertThat(anotherResult).isEqualTo(leads);
@@ -151,7 +151,7 @@ class LeadServiceMockTest {
     leads.add(secondLead);
     when(mockRepository.findAll()).thenReturn(leads);
 
-    List<Lead> result = service.leadsList("example", null, null);
+    List<Lead> result = service.findLeads("example", null, null);
 
     assertThat(result).contains(secondLead);
   }
@@ -168,7 +168,7 @@ class LeadServiceMockTest {
     leads.add(secondLead);
     when(mockRepository.findAll()).thenReturn(leads);
 
-    List<Lead> result = service.leadsList(null, "ExCorp", null);
+    List<Lead> result = service.findLeads(null, "ExCorp", null);
 
     assertThat(result).contains(secondLead);
   }
@@ -185,7 +185,7 @@ class LeadServiceMockTest {
     leads.add(secondLead);
     when(mockRepository.findAll()).thenReturn(leads);
 
-    List<Lead> result = service.leadsList(null, null, LeadStatus.CONTACTED);
+    List<Lead> result = service.findLeads(null, null, LeadStatus.CONTACTED);
 
     assertThat(result).contains(secondLead);
   }

@@ -36,7 +36,7 @@ public class LeadController {
       @RequestParam(required = false) String company,
       @RequestParam(required = false) LeadStatus status,
       Model model) {
-    List<Lead> leads = leadService.leadsList(email, company, status);
+    List<Lead> leads = leadService.findLeads(email, company, status);
 
     model.addAttribute("leads", leads);
     model.addAttribute("email", email);

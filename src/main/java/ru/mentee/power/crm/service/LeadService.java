@@ -94,7 +94,7 @@ public class LeadService {
         .collect(Collectors.toList());
   }
 
-  public List<Lead> leadsList(String email, String company, LeadStatus status) {
+  public List<Lead> findLeads(String email, String company, LeadStatus status) {
     Stream<Lead> stream = repository.findAll().stream();
     if (email != null && !email.isBlank()) {
       stream = stream.filter(lead -> lead.email().toLowerCase().contains(email.toLowerCase()));
