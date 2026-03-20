@@ -5,6 +5,9 @@ spring:
   application:
     name: mentee-power-crm
 
+logging:
+  level:
+    root: debug
 
 gg:
   jte:
