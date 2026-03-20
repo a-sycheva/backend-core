@@ -32,8 +32,6 @@ class LeadControllerTest {
   @Autowired
   private LeadService service;
 
-
-
   @ParameterizedTest
   @CsvSource({
       "NEW",
