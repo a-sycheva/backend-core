@@ -4,10 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -73,4 +77,66 @@ public class LeadControllerUnitTest {
 
     verify(leadService).delete(id);
   }
+
+  @Test
+  void shouldReturnLeadsWhenFilteredByEmail() throws Exception {
+    Lead lead = new Lead(UUID.randomUUID(), "test@example.ru", "TestCorp", LeadStatus.NEW);
+    List<Lead> leads = new ArrayList<>();
+    leads.add(lead);
+
+    when(leadService.leadsList("test", null, null))
+        .thenReturn(leads);
+
+    mockMvc.perform(get("/leads").param("email", "test"))
+        .andExpect(status().isOk())
+        .andExpect(model().attribute("leads", leads))
+        .andExpect(model().attribute("email", "test"));
+  }
+
+  @Test
+  void shouldReturnLeadsWhenFilteredByStatus() throws Exception {
+    Lead lead = new Lead(UUID.randomUUID(), "test@example.ru", "TestCorp", LeadStatus.NEW);
+    List<Lead> leads = new ArrayList<>();
+    leads.add(lead);
+
+    when(leadService.leadsList(null, null, LeadStatus.NEW))
+        .thenReturn(leads);
+
+    mockMvc.perform(get("/leads").param("status", "NEW"))
+        .andExpect(status().isOk())
+        .andExpect(model().attribute("leads", leads))
+        .andExpect(model().attribute("status", LeadStatus.NEW));
+  }
+
+  @Test
+  void shouldReturnLeadsWhenFilteredByEmailAndStatus() throws Exception {
+    Lead lead = new Lead(UUID.randomUUID(), "test@example.ru", "TestCorp", LeadStatus.NEW);
+    List<Lead> leads = new ArrayList<>();
+    leads.add(lead);
+
+    when(leadService.leadsList("test", null, LeadStatus.NEW))
+        .thenReturn(leads);
+
+    mockMvc.perform(get("/leads").
+            param("status", "NEW").param("email", "test"))
+        .andExpect(status().isOk())
+        .andExpect(model().attribute("leads", leads))
+        .andExpect(model().attribute("status", LeadStatus.NEW))
+        .andExpect(model().attribute("email", "test"));
+  }
+
+  @Test
+  void shouldReturnLeadsWithoutFilter() throws Exception {
+    Lead lead = new Lead(UUID.randomUUID(), "test@example.ru", "TestCorp", LeadStatus.NEW);
+    List<Lead> leads = new ArrayList<>();
+    leads.add(lead);
+
+    when(leadService.leadsList(null, null, null))
+        .thenReturn(leads);
+
+    mockMvc.perform(get("/leads"))
+        .andExpect(status().isOk())
+        .andExpect(model().attribute("leads", leads));
+  }
+
 }

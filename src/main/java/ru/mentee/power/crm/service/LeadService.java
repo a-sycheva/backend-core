@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
@@ -91,5 +92,19 @@ public class LeadService {
     return  repository.findAll().stream()
         .filter(lead -> lead.status().equals(status))
         .collect(Collectors.toList());
+  }
+
+  public List<Lead> leadsList(String email, String company, LeadStatus status) {
+    Stream<Lead> stream = repository.findAll().stream();
+    if (email != null && !email.isBlank()) {
+      stream = stream.filter(lead -> lead.email().toLowerCase().contains(email.toLowerCase()));
+    }
+    if (company != null && !company.isBlank()) {
+      stream = stream.filter(lead -> lead.company().toLowerCase().contains(company.toLowerCase()));
+    }
+    if (status != null) {
+      stream = stream.filter(lead -> lead.status().equals(status));
+    }
+    return stream.collect(Collectors.toList());
   }
 }

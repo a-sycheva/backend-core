@@ -4,42 +4,69 @@
 @import ru.mentee.power.crm.model.LeadStatus
 
 @param List<Lead> leads
-@param LeadStatus currentFilter
+@param LeadStatus status
+@param String email
+@param String company
 
 @template.layout.main(content = @`
     <div class="bg-white rounded-lg shadow-md p-6">
         <h2 class="text-2xl font-bold mb-4">Lead List</h2>
 
-        <div class="mb-4 flex gap-2 justify-between items-center">
-            <a href="/leads"
-               class="px-4 py-2 rounded ${currentFilter == null ? "bg-blue-500" : "bg-gray-200 text-white"}">
-                Все
-            </a>
-            <a href="/leads?status=NEW"
-               class="px-4 py-2 rounded ${currentFilter == LeadStatus.NEW ? "bg-blue-500 text-white" : "bg-gray-200"}">
-                NEW
-            </a>
-            <a href="/leads?status=CONTACTED"
-               class="px-4 py-2 rounded ${currentFilter == LeadStatus.CONTACTED ? "bg-blue-500 text-white" : "bg-gray-200"}">
-                CONTACTED
-            </a>
-            <a href="/leads?status=QUALIFIED"
-               class="px-4 py-2 rounded ${currentFilter == LeadStatus.QUALIFIED ? "bg-blue-500 text-white" : "bg-gray-200"}">
-                QUALIFIED
-            </a>
-
+        <div>
             <a
                     href="/leads/new"
-                    class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                    class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600"
             >
                 + Добавить лида
             </a>
         </div>
+        <br>
 
-        @if(currentFilter != null)
-            <p class="text-sm text-gray-600 mb-2">Показаны лиды со статусом: ${currentFilter}</p>
-        @endif
+        <div class="mb-4 flex gap-2 justify-between items-center">
+            <form action="/leads" method="get" class="px-4 py-2 rounded bg-blue-500">
+                <label for="email">
+                    Email:
+                    <input type="text" name="email" value="${email}">
+                </label>
+                <label for="company">
+                    Company:
+                    <input type="text" name="company" value="${company}">
+                </label>
+                <label for="status">
+                    Status
+                    <select name="status">
+                        @if(status == null)
+                            <option value="" selected></option>
+                        @else
+                            <option value=""></option>
+                        @endif
 
+                        @if(status == LeadStatus.NEW)
+                            <option value="NEW" selected>Новый</option>
+                        @else
+                            <option value="NEW">Новый</option>
+                        @endif
+
+                        @if(status == LeadStatus.CONTACTED)
+                            <option value="CONTACTED" selected>Связались</option>
+                        @else
+                            <option value="CONTACTED">Связались</option>
+                        @endif
+
+                        @if(status == LeadStatus.QUALIFIED)
+                            <option value="QUALIFIED" selected>Квалифицированный</option>
+                        @else
+                            <option value="QUALIFIED">Квалифицированный</option>
+                        @endif
+                    </select>
+                </label>
+                <button type="submit"
+                        class="bg-white rounded px-1 py-1 hover:bg-gray-200"
+                >
+                    Поиск
+                </button>
+            </form>
+        </div>
         <table class="min-w-full bg-white border border-gray-200">
             <thead class="bg-gray-100">
             <tr>

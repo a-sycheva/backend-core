@@ -32,28 +32,35 @@ public class LeadController {
 
   @GetMapping("/leads")
   public String showLeads(
-      @RequestParam(required = false) LeadStatus status, Model model) {
-    List<Lead> leads = (status == null)
-        ? leadService.findAll()
-        : leadService.findByStatus(status);
+      @RequestParam(required = false) String email,
+      @RequestParam(required = false) String company,
+      @RequestParam(required = false) LeadStatus status,
+      Model model) {
+    List<Lead> leads = leadService.leadsList(email, company, status);
 
     model.addAttribute("leads", leads);
-    model.addAttribute("currentFilter", status);
+    model.addAttribute("email", email);
+    model.addAttribute("company", company);
+    model.addAttribute("status", status);
+
     return "leads/list";
   }
 
-  @PostMapping("/leads")
-  public String createLead(@ModelAttribute Lead lead) {
-    leadService.addLead(lead.email(), lead.company(), lead.status());
-    return "redirect:/leads";
-  }
-
+  //форма создания лида
   @GetMapping("/leads/new")
   public String showCreateForm(Model model) {
     model.addAttribute("lead", new Lead(null, "", "", LeadStatus.NEW));
     return "leads/create";
   }
 
+  //создание лида
+  @PostMapping("/leads")
+  public String createLead(@ModelAttribute Lead lead) {
+    leadService.addLead(lead.email(), lead.company(), lead.status());
+    return "redirect:/leads";
+  }
+
+  //форма обновления лида
   @GetMapping("/leads/{id}/edit")
   public String showEditForm(@PathVariable UUID id, Model model) {
 
@@ -69,12 +76,14 @@ public class LeadController {
     return "spring/edit";
   }
 
+  //обновление лида
   @PostMapping("/leads/{id}")
   public String updateLead(@PathVariable UUID id, @ModelAttribute Lead lead) {
     leadService.update(id, lead);
     return "redirect:/leads";
   }
 
+  //удаление лида
   @PostMapping("/leads/{id}/delete")
   public String deleteLead(@PathVariable UUID id) {
     if (leadService.findById(id).isEmpty()) {
