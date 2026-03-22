@@ -121,6 +121,17 @@ class LeadServiceMockTest {
   }
 
   @Test
+  void shouldThrowExceptionWhenUpdateNotExistedLead() {
+    when(mockRepository.findById(any(UUID.class))).
+        thenReturn(Optional.empty());
+
+    assertThatThrownBy(() -> service.update(UUID.randomUUID(),
+        new Lead(UUID.randomUUID(), "test@test.ru",
+            "TestCorp", LeadStatus.NEW)))
+        .isInstanceOf(ResponseStatusException.class);
+  }
+
+  @Test
   void shouldFindLeadsWithoutFilter() {
 
     Lead lead = new Lead(UUID.randomUUID(), "test@test.ru",
