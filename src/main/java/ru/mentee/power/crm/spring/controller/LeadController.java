@@ -4,10 +4,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -55,9 +57,14 @@ public class LeadController {
 
   //создание лида
   @PostMapping("/leads")
-  public String createLead(@ModelAttribute Lead lead) {
-    leadService.addLead(lead.email(), lead.company(), lead.status());
-    return "redirect:/leads";
+  public String createLead(@Valid @ModelAttribute Lead lead, BindingResult result, Model model) {
+    if (result.hasErrors()) {
+      model.addAttribute("errors", result);
+      return "leads/form";
+    } else {
+      leadService.addLead(lead.email(), lead.company(), lead.status());
+      return "redirect:/leads";
+    }
   }
 
   //форма обновления лида
@@ -78,9 +85,26 @@ public class LeadController {
 
   //обновление лида
   @PostMapping("/leads/{id}")
-  public String updateLead(@PathVariable UUID id, @ModelAttribute Lead lead) {
-    leadService.update(id, lead);
-    return "redirect:/leads";
+  public String updateLead(@PathVariable UUID id, @Valid @ModelAttribute Lead lead,
+                           BindingResult result, Model model) {
+
+    //избегаю Direct endpoint invocation
+    if (leadService.findById(id).isEmpty()) {
+
+      throw new ResponseStatusException(
+          HttpStatus.NOT_FOUND,
+          "Cannot find lead with id " + id);
+    } else {
+
+      if (result.hasErrors()) {
+        model.addAttribute("errors", result);
+        return "leads/form";
+      } else {
+        leadService.update(id, lead);
+        return "redirect:/leads";
+      }
+
+    }
   }
 
   //удаление лида
