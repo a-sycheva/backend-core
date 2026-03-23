@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,6 +80,20 @@ public class LeadControllerUnitTest {
   }
 
   @Test
+  void shouldReturnErrorWhenUpdateWithInvalidData() throws Exception {
+    UUID id = UUID.randomUUID();
+    Lead lead = new Lead(id, "test@example.ru", "TestCorp", LeadStatus.NEW);
+    when(leadService.findById(id)).thenReturn(Optional.of(lead));
+
+    mockMvc.perform(post("/leads/" + id)
+        .param("email", "testexample")
+        .param("company", "TestCorp")
+        .param("status", "NEW"))
+        .andExpect(view().name("leads/form"))
+        .andExpect(model().attributeHasFieldErrors("lead", "email"));
+  }
+
+  @Test
   void shouldReturnLeadsWhenFilteredByEmail() throws Exception {
     Lead lead = new Lead(UUID.randomUUID(), "test@example.ru", "TestCorp", LeadStatus.NEW);
     List<Lead> leads = new ArrayList<>();
@@ -139,4 +154,52 @@ public class LeadControllerUnitTest {
         .andExpect(model().attribute("leads", leads));
   }
 
+  @Test
+  void shouldReturnFormWithErrorWhenEmailIsBlank() throws Exception {
+    mockMvc.perform(post("/leads").
+        param("email", "")
+        .param("company", "TestCorp")
+        .param("status", "NEW"))
+        .andExpect(view().name("leads/form"))
+        .andExpect(model().attributeHasFieldErrors("lead", "email"));
+  }
+
+  @Test
+  void shouldReturnFormWithErrorWhenEmailIsInvalid() throws Exception {
+    mockMvc.perform(post("/leads").
+            param("email", "ololo@ololo")
+            .param("company", "TestCorp")
+            .param("status", "NEW"))
+        .andExpect(view().name("leads/form"))
+        .andExpect(model().attributeHasFieldErrors("lead", "email"));
+  }
+
+  @Test
+  void shouldRedirectWhenEmailIsValid() throws Exception {
+    mockMvc.perform(post("/leads").
+            param("email", "test@example.ru")
+            .param("company", "TestCorp")
+            .param("status", "NEW"))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(view().name("redirect:/leads"));
+  }
+
+  @Test
+  void shouldReturnFormWithErrorWhenCompanyIsBlank() throws Exception {
+    mockMvc.perform(post("/leads").
+            param("email", "test@example.ru")
+            .param("company", "")
+            .param("status", "NEW"))
+        .andExpect(view().name("leads/form"))
+        .andExpect(model().attributeHasFieldErrors("lead", "company"));
+  }
+
+  @Test
+  void shouldReturnFormWithErrorWhenStatusIsNull() throws Exception {
+    mockMvc.perform(post("/leads")
+            .param("email", "test@example.ru")
+            .param("company", "TestCorp"))
+        .andExpect(view().name("leads/form"))
+        .andExpect(model().attributeHasFieldErrors("lead", "status"));
+  }
 }
