@@ -5,6 +5,11 @@ spring:
   application:
     name: mentee-power-crm
 
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
 
 gg:
   jte:

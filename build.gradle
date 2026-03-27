@@ -78,6 +78,17 @@ dependencies {
 
     implementation "jakarta.validation:jakarta.validation-api:${validationApiVersion}"
     implementation "org.hibernate.validator:hibernate-validator:${hibernateValidatorVersion}"
+
+    // Spring Boot Starters
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // PostgreSQL JDBC Driver (для dev и production)
+    runtimeOnly 'org.postgresql:postgresql'
+
+    // H2 Database (только для тестов)
+    testRuntimeOnly 'com.h2database:h2:2.3.232'
+    runtimeOnly 'com.h2database:h2:2.3.232' //для BootRun with H2
 }
 
 jte {
