@@ -108,7 +108,7 @@ class LeadServiceMockTest {
 
     service.delete(id);
 
-    verify(mockRepository).delete(id);
+    verify(mockRepository).deleteById(id);
   }
 
   @Test

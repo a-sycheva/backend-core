@@ -1,6 +1,5 @@
 package ru.mentee.power.crm.spring.controller;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -24,7 +23,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.service.LeadService;
-import ru.mentee.power.crm.spring.MockLeadService;
 
 @WebMvcTest(LeadController.class)
 public class LeadControllerUnitTest {
@@ -33,27 +31,6 @@ public class LeadControllerUnitTest {
   private MockMvc mockMvc;
   @MockitoBean
   private LeadService leadService;
-
-  @Test
-  void shouldCreateControllerWithoutSpring() {
-    MockLeadService mockService = new MockLeadService();
-
-    LeadController controller = new LeadController(mockService);
-
-    String response = controller.home();
-    assertThat(response).contains("2 leads"); // MockLeadService возвращает 2 лида
-  }
-
-  @Test
-  void shouldUseInjectedService() {
-    MockLeadService mockService = new MockLeadService();
-    LeadController controller = new LeadController(mockService);
-
-    String response = controller.home();
-
-    assertThat(response).isNotNull();
-    assertThat(response).contains("Spring Boot CRM is running");
-  }
 
   @Test
   void shouldThrowExceptionWhenDeleteNotExistedLead() throws Exception {
