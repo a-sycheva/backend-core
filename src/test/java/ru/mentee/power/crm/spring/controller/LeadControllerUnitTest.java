@@ -5,6 +5,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -178,5 +179,20 @@ public class LeadControllerUnitTest {
             .param("company", "TestCorp"))
         .andExpect(view().name("leads/form"))
         .andExpect(model().attributeHasFieldErrors("lead", "status"));
+  }
+
+  @Test
+  void shouldReturnHomePageWithCorrectLeadCount() throws Exception {
+    List<Lead> leads = List.of(
+        new Lead(UUID.randomUUID(), "Anna", "anna@test.ru", "Corp1", LeadStatus.NEW),
+        new Lead(UUID.randomUUID(), "Bob", "bob@test.ru", "Corp2", LeadStatus.NEW)
+    );
+    when(leadService.findAll()).thenReturn(leads);
+
+    mockMvc.perform(get("/"))
+        .andExpect(status().isOk())
+        .andExpect(content().string("Spring Boot CRM is running! Leads in Database: 2 leads."));
+
+    verify(leadService).findAll();
   }
 }
