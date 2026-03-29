@@ -15,6 +15,14 @@ content = @`
         </div>
     @endif
     <div class="mb-4">
+        <label for="name">Company</label>
+        <input type="text" name="name" value="${lead.name()}"
+               class="${errors.hasFieldErrors("name") ? "border-red-500" : "border-gray-300"}">
+        @if(errors.hasFieldErrors("name"))
+            <p class="text-red-600 text-sm mt-1">${errors.getFieldError("name").getDefaultMessage()}</p>
+        @endif
+    </div>
+    <div class="mb-4">
         <label for="email">Email</label>
         <input type="text" name="email" value="${lead.email()}"
                class="${errors.hasFieldErrors("email") ? "border-red-500" : "border-gray-300"}">

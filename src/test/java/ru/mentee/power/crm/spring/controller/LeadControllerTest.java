@@ -56,6 +56,7 @@ class LeadControllerTest {
   @Test
   void shouldRedirectWhenAddLead() throws Exception {
     mockMvc.perform(post("/leads")
+            .param("name", "Dexter")
             .param("email", "test@example.ru")
             .param("company", "TestCorp")
             .param("status", "NEW"))
@@ -66,13 +67,13 @@ class LeadControllerTest {
   @Test
   void shouldShowEditForm() throws Exception {
 
-    Lead lead = service.addLead("test1@example.ru",
+    Lead lead = service.addLead("Dexter","test1@example.ru",
         "TestCorp", LeadStatus.NEW);
 
     mockMvc.perform(get("/leads/" + lead.id() + "/edit"))
         .andExpect(status().isOk())
         .andExpect(model().attribute("lead", lead))
-        .andExpect(view().name("spring/edit"))
+        .andExpect(view().name("leads/edit"))
         .andExpect(content().string((containsString("Редактирование лида"))))
         .andExpect(content().string(containsString("test1@example.ru")));
   }
@@ -88,11 +89,12 @@ class LeadControllerTest {
 
   @Test
   void shouldUpdateLead() throws Exception {
-    Lead lead = service.addLead("old@example.ru",
+    Lead lead = service.addLead("Dexter", "old@example.ru",
         "TestCorp", LeadStatus.NEW);
 
     mockMvc.perform(post("/leads/" + lead.id())
-        .param("email", "new@example.ru")
+            .param("name", "Joys")
+            .param("email", "new@example.ru")
         .param("company", "TestCorp")
         .param("status", "CONTACTED"))
         .andExpect(status().is3xxRedirection())

@@ -33,7 +33,7 @@ class LeadRepositoryTest {
 
   @Test
   void shouldFindByEmailNative_whenLeadExists() {
-    Lead lead = new Lead("native@test.com",
+    Lead lead = new Lead("Joe", "native@test.com",
         "TechCorp", LeadStatus.NEW);
     repository.save(lead);
 
@@ -52,9 +52,9 @@ class LeadRepositoryTest {
 
   @Test
   void shouldReturnLeadsWhenFindAll() {
-    Lead firstLead = new Lead("test1@test.com",
+    Lead firstLead = new Lead("Joe", "test1@test.com",
         "FirstCorp", LeadStatus.NEW);
-    Lead secondLead = new Lead("test2@test.com",
+    Lead secondLead = new Lead("Mike", "test2@test.com",
         "SecondCorp", LeadStatus.NEW);
 
     repository.save(firstLead);
@@ -67,9 +67,9 @@ class LeadRepositoryTest {
 
   @Test
   void shouldDeleteLeadWhenCalledDelete() {
-    Lead firstLead = new Lead("test1@test.com",
+    Lead firstLead = new Lead("Joe", "test1@test.com",
         "FirstCorp", LeadStatus.NEW);
-    Lead secondLead = new Lead("test2@test.com",
+    Lead secondLead = new Lead("Dexter", "test2@test.com",
         "SecondCorp", LeadStatus.NEW);
 
     repository.save(firstLead);

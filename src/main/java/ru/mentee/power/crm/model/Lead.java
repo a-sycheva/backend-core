@@ -35,6 +35,9 @@ public  class Lead {
   @EqualsAndHashCode.Include
   private  UUID id;
 
+  @Column(nullable = false)
+  private String name;
+
   @Column(nullable = false, unique = true)
   private  @NotBlank(message = "Email обязателен")
   @Email(regexp = ".+@.+\\..+", message = "Некорректный формат email") String email;
@@ -68,7 +71,15 @@ public  class Lead {
     this.status = status;
   }
 
+  //конструктор для старых тестов
   public Lead(String email, String company, LeadStatus status) {
+    this.email = email;
+    this.company = company;
+    this.status = status;
+  }
+
+  public Lead(String name, String email, String company, LeadStatus status) {
+    this.name = name;
     this.email = email;
     this.company = company;
     this.status = status;
@@ -76,6 +87,10 @@ public  class Lead {
 
   public UUID id() {
     return id;
+  }
+
+  public @NotBlank(message = "Name обязателен") String name() {
+    return name;
   }
 
   public @NotBlank(message = "Email обязателен") @Email(regexp = ".+@.+\\..+", message = "Некорректный формат email") String email() {
