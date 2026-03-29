@@ -20,7 +20,7 @@ class LeadRepositoryTest {
   private LeadRepository repository;
 
   @Test
-  void shouldSaveAndFindLeadById_whenValidData() {
+  void shouldSaveAndFindLeadByIdWhenValidData() {
     Lead lead = new Lead("test@example.com",
         "ACME", LeadStatus.NEW);
 
@@ -32,7 +32,7 @@ class LeadRepositoryTest {
   }
 
   @Test
-  void shouldFindByEmailNative_whenLeadExists() {
+  void shouldFindByEmailNativeWhenLeadExists() {
     Lead lead = new Lead("Joe", "native@test.com",
         "TechCorp", LeadStatus.NEW);
     repository.save(lead);
@@ -44,7 +44,7 @@ class LeadRepositoryTest {
   }
 
   @Test
-  void shouldReturnEmptyOptional_whenEmailNotFound() {
+  void shouldReturnEmptyOptionalWhenEmailNotFound() {
     Optional<Lead> found = repository.findByEmailNative("nonexistent@test.com");
 
     assertThat(found).isEmpty();
@@ -62,7 +62,7 @@ class LeadRepositoryTest {
 
     List<Lead> leads = repository.findAll();
 
-    assertThat(leads).containsExactlyInAnyOrder(firstLead,secondLead).hasSize(2);
+    assertThat(leads).containsExactlyInAnyOrder(firstLead, secondLead).hasSize(2);
   }
 
   @Test

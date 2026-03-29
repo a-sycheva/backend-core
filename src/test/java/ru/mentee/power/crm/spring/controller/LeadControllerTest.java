@@ -67,7 +67,7 @@ class LeadControllerTest {
   @Test
   void shouldShowEditForm() throws Exception {
 
-    Lead lead = service.addLead("Dexter","test1@example.ru",
+    Lead lead = service.addLead("Dexter", "test1@example.ru",
         "TestCorp", LeadStatus.NEW);
 
     mockMvc.perform(get("/leads/" + lead.id() + "/edit"))

@@ -77,7 +77,7 @@ public class LeadControllerUnitTest {
     List<Lead> leads = new ArrayList<>();
     leads.add(lead);
 
-    when(leadService.findLeads(null,"test", null, null))
+    when(leadService.findLeads(null, "test", null, null))
         .thenReturn(leads);
 
     mockMvc.perform(get("/leads").param("email", "test"))

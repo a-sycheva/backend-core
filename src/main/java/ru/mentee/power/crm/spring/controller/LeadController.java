@@ -29,7 +29,8 @@ public class LeadController {
   @GetMapping
   @ResponseBody
   public String home() {
-    return "Spring Boot CRM is running! Leads in Database: " + leadService.findAll().size() + " leads.";
+    return "Spring Boot CRM is running! Leads in Database: "
+        + leadService.findAll().size() + " leads.";
   }
 
   @GetMapping("/leads")

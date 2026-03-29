@@ -28,8 +28,8 @@ public class DatabaseConfigTest {
   @Test
   void shouldHaveLeadsTableCreated() {
     Integer count = jdbcTemplate.queryForObject(
-        "Select COUNT(*) FROM information_schema.tables" +
-            " WHERE table_name='LEADS'", Integer.class);
+        "Select COUNT(*) FROM information_schema.tables"
+            + " WHERE table_name='LEADS'", Integer.class);
     assertThat(count).isEqualTo(1);
   }
 }

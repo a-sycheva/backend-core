@@ -39,11 +39,11 @@ class AdminControllerTest {
 
     mockMvc.perform(get("/admin"))
         .andExpect(status().isOk())
-        .andExpect(content().string("Spring Boot CRM is running! Admin controller is OK. Total leads: 2"));
+        .andExpect(content().string("Spring Boot CRM is running! " +
+            "Admin controller is OK. Total leads: 2"));
 
     verify(leadService).findAll();
   }
-
 
   @Test
   void shouldAddTestDataWhenDatabaseIsEmpty() throws Exception {
@@ -54,10 +54,14 @@ class AdminControllerTest {
         .andExpect(status().isOk())
         .andExpect(content().string("Data is added!"));
 
-    verify(leadService, times(1)).addLead("Ivan", "test1@example.ru", "FirstCorp", LeadStatus.NEW);
-    verify(leadService, times(1)).addLead("Anastasiya", "test2@example.ru", "SecondCorp", LeadStatus.NEW);
-    verify(leadService, times(1)).addLead("Konstantin", "test3@example.ru", "ThirdCorp", LeadStatus.NEW);
-    verify(leadService, times(1)).addLead("Nataliya", "test4@example.ru", "FourthCorp", LeadStatus.NEW);
+    verify(leadService, times(1)).addLead("Ivan",
+        "test1@example.ru", "FirstCorp", LeadStatus.NEW);
+    verify(leadService, times(1)).addLead("Anastasiya",
+        "test2@example.ru", "SecondCorp", LeadStatus.NEW);
+    verify(leadService, times(1)).addLead("Konstantin",
+        "test3@example.ru", "ThirdCorp", LeadStatus.NEW);
+    verify(leadService, times(1)).addLead("Nataliya",
+        "test4@example.ru", "FourthCorp", LeadStatus.NEW);
   }
 
   @Test

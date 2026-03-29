@@ -1,16 +1,12 @@
 package ru.mentee.power.crm.spring.controller;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.service.LeadService;
 
@@ -23,7 +19,8 @@ public class AdminController {
   @GetMapping
   @ResponseBody
   public String home() {
-    return "Spring Boot CRM is running! Admin controller is OK. Total leads: " + leadService.findAll().size();
+    return "Spring Boot CRM is running! Admin controller is OK. "
+        + "Total leads: " + leadService.findAll().size();
   }
 
   // для curl.exe -X POST http://localhost:8081/admin/addTestData
@@ -31,7 +28,7 @@ public class AdminController {
   @ResponseBody
   public String addTestData(Model model) {
     if (leadService.findAll().isEmpty()) {
-      leadService.addLead("Ivan","test1@example.ru", "FirstCorp", LeadStatus.NEW);
+      leadService.addLead("Ivan", "test1@example.ru", "FirstCorp", LeadStatus.NEW);
       leadService.addLead("Anastasiya", "test2@example.ru", "SecondCorp", LeadStatus.NEW);
       leadService.addLead("Konstantin", "test3@example.ru", "ThirdCorp", LeadStatus.NEW);
       leadService.addLead("Nataliya", "test4@example.ru", "FourthCorp", LeadStatus.NEW);

@@ -250,9 +250,12 @@ class LeadServiceMockTest {
 
   @Test
   void shouldFindByStatusWhenItCalled() {
-    Lead firstLead = new Lead(UUID.randomUUID(), "Anna", "anna@test.ru", "Corp1", LeadStatus.NEW);
-    Lead secondLead = new Lead(UUID.randomUUID(), "Bob", "bob@test.ru", "Corp2", LeadStatus.NEW);
-    Lead thirdLead = new Lead(UUID.randomUUID(), "Charlie", "charlie@test.ru", "Corp3", LeadStatus.CONTACTED);
+    Lead firstLead = new Lead(UUID.randomUUID(), "Anna",
+        "anna@test.ru", "Corp1", LeadStatus.NEW);
+    Lead secondLead = new Lead(UUID.randomUUID(), "Bob",
+        "bob@test.ru", "Corp2", LeadStatus.NEW);
+    Lead thirdLead = new Lead(UUID.randomUUID(), "Charlie",
+        "charlie@test.ru", "Corp3", LeadStatus.CONTACTED);
 
     when(mockRepository.findAll()).
         thenReturn(List.of(firstLead, secondLead, thirdLead));

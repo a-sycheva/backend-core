@@ -1,7 +1,6 @@
 package ru.mentee.power.crm.model;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -16,8 +15,6 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -102,7 +99,9 @@ public  class Lead {
     return name;
   }
 
-  public @NotBlank(message = "Email обязателен") @Email(regexp = ".+@.+\\..+", message = "Некорректный формат email") String email() {
+  public @NotBlank(message = "Email обязателен")
+      @Email(regexp = ".+@.+\\..+", message = "Некорректный формат email")
+      String email() {
     return email;
   }
 
@@ -116,10 +115,10 @@ public  class Lead {
 
   @Override
   public String toString() {
-    return "Lead[" +
-        "id=" + id + ", " +
-        "email=" + email + ", " +
-        "company=" + company + ", " +
-        "status=" + status + ']';
+    return "Lead["
+        + "id=" + id + ", "
+        + "email=" + email + ", "
+        + "company=" + company + ", "
+        + "status=" + status + ']';
   }
 }
