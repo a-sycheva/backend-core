@@ -19,9 +19,9 @@ import ru.mentee.power.crm.repository.LeadRepository;
 @Service
 public class LeadService {
   private static final Logger LOG = LoggerFactory.getLogger(LeadService.class);
-  private final LeadRepository<Lead> repository;
+  private final LeadRepository repository;
 
-  public LeadService(LeadRepository<Lead> repository) {
+  public LeadService(LeadRepository repository) {
     this.repository = repository;
     LOG.info("LeadService constructor called");
   }
@@ -39,7 +39,6 @@ public class LeadService {
     }
 
     Lead lead = new Lead(
-        UUID.randomUUID(),
         email,
         company,
         status
@@ -57,14 +56,11 @@ public class LeadService {
           "Cannot find lead with id " + id);
     }
 
-    Lead updLead = new Lead(
-        id,
-        updatedLead.email(),
-        updatedLead.company(),
-        updatedLead.status()
-    );
+    existing.get().setEmail(updatedLead.email());
+    existing.get().setCompany(updatedLead.company());
+    existing.get().setStatus(updatedLead.status());
 
-    return repository.save(updLead);
+    return repository.save(existing.get());
   }
 
   public void delete(UUID id) {
@@ -72,7 +68,7 @@ public class LeadService {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND,
           "Lead with id = " + id + "not exists!");
     } else {
-      repository.delete(id);
+      repository.deleteById(id);
     }
   }
 

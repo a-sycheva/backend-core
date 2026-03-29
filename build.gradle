@@ -15,7 +15,7 @@ group = 'ru.mentee.power'
 version = '1.0-SNAPSHOT'
 
 bootRun {
-    mainClass = "ru.mentee.power.crm.spring.Application"  // имя твоего Spring Boot класса
+    mainClass = "ru.mentee.power.crm.Application"
 }
 
 ext {
@@ -29,6 +29,8 @@ ext {
     jteSpringBootVersion = '3.1.15'
     validationApiVersion = '3.1.1'
     hibernateValidatorVersion = '9.1.0.Final'
+    h2DataBaseVersion = '2.3.232'
+
 }
 
 java {
@@ -52,6 +54,7 @@ dependencies {
     testImplementation "org.assertj:assertj-core:${assertjVersion}"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+    // Lombok для автогенерации геттеров/сеттеров
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
@@ -70,25 +73,27 @@ dependencies {
     implementation "gg.jte:jte:${jteVersion}"
     implementation "gg.jte:jte-runtime:${jteVersion}"
 
+    // Spring Boot Starters
     implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
+
+    //jte
     implementation "gg.jte:jte-spring-boot-starter-3:${jteSpringBootVersion}"
     implementation "gg.jte:jte:${jteVersion}"
 
+    //jakarta
     implementation "jakarta.validation:jakarta.validation-api:${validationApiVersion}"
     implementation "org.hibernate.validator:hibernate-validator:${hibernateValidatorVersion}"
 
-    // Spring Boot Starters
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
 
     // PostgreSQL JDBC Driver (для dev и production)
     runtimeOnly 'org.postgresql:postgresql'
 
     // H2 Database (только для тестов)
-    testRuntimeOnly 'com.h2database:h2:2.3.232'
-    runtimeOnly 'com.h2database:h2:2.3.232' //для BootRun with H2
+    testRuntimeOnly "com.h2database:h2:${h2DataBaseVersion}"
+    runtimeOnly "com.h2database:h2:${h2DataBaseVersion}" //для BootRun with H2
 }
 
 jte {

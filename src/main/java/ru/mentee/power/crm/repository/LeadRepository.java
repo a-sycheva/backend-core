@@ -4,17 +4,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import ru.mentee.power.crm.model.Lead;
 
-public interface LeadRepository<T> {
+public interface LeadRepository extends JpaRepository<Lead, UUID> {
 
-  Lead save(T lead);
+  Optional<Lead> findByEmail(String email);
 
-  Optional<T> findById(UUID id);
+  @Query(value = "SELECT * FROM leads WHERE email = ?1", nativeQuery = true)
+  public Optional<Lead> findByEmailNative(String email);
 
-  Optional<T> findByEmail(String email);
+  @Query(value = "SELECT * FROM leads WHERE status = ?1", nativeQuery = true)
+  public List<Lead> findByStatusNative(String status);
 
-  List<T> findAll();
-
-  void delete(UUID id);
 }
