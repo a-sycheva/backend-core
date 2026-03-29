@@ -78,6 +78,15 @@ public  class Lead {
     this.status = status;
   }
 
+  //конструктор для тестов
+  public Lead(UUID id, String name, String email, String company, LeadStatus status) {
+    this.id = id;
+    this.name = name;
+    this.email = email;
+    this.company = company;
+    this.status = status;
+  }
+
   public Lead(String name, String email, String company, LeadStatus status) {
     this.name = name;
     this.email = email;

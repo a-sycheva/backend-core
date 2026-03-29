@@ -76,7 +76,7 @@ public class LeadControllerUnitTest {
     List<Lead> leads = new ArrayList<>();
     leads.add(lead);
 
-    when(leadService.findLeads("test", null, null))
+    when(leadService.findLeads(null,"test", null, null))
         .thenReturn(leads);
 
     mockMvc.perform(get("/leads").param("email", "test"))
@@ -91,7 +91,7 @@ public class LeadControllerUnitTest {
     List<Lead> leads = new ArrayList<>();
     leads.add(lead);
 
-    when(leadService.findLeads(null, null, LeadStatus.NEW))
+    when(leadService.findLeads(null, null, null, LeadStatus.NEW))
         .thenReturn(leads);
 
     mockMvc.perform(get("/leads").param("status", "NEW"))
@@ -106,7 +106,7 @@ public class LeadControllerUnitTest {
     List<Lead> leads = new ArrayList<>();
     leads.add(lead);
 
-    when(leadService.findLeads("test", null, LeadStatus.NEW))
+    when(leadService.findLeads(null, "test", null, LeadStatus.NEW))
         .thenReturn(leads);
 
     mockMvc.perform(get("/leads").
@@ -123,7 +123,7 @@ public class LeadControllerUnitTest {
     List<Lead> leads = new ArrayList<>();
     leads.add(lead);
 
-    when(leadService.findLeads(null, null, null))
+    when(leadService.findLeads(null, null, null, null))
         .thenReturn(leads);
 
     mockMvc.perform(get("/leads"))

@@ -143,8 +143,8 @@ class LeadServiceMockTest {
     leads.add(secondLead);
     when(mockRepository.findAll()).thenReturn(leads);
 
-    List<Lead> result = service.findLeads(null, null, null);
-    List<Lead> anotherResult = service.findLeads("", "", null);
+    List<Lead> result = service.findLeads(null, null, null, null);
+    List<Lead> anotherResult = service.findLeads("", "", "", null);
 
     assertThat(result).isEqualTo(leads);
     assertThat(anotherResult).isEqualTo(leads);
@@ -162,7 +162,7 @@ class LeadServiceMockTest {
     leads.add(secondLead);
     when(mockRepository.findAll()).thenReturn(leads);
 
-    List<Lead> result = service.findLeads("example", null, null);
+    List<Lead> result = service.findLeads("", "example", null, null);
 
     assertThat(result).contains(secondLead);
   }
@@ -179,7 +179,7 @@ class LeadServiceMockTest {
     leads.add(secondLead);
     when(mockRepository.findAll()).thenReturn(leads);
 
-    List<Lead> result = service.findLeads(null, "ExCorp", null);
+    List<Lead> result = service.findLeads(null, null, "ExCorp", null);
 
     assertThat(result).contains(secondLead);
   }
@@ -196,7 +196,24 @@ class LeadServiceMockTest {
     leads.add(secondLead);
     when(mockRepository.findAll()).thenReturn(leads);
 
-    List<Lead> result = service.findLeads(null, null, LeadStatus.CONTACTED);
+    List<Lead> result = service.findLeads(null, null, null, LeadStatus.CONTACTED);
+
+    assertThat(result).contains(secondLead);
+  }
+
+  @Test
+  void shouldFindLeadsWhenFilteredByName() {
+
+    Lead lead = new Lead(UUID.randomUUID(), "Anna", "test@test.ru",
+        "TestCorp", LeadStatus.NEW);
+    Lead secondLead = new Lead(UUID.randomUUID(), "Batista", "example@exampe.ru",
+        "ExCorp", LeadStatus.CONTACTED);
+    List<Lead> leads = new ArrayList<>();
+    leads.add(lead);
+    leads.add(secondLead);
+    when(mockRepository.findAll()).thenReturn(leads);
+
+    List<Lead> result = service.findLeads("Batista", null, null, null);
 
     assertThat(result).contains(secondLead);
   }
