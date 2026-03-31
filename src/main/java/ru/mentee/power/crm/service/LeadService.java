@@ -9,8 +9,12 @@ import java.util.stream.Stream;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
@@ -102,6 +106,10 @@ public class LeadService {
     return  repository.findByEmail(email);
   }
 
+  public List<Lead> findByStatuses(LeadStatus... statuses) {
+    return  repository.findByStatusIn(List.of(statuses));
+  }
+
   public List<Lead> findByStatus(LeadStatus status) {
     return  repository.findAll().stream()
         .filter(lead -> lead.status().equals(status))
@@ -123,5 +131,30 @@ public class LeadService {
       stream = stream.filter(lead -> lead.status().equals(status));
     }
     return stream.collect(Collectors.toList());
+  }
+
+  public Page<Lead> searchByCompany (String company, int pageNumber, int pageSize) {
+    PageRequest pageRequest = PageRequest.of(
+        pageNumber, pageSize);
+    return repository.findByCompany(company, pageRequest);
+  }
+
+  public Page<Lead> getFirstPage(int pageSize) {
+    PageRequest pageRequest = PageRequest.of(
+        0, pageSize, Sort.by("createdAt").descending());
+    return repository.findAll(pageRequest);
+  }
+
+  @Transactional
+  public int convertNewToContacted() {
+    int updated = repository.updateStatusBulk(LeadStatus.NEW, LeadStatus.CONTACTED);
+    //логи
+    System.out.printf("Converted %d leads from NEW to CONTACTED%n", updated);
+    return updated;
+  }
+
+  @Transactional
+  public int archiveOldLeads(LeadStatus status) {
+    return repository.deleteByStatusBulk(status);
   }
 }

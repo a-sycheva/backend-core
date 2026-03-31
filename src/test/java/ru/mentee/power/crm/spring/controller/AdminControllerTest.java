@@ -39,8 +39,8 @@ class AdminControllerTest {
 
     mockMvc.perform(get("/admin"))
         .andExpect(status().isOk())
-        .andExpect(content().string("Spring Boot CRM is running! " +
-            "Admin controller is OK. Total leads: 2"));
+        .andExpect(content().string("Spring Boot CRM is running! "
+            + "Admin controller is OK. Total leads: 2"));
 
     verify(leadService).findAll();
   }
