@@ -11,13 +11,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.mentee.power.crm.model.Deal;
 import ru.mentee.power.crm.model.DealStatus;
-import ru.mentee.power.crm.repository.InMemoryDealRepository;
+import ru.mentee.power.crm.repository.DealRepository;
 import ru.mentee.power.crm.repository.LeadRepository;
 
 @Service
 @RequiredArgsConstructor
 public class DealService {
-  private final InMemoryDealRepository dealRepository;
+  private final DealRepository dealRepository;
   private final LeadRepository leadRepository;
 
   public Deal convertLeadToDeal (UUID leadId, BigDecimal amount) {
