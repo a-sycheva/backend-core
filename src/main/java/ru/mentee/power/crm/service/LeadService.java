@@ -139,7 +139,7 @@ public class LeadService {
     return repository.findByCompany(company, pageRequest);
   }
 
-  public Page<Lead> getFirstPAage(int pageSize) {
+  public Page<Lead> getFirstPage(int pageSize) {
     PageRequest pageRequest = PageRequest.of(
         0, pageSize, Sort.by("createdAt").descending());
     return repository.findAll(pageRequest);

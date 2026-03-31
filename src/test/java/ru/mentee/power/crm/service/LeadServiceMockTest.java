@@ -269,4 +269,22 @@ class LeadServiceMockTest {
     verify(mockRepository).findAll();
   }
 
+  @Test
+  void shouldFindByStatusesWhenItCalled() {
+    Lead firstLead = new Lead(UUID.randomUUID(), "Anna",
+        "anna@test.ru", "Corp1", LeadStatus.NEW);
+    Lead secondLead = new Lead(UUID.randomUUID(), "Charlie",
+        "charlie@test.ru", "Corp3", LeadStatus.CONTACTED);
+
+    List statuses = List.of(LeadStatus.NEW, LeadStatus.CONTACTED);
+
+    when(mockRepository.findByStatusIn(statuses)).
+        thenReturn(List.of(firstLead, secondLead));
+
+    List<Lead> result = service.findByStatuses(LeadStatus.NEW, LeadStatus.CONTACTED);
+
+    verify(mockRepository).findByStatusIn(statuses);
+    assertThat(result).containsExactlyInAnyOrder(firstLead, secondLead);
+  }
+
 }
