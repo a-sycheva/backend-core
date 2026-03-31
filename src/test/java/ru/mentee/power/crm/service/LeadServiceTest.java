@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.BeforeEach;
@@ -111,7 +112,9 @@ class LeadServiceTest {
 
   @Test
   void demonstrateSelfInvocationProblem() {
-    List<Lead> leadsBefore = service.findByStatus(LeadStatus.NEW);
+
+    List<LeadStatus> statusesBefore = service.findByStatus(LeadStatus.NEW).stream()
+        .map(Lead::getStatus).collect(Collectors.toList());
     List<UUID> ids = new ArrayList<>();
     for (Lead lead : service.findAll()) {
       ids.add(lead.id());
@@ -120,10 +123,13 @@ class LeadServiceTest {
     ids.add(UUID.randomUUID());
 
     service.processLeads(ids);
-    List<Lead> leadsAfter = service.findByStatus(LeadStatus.NEW);
+
+
+    List<LeadStatus> statusesAfter = service.findByStatus(LeadStatus.NEW).stream()
+        .map(Lead::getStatus).collect(Collectors.toList());
 
     //статусы лидов не изменились, rollback для всех
-    assertThat(leadsBefore).isEqualTo(leadsAfter);
+    assertThat(statusesBefore).isEqualTo(statusesAfter);
   }
 
 }

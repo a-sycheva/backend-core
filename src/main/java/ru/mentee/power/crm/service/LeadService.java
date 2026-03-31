@@ -176,16 +176,26 @@ public class LeadService {
       dealRepository.save(deal);
   }
 
+  //для иллюстрации self-invocation проблемы у метода processSingleLead
+  //создаем здесь транзакцию
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void processLeads(List<UUID> ids) {
-    for(UUID id : ids) {
-      this.processSingleLead(id);
+    for (UUID id : ids) {
+      try {
+        this.processSingleLead(id);
+      } catch (Exception e) {
+        // Перехват исключения
+        System.out.println("Failed to process lead: " + id);
+      }
     }
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   private void processSingleLead(UUID id){
-    if(dealRepository.existsById(id)) {
+    if(leadRepository.existsById(id)) {
       findById(id).get().setStatus(LeadStatus.CONTACTED);
+    } else {
+      throw new IllegalArgumentException(); //ошибка для rollback
     }
   }
 }
