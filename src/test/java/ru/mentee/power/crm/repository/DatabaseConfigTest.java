@@ -8,7 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
-import ru.mentee.power.crm.spring.Application;
+import ru.mentee.power.crm.Application;
 
 @SpringBootTest(classes = Application.class)
 @ActiveProfiles("test")
@@ -28,8 +28,8 @@ public class DatabaseConfigTest {
   @Test
   void shouldHaveLeadsTableCreated() {
     Integer count = jdbcTemplate.queryForObject(
-        "Select COUNT(*) FROM information_schema.tables" +
-            " WHERE table_name='LEADS'", Integer.class);
+        "Select COUNT(*) FROM information_schema.tables"
+            + " WHERE table_name='LEADS'", Integer.class);
     assertThat(count).isEqualTo(1);
   }
 }

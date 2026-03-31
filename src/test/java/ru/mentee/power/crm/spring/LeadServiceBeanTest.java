@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
-import ru.mentee.power.crm.repository.InMemoryLeadRepository;
+import ru.mentee.power.crm.repository.LeadRepository;
 import ru.mentee.power.crm.service.LeadService;
 
 @SpringBootTest
@@ -23,7 +23,7 @@ public class LeadServiceBeanTest {
 
   @Test
   void shouldCreateLeadRepositoryBean() {
-    InMemoryLeadRepository repository = context.getBean(InMemoryLeadRepository.class);
+    LeadRepository repository = context.getBean(LeadRepository.class);
     assertThat(repository).isNotNull();
   }
 

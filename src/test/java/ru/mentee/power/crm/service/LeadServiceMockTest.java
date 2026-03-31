@@ -108,7 +108,7 @@ class LeadServiceMockTest {
 
     service.delete(id);
 
-    verify(mockRepository).delete(id);
+    verify(mockRepository).deleteById(id);
   }
 
   @Test
@@ -143,8 +143,8 @@ class LeadServiceMockTest {
     leads.add(secondLead);
     when(mockRepository.findAll()).thenReturn(leads);
 
-    List<Lead> result = service.findLeads(null, null, null);
-    List<Lead> anotherResult = service.findLeads("", "", null);
+    List<Lead> result = service.findLeads(null, null, null, null);
+    List<Lead> anotherResult = service.findLeads("", "", "", null);
 
     assertThat(result).isEqualTo(leads);
     assertThat(anotherResult).isEqualTo(leads);
@@ -162,7 +162,7 @@ class LeadServiceMockTest {
     leads.add(secondLead);
     when(mockRepository.findAll()).thenReturn(leads);
 
-    List<Lead> result = service.findLeads("example", null, null);
+    List<Lead> result = service.findLeads("", "example", null, null);
 
     assertThat(result).contains(secondLead);
   }
@@ -179,7 +179,7 @@ class LeadServiceMockTest {
     leads.add(secondLead);
     when(mockRepository.findAll()).thenReturn(leads);
 
-    List<Lead> result = service.findLeads(null, "ExCorp", null);
+    List<Lead> result = service.findLeads(null, null, "ExCorp", null);
 
     assertThat(result).contains(secondLead);
   }
@@ -196,9 +196,77 @@ class LeadServiceMockTest {
     leads.add(secondLead);
     when(mockRepository.findAll()).thenReturn(leads);
 
-    List<Lead> result = service.findLeads(null, null, LeadStatus.CONTACTED);
+    List<Lead> result = service.findLeads(null, null, null, LeadStatus.CONTACTED);
 
     assertThat(result).contains(secondLead);
+  }
+
+  @Test
+  void shouldFindLeadsWhenFilteredByName() {
+
+    Lead lead = new Lead(UUID.randomUUID(), "Anna", "test@test.ru",
+        "TestCorp", LeadStatus.NEW);
+    Lead secondLead = new Lead(UUID.randomUUID(), "Batista", "example@exampe.ru",
+        "ExCorp", LeadStatus.CONTACTED);
+    List<Lead> leads = new ArrayList<>();
+    leads.add(lead);
+    leads.add(secondLead);
+    when(mockRepository.findAll()).thenReturn(leads);
+
+    List<Lead> result = service.findLeads("Batista", null, null, null);
+
+    assertThat(result).contains(secondLead);
+  }
+
+  @Test
+  void shouldThrowExceptionWhenAddedLeadWithSaneEmail() {
+    Lead lead = new Lead(UUID.randomUUID(), "Anna", "test@test.ru",
+        "TestCorp", LeadStatus.NEW);
+
+    when(mockRepository.findByEmail(any(String.class))).
+        thenReturn(Optional.of(lead));
+
+    assertThatThrownBy(() -> service.addLead("Anna", "test@test.ru",
+            "TestCorp", LeadStatus.NEW))
+        .isInstanceOf(IllegalStateException.class);
+  }
+
+  @Test
+  void shouldFindByEmailWhenItCalled() {
+    Lead lead = new Lead(UUID.randomUUID(), "Anna", "test@test.ru",
+        "TestCorp", LeadStatus.NEW);
+
+    when(mockRepository.findByEmail(any(String.class))).
+        thenReturn(Optional.of(lead));
+
+    Optional<Lead> result = service.findByEmail(lead.email());
+
+    assertThat(result).isPresent();
+    assertThat(result.get().email()).isEqualTo(lead.email());
+    assertThat(result.get().name()).isEqualTo("Anna");
+
+    verify(mockRepository).findByEmail(lead.email());
+  }
+
+  @Test
+  void shouldFindByStatusWhenItCalled() {
+    Lead firstLead = new Lead(UUID.randomUUID(), "Anna",
+        "anna@test.ru", "Corp1", LeadStatus.NEW);
+    Lead secondLead = new Lead(UUID.randomUUID(), "Bob",
+        "bob@test.ru", "Corp2", LeadStatus.NEW);
+    Lead thirdLead = new Lead(UUID.randomUUID(), "Charlie",
+        "charlie@test.ru", "Corp3", LeadStatus.CONTACTED);
+
+    when(mockRepository.findAll()).
+        thenReturn(List.of(firstLead, secondLead, thirdLead));
+
+    List<Lead> result = service.findByStatus(LeadStatus.NEW);
+
+    assertThat(result).hasSize(2);
+    assertThat(result).containsExactly(firstLead, secondLead);
+    assertThat(result).noneMatch(lead -> lead.status() == LeadStatus.CONTACTED);
+
+    verify(mockRepository).findAll();
   }
 
 }

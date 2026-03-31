@@ -19,9 +19,9 @@ import ru.mentee.power.crm.repository.LeadRepository;
 @Service
 public class LeadService {
   private static final Logger LOG = LoggerFactory.getLogger(LeadService.class);
-  private final LeadRepository<Lead> repository;
+  private final LeadRepository repository;
 
-  public LeadService(LeadRepository<Lead> repository) {
+  public LeadService(LeadRepository repository) {
     this.repository = repository;
     LOG.info("LeadService constructor called");
   }
@@ -29,6 +29,23 @@ public class LeadService {
   @PostConstruct
   void init() {
     LOG.info("LeadService @PostConstruct init() called - Bean lifecycle phase");
+  }
+
+  public Lead addLead(String name, String email, String company, LeadStatus status) {
+
+    Optional<Lead> existing = repository.findByEmail(email);
+    if (existing.isPresent()) {
+      throw new IllegalStateException("Lead with email already exists: " + email);
+    }
+
+    Lead lead = new Lead(
+        name,
+        email,
+        company,
+        status
+    );
+
+    return repository.save(lead);
   }
 
   public Lead addLead(String email, String company, LeadStatus status) {
@@ -39,7 +56,6 @@ public class LeadService {
     }
 
     Lead lead = new Lead(
-        UUID.randomUUID(),
         email,
         company,
         status
@@ -57,14 +73,12 @@ public class LeadService {
           "Cannot find lead with id " + id);
     }
 
-    Lead updLead = new Lead(
-        id,
-        updatedLead.email(),
-        updatedLead.company(),
-        updatedLead.status()
-    );
+    existing.get().setName(updatedLead.name());
+    existing.get().setEmail(updatedLead.email());
+    existing.get().setCompany(updatedLead.company());
+    existing.get().setStatus(updatedLead.status());
 
-    return repository.save(updLead);
+    return repository.save(existing.get());
   }
 
   public void delete(UUID id) {
@@ -72,7 +86,7 @@ public class LeadService {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND,
           "Lead with id = " + id + "not exists!");
     } else {
-      repository.delete(id);
+      repository.deleteById(id);
     }
   }
 
@@ -94,8 +108,11 @@ public class LeadService {
         .collect(Collectors.toList());
   }
 
-  public List<Lead> findLeads(String email, String company, LeadStatus status) {
+  public List<Lead> findLeads(String name, String email, String company, LeadStatus status) {
     Stream<Lead> stream = repository.findAll().stream();
+    if (name != null && !name.isBlank()) {
+      stream = stream.filter(lead -> lead.name().toLowerCase().contains(name.toLowerCase()));
+    }
     if (email != null && !email.isBlank()) {
       stream = stream.filter(lead -> lead.email().toLowerCase().contains(email.toLowerCase()));
     }

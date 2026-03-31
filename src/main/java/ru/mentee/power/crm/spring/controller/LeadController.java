@@ -29,16 +29,18 @@ public class LeadController {
   @GetMapping
   @ResponseBody
   public String home() {
-    return "Spring Boot CRM is running! Beans created: " + leadService.findAll().size() + " leads.";
+    return "Spring Boot CRM is running! Leads in Database: "
+        + leadService.findAll().size() + " leads.";
   }
 
   @GetMapping("/leads")
   public String showLeads(
+      @RequestParam(required = false) String name,
       @RequestParam(required = false) String email,
       @RequestParam(required = false) String company,
       @RequestParam(required = false) LeadStatus status,
       Model model) {
-    List<Lead> leads = leadService.findLeads(email, company, status);
+    List<Lead> leads = leadService.findLeads(name, email, company, status);
 
     model.addAttribute("leads", leads);
     model.addAttribute("email", email);
@@ -51,7 +53,7 @@ public class LeadController {
   //форма создания лида
   @GetMapping("/leads/new")
   public String showCreateForm(Model model) {
-    model.addAttribute("lead", new Lead(null, "", "", LeadStatus.NEW));
+    model.addAttribute("lead", new Lead("", "", "", LeadStatus.NEW));
     return "leads/create";
   }
 
@@ -62,7 +64,7 @@ public class LeadController {
       model.addAttribute("errors", result);
       return "leads/form";
     } else {
-      leadService.addLead(lead.email(), lead.company(), lead.status());
+      leadService.addLead(lead.name(), lead.email(), lead.company(), lead.status());
       return "redirect:/leads";
     }
   }
@@ -80,7 +82,7 @@ public class LeadController {
     } else {
       model.addAttribute("lead", lead.get());
     }
-    return "spring/edit";
+    return "leads/edit";
   }
 
   //обновление лида

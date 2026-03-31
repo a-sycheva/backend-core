@@ -25,7 +25,7 @@ import ru.mentee.power.crm.model.DealStatus;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.repository.InMemoryDealRepository;
-import ru.mentee.power.crm.repository.InMemoryLeadRepository;
+import ru.mentee.power.crm.repository.LeadRepository;
 
 @ExtendWith(MockitoExtension.class)
 class DealServiceTest {
@@ -36,7 +36,7 @@ class DealServiceTest {
   InMemoryDealRepository mockDealRepository;
 
   @Mock
-  InMemoryLeadRepository mockLeadRepository;
+  LeadRepository mockLeadRepository;
 
   DealService dealService;
 

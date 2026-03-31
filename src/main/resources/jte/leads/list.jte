@@ -5,6 +5,7 @@
 
 @param List<Lead> leads
 @param LeadStatus status
+@param String name
 @param String email
 @param String company
 
@@ -24,6 +25,10 @@
 
         <div class="mb-4 flex gap-2 justify-between items-center">
             <form action="/leads" method="get" class="px-4 py-2 rounded bg-blue-500">
+                <label for="name">
+                    Name:
+                    <input type="text" name="name" value="${name}">
+                </label>
                 <label for="email">
                     Email:
                     <input type="text" name="email" value="${email}">
@@ -70,6 +75,7 @@
         <table class="min-w-full bg-white border border-gray-200">
             <thead class="bg-gray-100">
             <tr>
+                <th class="px-4 py-2 text-left">Name</th>
                 <th class="px-4 py-2 text-left">Email</th>
                 <th class="px-4 py-2 text-left">Company</th>
                 <th class="px-4 py-2 text-left">Status</th>
@@ -80,6 +86,7 @@
             <tbody>
             @for(var lead : leads)
                 <tr class="border-t hover:bg-gray-50">
+                    <td class="px-4 py-2">${lead.name()}</td>
                     <td class="px-4 py-2">${lead.email()}</td>
                     <td class="px-4 py-2">${lead.company()}</td>
                     <td class="px-4 py-2">

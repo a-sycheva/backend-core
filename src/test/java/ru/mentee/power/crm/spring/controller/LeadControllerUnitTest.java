@@ -1,11 +1,11 @@
 package ru.mentee.power.crm.spring.controller;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -24,7 +24,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.service.LeadService;
-import ru.mentee.power.crm.spring.MockLeadService;
 
 @WebMvcTest(LeadController.class)
 public class LeadControllerUnitTest {
@@ -33,27 +32,6 @@ public class LeadControllerUnitTest {
   private MockMvc mockMvc;
   @MockitoBean
   private LeadService leadService;
-
-  @Test
-  void shouldCreateControllerWithoutSpring() {
-    MockLeadService mockService = new MockLeadService();
-
-    LeadController controller = new LeadController(mockService);
-
-    String response = controller.home();
-    assertThat(response).contains("2 leads"); // MockLeadService возвращает 2 лида
-  }
-
-  @Test
-  void shouldUseInjectedService() {
-    MockLeadService mockService = new MockLeadService();
-    LeadController controller = new LeadController(mockService);
-
-    String response = controller.home();
-
-    assertThat(response).isNotNull();
-    assertThat(response).contains("Spring Boot CRM is running");
-  }
 
   @Test
   void shouldThrowExceptionWhenDeleteNotExistedLead() throws Exception {
@@ -99,7 +77,7 @@ public class LeadControllerUnitTest {
     List<Lead> leads = new ArrayList<>();
     leads.add(lead);
 
-    when(leadService.findLeads("test", null, null))
+    when(leadService.findLeads(null, "test", null, null))
         .thenReturn(leads);
 
     mockMvc.perform(get("/leads").param("email", "test"))
@@ -114,7 +92,7 @@ public class LeadControllerUnitTest {
     List<Lead> leads = new ArrayList<>();
     leads.add(lead);
 
-    when(leadService.findLeads(null, null, LeadStatus.NEW))
+    when(leadService.findLeads(null, null, null, LeadStatus.NEW))
         .thenReturn(leads);
 
     mockMvc.perform(get("/leads").param("status", "NEW"))
@@ -129,7 +107,7 @@ public class LeadControllerUnitTest {
     List<Lead> leads = new ArrayList<>();
     leads.add(lead);
 
-    when(leadService.findLeads("test", null, LeadStatus.NEW))
+    when(leadService.findLeads(null, "test", null, LeadStatus.NEW))
         .thenReturn(leads);
 
     mockMvc.perform(get("/leads").
@@ -146,7 +124,7 @@ public class LeadControllerUnitTest {
     List<Lead> leads = new ArrayList<>();
     leads.add(lead);
 
-    when(leadService.findLeads(null, null, null))
+    when(leadService.findLeads(null, null, null, null))
         .thenReturn(leads);
 
     mockMvc.perform(get("/leads"))
@@ -201,5 +179,20 @@ public class LeadControllerUnitTest {
             .param("company", "TestCorp"))
         .andExpect(view().name("leads/form"))
         .andExpect(model().attributeHasFieldErrors("lead", "status"));
+  }
+
+  @Test
+  void shouldReturnHomePageWithCorrectLeadCount() throws Exception {
+    List<Lead> leads = List.of(
+        new Lead(UUID.randomUUID(), "Anna", "anna@test.ru", "Corp1", LeadStatus.NEW),
+        new Lead(UUID.randomUUID(), "Bob", "bob@test.ru", "Corp2", LeadStatus.NEW)
+    );
+    when(leadService.findAll()).thenReturn(leads);
+
+    mockMvc.perform(get("/"))
+        .andExpect(status().isOk())
+        .andExpect(content().string("Spring Boot CRM is running! Leads in Database: 2 leads."));
+
+    verify(leadService).findAll();
   }
 }
