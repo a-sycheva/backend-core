@@ -1,7 +1,15 @@
 package ru.mentee.power.crm.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,4 +100,30 @@ class LeadServiceTest {
     assertThat(result.getTotalPages()).isEqualTo(3);
 
   }
+
+  @Test
+  void convertLeadToDeal_ShouldRollbackOnConstraintViolation() {
+   Exception exception =  assertThrows(IllegalArgumentException.class,
+       () ->service.convertLeadToDeal(UUID.randomUUID(), BigDecimal.valueOf(10_000)));
+
+   assertThat(exception.getMessage()).contains("Lead not found");
+  }
+
+  @Test
+  void demonstrateSelfInvocationProblem() {
+    List<Lead> leadsBefore = service.findByStatus(LeadStatus.NEW);
+    List<UUID> ids = new ArrayList<>();
+    for (Lead lead : service.findAll()) {
+      ids.add(lead.id());
+    }
+    // Ошибка в одном processSingleLead
+    ids.add(UUID.randomUUID());
+
+    service.processLeads(ids);
+    List<Lead> leadsAfter = service.findByStatus(LeadStatus.NEW);
+
+    //статусы лидов не изменились, rollback для всех
+    assertThat(leadsBefore).isEqualTo(leadsAfter);
+  }
+
 }

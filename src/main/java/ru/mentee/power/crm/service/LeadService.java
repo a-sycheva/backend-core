@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import ru.mentee.power.crm.model.Deal;
@@ -166,11 +167,25 @@ public class LeadService {
 
   @Transactional
   public void convertLeadToDeal (UUID leadId, BigDecimal amount) {
-    if (leadRepository.existsById(leadId)) {
+    Lead lead = leadRepository.findById(leadId)
+        .orElseThrow(() -> new IllegalArgumentException(
+            "Lead not found: " + leadId));
+
       Deal deal = new Deal(leadId, amount);
+      lead.setStatus(LeadStatus.CONTACTED);
       dealRepository.save(deal);
-    } else {
-      throw new IllegalArgumentException("Lead not found: " + leadId);
+  }
+
+  public void processLeads(List<UUID> ids) {
+    for(UUID id : ids) {
+      this.processSingleLead(id);
+    }
+  }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  private void processSingleLead(UUID id){
+    if(dealRepository.existsById(id)) {
+      findById(id).get().setStatus(LeadStatus.CONTACTED);
     }
   }
 }
