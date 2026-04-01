@@ -34,8 +34,11 @@ public class Deal {
   @Column(name = "created_at", nullable = false, updatable = false)
   private LocalDateTime createdAt;
 
+  public Deal() {
+
+  }
+
   public Deal (UUID leadId, BigDecimal amount) {
-    this.id = UUID.randomUUID();
     this.leadId = Objects.requireNonNull(leadId, "LeadId must not be null");
     this.amount = Objects.requireNonNull(amount, "amount must not be null");;
     this.status = DealStatus.NEW;

@@ -11,11 +11,17 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.assertj.core.api.ThrowableAssert;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
+import org.springframework.test.annotation.Commit;
+import org.springframework.transaction.IllegalTransactionStateException;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
@@ -31,6 +37,8 @@ class LeadServiceTest {
   private LeadRepository repository;
 
   @BeforeEach
+  //@Transactional(propagation = Propagation.REQUIRES_NEW)
+  //@Commit
   void setUp() {
     repository.deleteAll();
 
@@ -43,6 +51,11 @@ class LeadServiceTest {
       lead.setStatus(LeadStatus.NEW);
       repository.save(lead);
     }
+  }
+
+  @AfterEach
+  void tearDown() {
+    repository.deleteAll();
   }
 
   @Test
@@ -102,7 +115,19 @@ class LeadServiceTest {
   }
 
   @Test
-  void convertLeadToDeal_ShouldRollbackOnConstraintViolation() {
+  void convertLeadToDealShouldCommitOnSuccess() {
+    Lead lead = service.findAll().getFirst();
+    assertThat(lead.status()).isEqualTo(LeadStatus.NEW);
+
+    service.convertLeadToDeal(lead.id(), BigDecimal.valueOf(10_000));
+
+    Lead updatedLead = service.findById(lead.id()).get();
+    assertThat(updatedLead.status()).isEqualTo(LeadStatus.CONTACTED);
+  }
+
+  @Test
+  @Transactional
+  void convertLeadToDealShouldRollbackOnConstraintViolation() {
    Exception exception =  assertThrows(IllegalArgumentException.class,
        () ->service.convertLeadToDeal(UUID.randomUUID(), BigDecimal.valueOf(10_000)));
 
@@ -121,15 +146,82 @@ class LeadServiceTest {
     // Ошибка в одном processSingleLead
     ids.add(UUID.randomUUID());
 
-    service.processLeads(ids);
+    service.processLeadsWithInvocationProblem(ids);
 
 
-    List<LeadStatus> statusesAfter = service.findByStatus(LeadStatus.CONTACTED).stream()
+    List<LeadStatus> statusesAfter = service.findByStatus(LeadStatus.NEW).stream()
         .map(Lead::getStatus).collect(Collectors.toList());
 
+    //статусы лидов не изменились, откат по всем
+    assertThat(statusesBefore).isEqualTo(statusesAfter);
+    //нет лидов со статусом CONTACTED
+    assertThat(statusesAfter).hasSize(3);
+  }
+
+  @Test
+  void processLeadsShouldIsolateTransactionsPerLead() {
+
+    List<LeadStatus> statusesBefore = service.findByStatus(LeadStatus.NEW).stream()
+        .map(Lead::getStatus).collect(Collectors.toList());
+    List<UUID> ids = new ArrayList<>();
+    for (Lead lead : service.findAll()) {
+      ids.add(lead.id());
+    }
+    // Ошибка в одном processSingleLead
+    ids.add(UUID.randomUUID());
+
+    String transactionName = service.processLeads(ids);
+
+    List<LeadStatus> statusesAfter = service.findByStatus(LeadStatus.NEW).stream()
+        .map(Lead::getStatus).collect(Collectors.toList());
+
+    //создает новую транзакцию
+    assertThat(transactionName).contains("LeadProcessor")
+            .contains("processSingleLead");
     //статусы лидов изменились, откат только по ошибочной транзакции
     assertThat(statusesBefore).isNotEqualTo(statusesAfter);
-    //у всех трех лидов статус CONTACTED
-    assertThat(statusesAfter).hasSize(3);
+    //нет лидов со статусом NEW
+    assertThat(statusesAfter).hasSize(0);
+  }
+
+  @Transactional
+  @ParameterizedTest
+  //REQUIRES_NEW показан в processLeadsShouldIsolateTransactionsPerLead
+  @EnumSource(value = Propagation.class, names = {"REQUIRED", "MANDATORY"})
+  void testPropagation(Propagation propagation) {
+
+    List<UUID> ids = new ArrayList<>();
+    for (Lead lead : service.findAll()) {
+      ids.add(lead.id());
+    }
+
+    switch (propagation) {
+      case REQUIRED: //присоединяется к имеющейся транзакции, не создает свою
+        assertThat(service.processLeadsWithRequires(ids))
+            .contains("testPropagation")
+            .doesNotContain("LeadProcessor")
+            .doesNotContain("processSingleLeadWithRequired");
+        break;
+      case MANDATORY://присоединяется к имеющейся транзакции, если есть
+        assertThat(service.processLeadsWithMandatory(ids))
+            .contains("testPropagation")
+            .doesNotContain("LeadProcessor")
+            .doesNotContain("processSingleLeadWithMandatory");
+        break;
+    }
+  }
+
+  @Test
+  void testPropagationMandatoryMethodShouldTrowExceptionWithoutTransaction() {
+
+    List<UUID> ids = new ArrayList<>();
+    for (Lead lead : service.findAll()) {
+      ids.add(lead.id());
+    }
+    // Ошибка в одном processSingleLead
+    ids.add(UUID.randomUUID());
+
+    assertThrows(IllegalTransactionStateException.class, () ->
+        service.processLeadsWithMandatory(ids));
   }
 }

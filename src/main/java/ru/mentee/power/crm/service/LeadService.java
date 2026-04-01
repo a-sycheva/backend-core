@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.server.ResponseStatusException;
 import ru.mentee.power.crm.model.Deal;
 import ru.mentee.power.crm.model.Lead;
@@ -179,10 +180,24 @@ public class LeadService {
       dealRepository.save(deal);
   }
 
-  public void processLeads(List<UUID> ids) {
+  public String processLeads(List<UUID> ids) {
+    String transactionName = "None";
     for (UUID id : ids) {
       try {
-        leadProcessor.processSingleLead(id);
+        transactionName = leadProcessor.processSingleLead(id);
+      } catch (Exception e) {
+        // Перехват исключения
+        System.out.println("Failed to process lead: " + id);
+      }
+    }
+    return transactionName;
+  }
+
+  //self-invocation
+  public void processLeadsWithInvocationProblem(List<UUID> ids) {
+    for (UUID id : ids) {
+      try {
+        this.processSingleLead(id);
       } catch (Exception e) {
         // Перехват исключения
         System.out.println("Failed to process lead: " + id);
@@ -190,4 +205,42 @@ public class LeadService {
     }
   }
 
-}
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void processSingleLead(UUID id){
+    if(leadRepository.existsById(id)) {
+      leadRepository.findById(id).get().setStatus(LeadStatus.CONTACTED);
+    } else {
+      throw new IllegalArgumentException(); //ошибка для rollback
+    }
+  }
+
+  public String processLeadsWithRequires(List<UUID> ids) {
+    String transactionName = "none";
+    for (UUID id : ids) {
+      try {
+        transactionName = leadProcessor.processSingleLeadWithRequired(id);
+      } catch (Exception e) {
+        // Перехват исключения
+        System.out.println("Failed to process lead: " + id);
+      }
+    }
+
+    return transactionName;
+    }
+
+  public String processLeadsWithMandatory(List<UUID> ids) {
+    String transactionName = "none";
+    for (UUID id : ids) {
+      try {
+        transactionName = leadProcessor.processSingleLeadWithMandatory(id);
+      } catch (IllegalArgumentException e) {
+        // Перехват исключения
+        System.out.println("Failed to process lead: " + id);
+      }
+    }
+
+    return transactionName;
+  }
+  }
+
