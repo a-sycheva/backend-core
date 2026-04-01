@@ -22,7 +22,6 @@ import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.repository.LeadRepository;
 
 @SpringBootTest
-@Transactional
 class LeadServiceTest {
 
   @Autowired
@@ -125,11 +124,12 @@ class LeadServiceTest {
     service.processLeads(ids);
 
 
-    List<LeadStatus> statusesAfter = service.findByStatus(LeadStatus.NEW).stream()
+    List<LeadStatus> statusesAfter = service.findByStatus(LeadStatus.CONTACTED).stream()
         .map(Lead::getStatus).collect(Collectors.toList());
 
-    //статусы лидов не изменились, rollback для всех
-    assertThat(statusesBefore).isEqualTo(statusesAfter);
+    //статусы лидов изменились, откат только по ошибочной транзакции
+    assertThat(statusesBefore).isNotEqualTo(statusesAfter);
+    //у всех трех лидов статус CONTACTED
+    assertThat(statusesAfter).hasSize(3);
   }
-
 }

@@ -29,10 +29,13 @@ public class LeadService {
   private static final Logger LOG = LoggerFactory.getLogger(LeadService.class);
   private final LeadRepository leadRepository;
   private final DealRepository dealRepository;
+  private final LeadProcessor leadProcessor;
 
-  public LeadService(LeadRepository leadRepository, DealRepository dealRepository) {
+  public LeadService(LeadRepository leadRepository,
+                     DealRepository dealRepository, LeadProcessor leadProcessor) {
     this.leadRepository = leadRepository;
     this.dealRepository = dealRepository;
+    this.leadProcessor = leadProcessor;
 
     LOG.info("LeadService constructor called");
   }
@@ -176,13 +179,10 @@ public class LeadService {
       dealRepository.save(deal);
   }
 
-  //для иллюстрации self-invocation проблемы у метода processSingleLead
-  //создаем здесь транзакцию
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void processLeads(List<UUID> ids) {
     for (UUID id : ids) {
       try {
-        this.processSingleLead(id);
+        leadProcessor.processSingleLead(id);
       } catch (Exception e) {
         // Перехват исключения
         System.out.println("Failed to process lead: " + id);
@@ -190,12 +190,4 @@ public class LeadService {
     }
   }
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
-  private void processSingleLead(UUID id){
-    if(leadRepository.existsById(id)) {
-      findById(id).get().setStatus(LeadStatus.CONTACTED);
-    } else {
-      throw new IllegalArgumentException(); //ошибка для rollback
-    }
-  }
 }
