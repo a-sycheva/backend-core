@@ -206,7 +206,7 @@ public class LeadService {
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void processSingleLead(UUID id) {
+  private void processSingleLead(UUID id) {
     if (leadRepository.existsById(id)) {
       leadRepository.findById(id).get().setStatus(LeadStatus.CONTACTED);
     } else {
