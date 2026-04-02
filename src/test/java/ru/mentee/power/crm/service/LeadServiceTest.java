@@ -1,7 +1,6 @@
 package ru.mentee.power.crm.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
@@ -10,7 +9,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +17,6 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
-import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.IllegalTransactionStateException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,8 +34,7 @@ class LeadServiceTest {
   private LeadRepository repository;
 
   @BeforeEach
-  //@Transactional(propagation = Propagation.REQUIRES_NEW)
-  //@Commit
+
   void setUp() {
     repository.deleteAll();
 
@@ -128,15 +124,13 @@ class LeadServiceTest {
   @Test
   @Transactional
   void convertLeadToDealShouldRollbackOnConstraintViolation() {
-   Exception exception =  assertThrows(IllegalArgumentException.class,
-       () ->service.convertLeadToDeal(UUID.randomUUID(), BigDecimal.valueOf(10_000)));
-
-   assertThat(exception.getMessage()).contains("Lead not found");
+    Exception exception =  assertThrows(IllegalArgumentException.class, () ->
+        service.convertLeadToDeal(UUID.randomUUID(), BigDecimal.valueOf(10_000)));
+    assertThat(exception.getMessage()).contains("Lead not found");
   }
 
-  @Test
+  @Test //self-invocation problem
   void demonstrateSelfInvocationProblem() {
-
     List<LeadStatus> statusesBefore = service.findByStatus(LeadStatus.NEW).stream()
         .map(Lead::getStatus).collect(Collectors.toList());
     List<UUID> ids = new ArrayList<>();
@@ -158,7 +152,7 @@ class LeadServiceTest {
     assertThat(statusesAfter).hasSize(3);
   }
 
-  @Test
+  @Test //self-invocation problem solved
   void processLeadsShouldIsolateTransactionsPerLead() {
 
     List<LeadStatus> statusesBefore = service.findByStatus(LeadStatus.NEW).stream()
@@ -186,7 +180,8 @@ class LeadServiceTest {
 
   @Transactional
   @ParameterizedTest
-  //REQUIRES_NEW показан в processLeadsShouldIsolateTransactionsPerLead
+  //REQUIRES_NEW показан в предыдущем
+  // тесте processLeadsShouldIsolateTransactionsPerLead
   @EnumSource(value = Propagation.class, names = {"REQUIRED", "MANDATORY"})
   void testPropagation(Propagation propagation) {
 
@@ -211,7 +206,7 @@ class LeadServiceTest {
     }
   }
 
-  @Test
+  @Test //MANDATORY без активной транзакции
   void testPropagationMandatoryMethodShouldTrowExceptionWithoutTransaction() {
 
     List<UUID> ids = new ArrayList<>();
@@ -221,7 +216,30 @@ class LeadServiceTest {
     // Ошибка в одном processSingleLead
     ids.add(UUID.randomUUID());
 
+    //ошибка, если нет активных транзакций
     assertThrows(IllegalTransactionStateException.class, () ->
         service.processLeadsWithMandatory(ids));
   }
+
+  @Test
+  //тест READ_COMMITED с последовательным вызовом транзакций A-> B
+  //для REPEATABLE_READ так не получилось,
+  // в отдельном классе isolationTest параллельный тест
+  void isolationReadCommitedAllowsNonRepeatableRead() {
+    // Given
+    Lead lead = new Lead();
+    lead.setName("John");
+    lead.setEmail("john" + "@example.com");
+    lead.setCompany("TestComp ");
+    lead.setStatus(LeadStatus.NEW);
+    repository.save(lead);
+
+    // When транзакции A-> B внутри метода readThenWriteThenReadAgainWithReadCommitted
+    List<String> results = service.readThenWriteThenReadAgainWithReadCommitted(
+        lead.getId(), "Jane");
+
+    // Then должны увидеть "Jane" при READ_COMMITTED
+    assertThat(results).containsExactly("John", "Jane");
+  }
+
 }

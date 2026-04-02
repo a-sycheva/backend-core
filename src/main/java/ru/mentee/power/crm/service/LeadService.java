@@ -1,6 +1,7 @@
 package ru.mentee.power.crm.service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -15,9 +16,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.server.ResponseStatusException;
 import ru.mentee.power.crm.model.Deal;
 import ru.mentee.power.crm.model.Lead;
@@ -174,10 +175,9 @@ public class LeadService {
     Lead lead = leadRepository.findById(leadId)
         .orElseThrow(() -> new IllegalArgumentException(
             "Lead not found: " + leadId));
-
-      Deal deal = new Deal(leadId, amount);
-      lead.setStatus(LeadStatus.CONTACTED);
-      dealRepository.save(deal);
+    Deal deal = new Deal(leadId, amount);
+    lead.setStatus(LeadStatus.CONTACTED);
+    dealRepository.save(deal);
   }
 
   public String processLeads(List<UUID> ids) {
@@ -205,10 +205,9 @@ public class LeadService {
     }
   }
 
-
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void processSingleLead(UUID id){
-    if(leadRepository.existsById(id)) {
+  public void processSingleLead(UUID id) {
+    if (leadRepository.existsById(id)) {
       leadRepository.findById(id).get().setStatus(LeadStatus.CONTACTED);
     } else {
       throw new IllegalArgumentException(); //ошибка для rollback
@@ -227,7 +226,7 @@ public class LeadService {
     }
 
     return transactionName;
-    }
+  }
 
   public String processLeadsWithMandatory(List<UUID> ids) {
     String transactionName = "none";
@@ -242,5 +241,49 @@ public class LeadService {
 
     return transactionName;
   }
+
+  // Транзакция A (читает) для последовательного вызова
+  @Transactional(isolation = Isolation.READ_COMMITTED)
+  public List<String> readThenWriteThenReadAgainWithReadCommitted(UUID leadId, String newName) {
+    List<String> results = new ArrayList<>();
+
+    //Транзакция A читает Lead (name = "John")
+    Lead lead = leadRepository.findById(leadId).orElseThrow();
+    results.add(lead.getName());  // "John"
+
+    //Транзакция B обновляет Lead (name = "Jane") и commit
+    updateLeadName(leadId, newName);  // обновляет на "Jane"
+
+    // Транзакция A читает Lead повторно
+    // должны увидеть "Jane" при READ_COMMITTED
+    lead = leadRepository.findById(leadId).orElseThrow();
+    results.add(lead.getName());
+
+    return results;
   }
+
+  // Транзакция B (обновляет)
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void updateLeadName(UUID leadId, String newName) {
+    Lead lead = leadRepository.findById(leadId).orElseThrow();
+    lead.setName(newName);
+    // Транзакция Б завершается и КОММИТИТ
+  }
+
+  // Метод для REPEATABLE_READ в параллельном тесте
+  @Transactional(isolation = Isolation.REPEATABLE_READ)
+  public List<String> readLeadNameWithRepeatableRead(UUID leadId) throws InterruptedException {
+    List<String> results = new ArrayList<>();
+
+    Lead lead = leadRepository.findById(leadId).orElseThrow();
+    results.add(lead.getName());
+
+    Thread.sleep(100);
+
+    lead = leadRepository.findById(leadId).orElseThrow();
+    results.add(lead.getName());
+
+    return results;
+  }
+}
 
