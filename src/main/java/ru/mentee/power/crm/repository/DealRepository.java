@@ -7,7 +7,6 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import ru.mentee.power.crm.model.Deal;
 import ru.mentee.power.crm.model.DealStatus;
-import ru.mentee.power.crm.model.Lead;
 
 public interface DealRepository extends JpaRepository<Deal, UUID> {
 

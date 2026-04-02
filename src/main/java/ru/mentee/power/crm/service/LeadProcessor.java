@@ -18,28 +18,28 @@ public class LeadProcessor {
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public String processSingleLead(UUID id){
+  public String processSingleLead(UUID id) {
     String transactionName = TransactionSynchronizationManager.getCurrentTransactionName();
     updateSingleLead(id);
     return transactionName;
   }
 
   @Transactional(propagation = Propagation.REQUIRED)
-  public String processSingleLeadWithRequired(UUID id){
+  public String processSingleLeadWithRequired(UUID id) {
     String transactionName = TransactionSynchronizationManager.getCurrentTransactionName();
     updateSingleLead(id);
     return transactionName;
   }
 
   @Transactional(propagation = Propagation.MANDATORY)
-  public String processSingleLeadWithMandatory(UUID id){
+  public String processSingleLeadWithMandatory(UUID id) {
     String transactionName = TransactionSynchronizationManager.getCurrentTransactionName();
     updateSingleLead(id);
     return transactionName;
   }
 
-  private void updateSingleLead(UUID id){
-    if(leadRepository.existsById(id)) {
+  private void updateSingleLead(UUID id) {
+    if (leadRepository.existsById(id)) {
       leadRepository.findById(id).get().setStatus(LeadStatus.CONTACTED);
     } else {
       throw new IllegalArgumentException(); //ошибка для rollback
