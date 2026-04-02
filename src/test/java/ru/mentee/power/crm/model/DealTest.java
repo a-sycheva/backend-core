@@ -13,7 +13,8 @@ class DealTest {
   UUID leadId = UUID.randomUUID();
   BigDecimal amount = new BigDecimal(100_000.00);
 
-  Deal deal = new Deal(leadId, amount);
+  Deal deal = new Deal(UUID.randomUUID(), leadId, amount,
+      DealStatus.NEW, LocalDateTime.now());
 
   @Test
   void shouldCreateDealWithNewStatus() {
@@ -58,7 +59,8 @@ class DealTest {
 
   @Test
   void shouldNotBeEqualsWhenDealsHasDifferentIds() {
-    Deal anotherDeal = new Deal(UUID.randomUUID(), BigDecimal.valueOf(20_000));
+    Deal anotherDeal = new Deal(UUID.randomUUID(), leadId, amount,
+        DealStatus.NEW, LocalDateTime.now());
     assertThat(anotherDeal).isNotEqualTo(deal);
   }
 

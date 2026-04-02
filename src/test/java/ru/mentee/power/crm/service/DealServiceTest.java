@@ -44,7 +44,8 @@ class DealServiceTest {
   void setUp () {
     dealService = new DealService(mockDealRepository, mockLeadRepository);
     defLead = new Lead(UUID.randomUUID(), "test@example.ru", "TestCorp", LeadStatus.NEW);
-    defDeal = new Deal(defLead.id(), BigDecimal.valueOf(10_000));
+    defDeal = new Deal(defLead.id(), defLead.id(), BigDecimal.valueOf(10_000),
+        DealStatus.NEW, LocalDateTime.now());
   }
 
   @Test
