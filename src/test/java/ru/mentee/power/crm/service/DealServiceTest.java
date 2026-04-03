@@ -24,7 +24,7 @@ import ru.mentee.power.crm.model.Deal;
 import ru.mentee.power.crm.model.DealStatus;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
-import ru.mentee.power.crm.repository.InMemoryDealRepository;
+import ru.mentee.power.crm.repository.DealRepository;
 import ru.mentee.power.crm.repository.LeadRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,7 +33,7 @@ class DealServiceTest {
   Deal defDeal;
 
   @Mock
-  InMemoryDealRepository mockDealRepository;
+  DealRepository mockDealRepository;
 
   @Mock
   LeadRepository mockLeadRepository;
@@ -44,7 +44,8 @@ class DealServiceTest {
   void setUp () {
     dealService = new DealService(mockDealRepository, mockLeadRepository);
     defLead = new Lead(UUID.randomUUID(), "test@example.ru", "TestCorp", LeadStatus.NEW);
-    defDeal = new Deal(defLead.id(), BigDecimal.valueOf(10_000));
+    defDeal = new Deal(defLead.id(), defLead.id(), BigDecimal.valueOf(10_000),
+        DealStatus.NEW, LocalDateTime.now());
   }
 
   @Test

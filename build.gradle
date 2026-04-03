@@ -97,7 +97,7 @@ dependencies {
 }
 
 jte {
-    sourceDirectory = file("src/main/jte").toPath()
+    sourceDirectory = file("src/main/resources/jte").toPath()
     contentType = "Html"
     binaryStaticContent = false
 }

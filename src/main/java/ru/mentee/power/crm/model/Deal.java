@@ -5,15 +5,40 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "deals")
 public class Deal {
-  private final UUID id;
-  private final UUID leadId;
-  private  final BigDecimal amount;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
+
+  @Column(nullable = false)
+  private UUID leadId;
+
+  @Column(nullable = false)
+  private  BigDecimal amount;
+
+  @Column(name = "stage", nullable = false)
+  @Enumerated(EnumType.STRING)
   private DealStatus status;
-  private final LocalDateTime createdAt;
+
+  @Column(name = "created_at", nullable = false, updatable = false)
+  private LocalDateTime createdAt;
+
+  public Deal() {
+
+  }
 
   public Deal (UUID leadId, BigDecimal amount) {
-    this.id = UUID.randomUUID();
     this.leadId = Objects.requireNonNull(leadId, "LeadId must not be null");
     this.amount = Objects.requireNonNull(amount, "amount must not be null");;
     this.status = DealStatus.NEW;
