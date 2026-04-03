@@ -1,14 +1,6 @@
 package ru.mentee.power.crm.service;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
-import org.springframework.test.context.ActiveProfiles;
-import ru.mentee.power.crm.model.Lead;
-import ru.mentee.power.crm.model.LeadStatus;
-import ru.mentee.power.crm.repository.LeadRepository;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -18,7 +10,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import static org.assertj.core.api.Assertions.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.test.context.ActiveProfiles;
+import ru.mentee.power.crm.model.Lead;
+import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.repository.LeadRepository;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -32,8 +32,7 @@ class LeadLockingServiceTest {
   private LeadRepository leadRepository;
 
   @AfterEach
-  void tearDown()
-  {
+  void tearDown() {
     leadRepository.deleteAll();
   }
 
@@ -81,7 +80,6 @@ class LeadLockingServiceTest {
 
     executor.shutdown();
   }
-
 
   @Test
   void shouldThrowOptimisticLockExceptionWhenConcurrentUpdateWithoutLock() throws Exception {

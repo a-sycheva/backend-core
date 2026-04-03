@@ -2,14 +2,14 @@ package ru.mentee.power.crm.service;
 
 import static java.lang.Thread.sleep;
 
+import java.util.UUID;
+
 import jakarta.persistence.OptimisticLockException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.repository.LeadRepository;
-
-import java.util.UUID;
 
 @Service
 public class LeadLockingService {
@@ -68,7 +68,9 @@ public class LeadLockingService {
         attempt++;
 
         if (attempt >= maxRetries) {
-          throw new RuntimeException("Не удалось обновить лида после " + maxRetries + " попыток", e);
+          throw new RuntimeException(
+              "Не удалось обновить лида после " + maxRetries
+                  + " попыток", e);
         }
 
         // задержка перед повторной попыткой
