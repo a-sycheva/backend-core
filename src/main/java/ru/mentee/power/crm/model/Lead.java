@@ -7,9 +7,12 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
@@ -39,14 +42,18 @@ public  class Lead {
 
   @Column(nullable = false, unique = true)
   private  @NotBlank(message = "Email обязателен")
-  @Email(regexp = ".+@.+\\..+", message = "Некорректный формат email") String email;
+  @Email(regexp = ".+@.+\\..+", message = "Некорректный формат email")
+  String email;
 
-  @Column(nullable = false)
-  private  @NotBlank(message = "Указать компанию обязательно") String company;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "company_id")
+  private  @NotBlank(message = "Указать компанию обязательно")
+  Company company;
 
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
-  private  @NotNull(message = "Указать статус обязательно") LeadStatus status;
+  private  @NotNull(message = "Указать статус обязательно")
+  LeadStatus status;
 
   @Version
   @Column(name = "version", nullable = false)
@@ -66,7 +73,7 @@ public  class Lead {
               @Email(regexp = ".+@.+\\..+", message = "Некорректный формат email")
               String email,
               @NotBlank(message = "Указать компанию обязательно")
-              String company,
+              Company company,
               @NotNull(message = "Указать статус обязательно")
               LeadStatus status) {
     this.id = id;
@@ -76,14 +83,14 @@ public  class Lead {
   }
 
   //конструктор для старых тестов
-  public Lead(String email, String company, LeadStatus status) {
+  public Lead(String email, Company company, LeadStatus status) {
     this.email = email;
     this.company = company;
     this.status = status;
   }
 
   //конструктор для тестов
-  public Lead(UUID id, String name, String email, String company, LeadStatus status) {
+  public Lead(UUID id, String name, String email, Company company, LeadStatus status) {
     this.id = id;
     this.name = name;
     this.email = email;
@@ -91,7 +98,7 @@ public  class Lead {
     this.status = status;
   }
 
-  public Lead(String name, String email, String company, LeadStatus status) {
+  public Lead(String name, String email, Company company, LeadStatus status) {
     this.name = name;
     this.email = email;
     this.company = company;
@@ -112,7 +119,7 @@ public  class Lead {
     return email;
   }
 
-  public @NotBlank(message = "Указать компанию обязательно") String company() {
+  public @NotBlank(message = "Указать компанию обязательно") Company company() {
     return company;
   }
 
