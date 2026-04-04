@@ -94,6 +94,8 @@ dependencies {
     // H2 Database (только для тестов)
     testRuntimeOnly "com.h2database:h2:${h2DataBaseVersion}"
     runtimeOnly "com.h2database:h2:${h2DataBaseVersion}" //для BootRun with H2
+
+    implementation 'org.liquibase:liquibase-core'
 }
 
 jte {
