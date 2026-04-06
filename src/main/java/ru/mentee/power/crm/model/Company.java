@@ -38,6 +38,11 @@ public class Company {
   @OneToMany(mappedBy = "company", cascade = CascadeType.PERSIST)
   private List<Lead> leads = new ArrayList<>();
 
+  public Company(String name, String industry) {
+    this.name=name;
+    this.industry=industry;
+  }
+
   public void addLead(Lead lead) {
     leads.add(lead);
     lead.setCompany(this);

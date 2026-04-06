@@ -8,5 +8,6 @@
     <!--** <include file="db/changelog/changes/001-create-leads-table.xml"/>
     <include file="db/changelog/changes/002-create-companies-table.xml"/> **-->
     <include file="db/changelog/changes/003-add-version-to-leads.xml"/>
+    <include file="db/changelog/changes/bcore-31-company.xml"/>
 
 </databaseChangeLog>
