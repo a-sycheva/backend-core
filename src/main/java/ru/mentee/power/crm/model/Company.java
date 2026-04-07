@@ -29,7 +29,7 @@ public class Company {
   @EqualsAndHashCode.Include
   private UUID id;
 
-  @Column(nullable = false)
+  @Column(nullable = false, unique = true)
   private String name;
 
   @Column
@@ -39,8 +39,8 @@ public class Company {
   private List<Lead> leads = new ArrayList<>();
 
   public Company(String name, String industry) {
-    this.name=name;
-    this.industry=industry;
+    this.name = name;
+    this.industry = industry;
   }
 
   public void addLead(Lead lead) {
