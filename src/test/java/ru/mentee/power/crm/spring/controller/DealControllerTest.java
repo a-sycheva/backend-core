@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.mentee.power.crm.model.Company;
 import ru.mentee.power.crm.model.Deal;
 import ru.mentee.power.crm.model.DealStatus;
 import ru.mentee.power.crm.model.Lead;
@@ -66,7 +67,8 @@ class DealControllerTest {
   @Test
   void shouldShowConvertForm() throws Exception {
     UUID leadId = UUID.randomUUID();
-    Lead lead = new Lead(leadId, "test@mail.ru", "TestCorp", LeadStatus.NEW);
+    Lead lead = new Lead(leadId, "test@mail.ru",
+        new Company("TestCorp", "TestIndustry"), LeadStatus.NEW);
     when(leadService.findById(leadId)).thenReturn(Optional.of(lead));
 
     mockMvc.perform(get("/deals/convert/{leadId}", leadId))

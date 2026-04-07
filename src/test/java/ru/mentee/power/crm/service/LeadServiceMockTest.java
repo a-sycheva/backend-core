@@ -21,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
+import ru.mentee.power.crm.model.Company;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.repository.DealRepository;
@@ -56,7 +57,7 @@ class LeadServiceMockTest {
         .thenAnswer(invocation -> invocation.getArgument(0));
 
     // When: вызываем бизнес-метод
-    Lead result = service.addLead("new@example.com", "Company", LeadStatus.NEW);
+    Lead result = service.addLead("new@example.com", null, LeadStatus.NEW);
 
     // Then: проверяем что Repository.save() был вызван ровно 1 раз
     verify(mockRepository, times(1)).save(any(Lead.class));
@@ -71,7 +72,7 @@ class LeadServiceMockTest {
     Lead existingLead = new Lead(
         UUID.randomUUID(),
         "existing@example.com",
-        "Existing Company",
+        new Company("Test Corp", "TestIndustry"),
         LeadStatus.CONTACTED
     );
     when(mockRepository.findByEmail("existing@example.com"))
@@ -79,7 +80,7 @@ class LeadServiceMockTest {
 
     // When/Then: ожидаем исключение
     assertThatThrownBy(() ->
-        service.addLead("existing@example.com", "New Company", LeadStatus.NEW)
+        service.addLead("existing@example.com", null, LeadStatus.NEW)
     ).isInstanceOf(IllegalStateException.class);
 
     // Then: save() НЕ должен быть вызван
@@ -95,7 +96,7 @@ class LeadServiceMockTest {
         .thenAnswer(invocation -> invocation.getArgument(0));
 
     // When
-    service.addLead("test@example.com", "Company", LeadStatus.NEW);
+    service.addLead("test@example.com", null, LeadStatus.NEW);
 
     // Then: проверяем порядок вызовов
     var inOrder = inOrder(mockRepository);
@@ -108,7 +109,7 @@ class LeadServiceMockTest {
     UUID id = UUID.randomUUID();
 
     Lead lead = new Lead(id, "test@example.ru",
-        "TestCorp", LeadStatus.NEW);
+        new Company("Test Corp", "TestIndustry"), LeadStatus.NEW);
 
     when(mockRepository.findById(any(UUID.class))).
         thenReturn(Optional.of(lead));
@@ -134,7 +135,7 @@ class LeadServiceMockTest {
 
     assertThatThrownBy(() -> service.update(UUID.randomUUID(),
         new Lead(UUID.randomUUID(), "test@test.ru",
-            "TestCorp", LeadStatus.NEW)))
+            new Company("Test Corp", "TestIndustry"), LeadStatus.NEW)))
         .isInstanceOf(ResponseStatusException.class);
   }
 
@@ -142,9 +143,9 @@ class LeadServiceMockTest {
   void shouldFindLeadsWithoutFilter() {
 
     Lead lead = new Lead(UUID.randomUUID(), "test@test.ru",
-        "TestCorp", LeadStatus.NEW);
+        new Company("Test Corp", "TestIndustry"), LeadStatus.NEW);
     Lead secondLead = new Lead(UUID.randomUUID(), "example@exampe.ru",
-        "ExCorp", LeadStatus.CONTACTED);
+        new Company("Test Corp", "TestIndustry"), LeadStatus.CONTACTED);
     List<Lead> leads = new ArrayList<>();
     leads.add(lead);
     leads.add(secondLead);
@@ -161,9 +162,9 @@ class LeadServiceMockTest {
   void shouldFindLeadsWhenFilteredByEmail() {
 
     Lead lead = new Lead(UUID.randomUUID(), "test@test.ru",
-        "TestCorp", LeadStatus.NEW);
+        new Company("Test Corp", "TestIndustry"), LeadStatus.NEW);
     Lead secondLead = new Lead(UUID.randomUUID(), "example@exampe.ru",
-        "ExCorp", LeadStatus.CONTACTED);
+        new Company("Test Corp", "TestIndustry"), LeadStatus.CONTACTED);
     List<Lead> leads = new ArrayList<>();
     leads.add(lead);
     leads.add(secondLead);
@@ -176,11 +177,10 @@ class LeadServiceMockTest {
 
   @Test
   void shouldFindLeadsWhenFilteredByCompany() {
-
     Lead lead = new Lead(UUID.randomUUID(), "test@test.ru",
-        "TestCorp", LeadStatus.NEW);
+        new Company("Test Corp", "TestIndustry"), LeadStatus.NEW);
     Lead secondLead = new Lead(UUID.randomUUID(), "example@exampe.ru",
-        "ExCorp", LeadStatus.CONTACTED);
+        new Company("ExCorp", "TestIndustry"), LeadStatus.CONTACTED);
     List<Lead> leads = new ArrayList<>();
     leads.add(lead);
     leads.add(secondLead);
@@ -195,9 +195,9 @@ class LeadServiceMockTest {
   void shouldFindLeadsWhenFilteredByStatus() {
 
     Lead lead = new Lead(UUID.randomUUID(), "test@test.ru",
-        "TestCorp", LeadStatus.NEW);
+        new Company("Test Corp", "TestIndustry"), LeadStatus.NEW);
     Lead secondLead = new Lead(UUID.randomUUID(), "example@exampe.ru",
-        "ExCorp", LeadStatus.CONTACTED);
+        new Company("Test Corp", "TestIndustry"), LeadStatus.CONTACTED);
     List<Lead> leads = new ArrayList<>();
     leads.add(lead);
     leads.add(secondLead);
@@ -212,9 +212,9 @@ class LeadServiceMockTest {
   void shouldFindLeadsWhenFilteredByName() {
 
     Lead lead = new Lead(UUID.randomUUID(), "Anna", "test@test.ru",
-        "TestCorp", LeadStatus.NEW);
+        new Company("Test Corp", "TestIndustry"), LeadStatus.NEW);
     Lead secondLead = new Lead(UUID.randomUUID(), "Batista", "example@exampe.ru",
-        "ExCorp", LeadStatus.CONTACTED);
+        new Company("Test Corp", "TestIndustry"), LeadStatus.CONTACTED);
     List<Lead> leads = new ArrayList<>();
     leads.add(lead);
     leads.add(secondLead);
@@ -228,20 +228,20 @@ class LeadServiceMockTest {
   @Test
   void shouldThrowExceptionWhenAddedLeadWithSaneEmail() {
     Lead lead = new Lead(UUID.randomUUID(), "Anna", "test@test.ru",
-        "TestCorp", LeadStatus.NEW);
+        new Company("Test Corp", "TestIndustry"), LeadStatus.NEW);
 
     when(mockRepository.findByEmail(any(String.class))).
         thenReturn(Optional.of(lead));
 
     assertThatThrownBy(() -> service.addLead("Anna", "test@test.ru",
-            "TestCorp", LeadStatus.NEW))
+        new Company("Test Corp", "TestIndustry"), LeadStatus.NEW))
         .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
   void shouldFindByEmailWhenItCalled() {
     Lead lead = new Lead(UUID.randomUUID(), "Anna", "test@test.ru",
-        "TestCorp", LeadStatus.NEW);
+        new Company("Test Corp", "TestIndustry"), LeadStatus.NEW);
 
     when(mockRepository.findByEmail(any(String.class))).
         thenReturn(Optional.of(lead));
@@ -258,11 +258,11 @@ class LeadServiceMockTest {
   @Test
   void shouldFindByStatusWhenItCalled() {
     Lead firstLead = new Lead(UUID.randomUUID(), "Anna",
-        "anna@test.ru", "Corp1", LeadStatus.NEW);
+        "anna@test.ru", new Company("Test Corp", "TestIndustry"), LeadStatus.NEW);
     Lead secondLead = new Lead(UUID.randomUUID(), "Bob",
-        "bob@test.ru", "Corp2", LeadStatus.NEW);
+        "bob@test.ru", new Company("Test Corp", "TestIndustry"), LeadStatus.NEW);
     Lead thirdLead = new Lead(UUID.randomUUID(), "Charlie",
-        "charlie@test.ru", "Corp3", LeadStatus.CONTACTED);
+        "charlie@test.ru", new Company("Test Corp", "TestIndustry"), LeadStatus.CONTACTED);
 
     when(mockRepository.findAll()).
         thenReturn(List.of(firstLead, secondLead, thirdLead));
@@ -279,9 +279,9 @@ class LeadServiceMockTest {
   @Test
   void shouldFindByStatusesWhenItCalled() {
     Lead firstLead = new Lead(UUID.randomUUID(), "Anna",
-        "anna@test.ru", "Corp1", LeadStatus.NEW);
+        "anna@test.ru", new Company("Test Corp", "TestIndustry"), LeadStatus.NEW);
     Lead secondLead = new Lead(UUID.randomUUID(), "Charlie",
-        "charlie@test.ru", "Corp3", LeadStatus.CONTACTED);
+        "charlie@test.ru", new Company("Test Corp", "TestIndustry"), LeadStatus.CONTACTED);
 
     List statuses = List.of(LeadStatus.NEW, LeadStatus.CONTACTED);
 

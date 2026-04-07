@@ -31,9 +31,9 @@ class CompanyRepositoryTest {
     // Given
     Company company = new Company("Tinkoff", "Finance");
 
-    Lead firstLead = new Lead("John","ivan@t.ru", LeadStatus.NEW);
-    Lead secondLead = new Lead("Mariya","maria@t.ru", LeadStatus.CONTACTED);
-    Lead thirdLead = new Lead("Alina","alina@t.ru", LeadStatus.CONTACTED);
+    Lead firstLead = new Lead("John", "ivan@t.ru", LeadStatus.NEW);
+    Lead secondLead = new Lead("Mariya", "maria@t.ru", LeadStatus.CONTACTED);
+    Lead thirdLead = new Lead("Alina", "alina@t.ru", LeadStatus.CONTACTED);
 
     company.addLead(firstLead);
     company.addLead(secondLead);
@@ -61,7 +61,7 @@ class CompanyRepositoryTest {
     // Given — создаём компанию с 5 лидами
     Company company = new Company("Тинькофф", "Finance");
     for (int i = 0; i < 5; i++) {
-      Lead lead = new Lead("Lead" + i,"lead" + i + "@tinkoff.ru", LeadStatus.NEW);
+      Lead lead = new Lead("Lead" + i, "lead" + i + "@tinkoff.ru", LeadStatus.NEW);
       company.addLead(lead);
     }
     Company saved = companyRepository.save(company);

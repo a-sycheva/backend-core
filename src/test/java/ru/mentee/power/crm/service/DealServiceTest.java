@@ -20,6 +20,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.mentee.power.crm.model.Company;
 import ru.mentee.power.crm.model.Deal;
 import ru.mentee.power.crm.model.DealStatus;
 import ru.mentee.power.crm.model.Lead;
@@ -43,7 +44,8 @@ class DealServiceTest {
   @BeforeEach
   void setUp () {
     dealService = new DealService(mockDealRepository, mockLeadRepository);
-    defLead = new Lead(UUID.randomUUID(), "test@example.ru", "TestCorp", LeadStatus.NEW);
+    defLead = new Lead(UUID.randomUUID(), "test@example.ru",
+        new Company("Test Corp", "TestIndustry"), LeadStatus.NEW);
     defDeal = new Deal(defLead.id(), defLead.id(), BigDecimal.valueOf(10_000),
         DealStatus.NEW, LocalDateTime.now());
   }

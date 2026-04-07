@@ -38,7 +38,7 @@ public class IsolationTest {
     Lead lead = new Lead();
     lead.setName("John");
     lead.setEmail("john@test.ru");
-    lead.setCompany("Company");
+    lead.setCompany(null);
     lead.setStatus(LeadStatus.NEW);
     leadRepository.save(lead);
     UUID leadId = lead.getId();
