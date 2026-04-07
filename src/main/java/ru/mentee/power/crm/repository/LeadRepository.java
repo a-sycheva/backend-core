@@ -13,6 +13,7 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import ru.mentee.power.crm.model.Company;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 
@@ -22,7 +23,7 @@ public interface LeadRepository extends JpaRepository<Lead, UUID> {
 
   List<Lead> findByStatus(LeadStatus status);
 
-  List<Lead> findByCompany(String company);
+  List<Lead> findByCompany(Company company);
 
   long countByStatus(LeadStatus status);
 
@@ -43,9 +44,9 @@ public interface LeadRepository extends JpaRepository<Lead, UUID> {
 
   Page<Lead> findByStatus(LeadStatus status, Pageable pageable);
 
-  Page<Lead> findByCompany(String company, Pageable pageable);
+  Page<Lead> findByCompany(Company company, Pageable pageable);
 
-  Page<Lead> findByStatusAndCompany(LeadStatus status, String company, Pageable pageable);
+  Page<Lead> findByStatusAndCompany(LeadStatus status, Company company, Pageable pageable);
 
   @Query("SELECT l FROM Lead l WHERE l.status IN :statuses")
   Page<Lead> findByStatusInPaged(@Param("statuses") List<LeadStatus> statuses, Pageable pageable);

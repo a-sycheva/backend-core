@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import ru.mentee.power.crm.model.Company;
 import ru.mentee.power.crm.model.Deal;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
@@ -47,7 +48,7 @@ public class LeadService {
     LOG.info("LeadService @PostConstruct init() called - Bean lifecycle phase");
   }
 
-  public Lead addLead(String name, String email, String company, LeadStatus status) {
+  public Lead addLead(String name, String email, Company company, LeadStatus status) {
 
     Optional<Lead> existing = leadRepository.findByEmail(email);
     if (existing.isPresent()) {
@@ -64,7 +65,7 @@ public class LeadService {
     return leadRepository.save(lead);
   }
 
-  public Lead addLead(String email, String company, LeadStatus status) {
+  public Lead addLead(String email, Company company, LeadStatus status) {
 
     Optional<Lead> existing = leadRepository.findByEmail(email);
     if (existing.isPresent()) {
@@ -128,7 +129,7 @@ public class LeadService {
         .collect(Collectors.toList());
   }
 
-  public List<Lead> findLeads(String name, String email, String company, LeadStatus status) {
+  public List<Lead> findLeads(String name, String email, String companyName, LeadStatus status) {
     Stream<Lead> stream = leadRepository.findAll().stream();
     if (name != null && !name.isBlank()) {
       stream = stream.filter(lead -> lead.name().toLowerCase().contains(name.toLowerCase()));
@@ -136,8 +137,9 @@ public class LeadService {
     if (email != null && !email.isBlank()) {
       stream = stream.filter(lead -> lead.email().toLowerCase().contains(email.toLowerCase()));
     }
-    if (company != null && !company.isBlank()) {
-      stream = stream.filter(lead -> lead.company().toLowerCase().contains(company.toLowerCase()));
+    if (companyName != null && !companyName.isBlank()) {
+      stream = stream.filter(lead -> lead.company() != null
+          && lead.company().getName().toLowerCase().contains(companyName.toLowerCase()));
     }
     if (status != null) {
       stream = stream.filter(lead -> lead.status().equals(status));
@@ -145,7 +147,7 @@ public class LeadService {
     return stream.collect(Collectors.toList());
   }
 
-  public Page<Lead> searchByCompany (String company, int pageNumber, int pageSize) {
+  public Page<Lead> searchByCompany (Company company, int pageNumber, int pageSize) {
     PageRequest pageRequest = PageRequest.of(
         pageNumber, pageSize);
     return leadRepository.findByCompany(company, pageRequest);

@@ -17,14 +17,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
+import ru.mentee.power.crm.dto.LeadCreateRequest;
+import ru.mentee.power.crm.dto.LeadUpdateRequest;
+import ru.mentee.power.crm.model.Company;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.service.CompanyService;
 import ru.mentee.power.crm.service.LeadService;
 
 @Controller
 @RequiredArgsConstructor
 public class LeadController {
   private final LeadService leadService;
+  private  final CompanyService companyService;
 
   @GetMapping
   @ResponseBody
@@ -37,14 +42,14 @@ public class LeadController {
   public String showLeads(
       @RequestParam(required = false) String name,
       @RequestParam(required = false) String email,
-      @RequestParam(required = false) String company,
+      @RequestParam(required = false) String companyName,
       @RequestParam(required = false) LeadStatus status,
       Model model) {
-    List<Lead> leads = leadService.findLeads(name, email, company, status);
+    List<Lead> leads = leadService.findLeads(name, email, companyName, status);
 
     model.addAttribute("leads", leads);
     model.addAttribute("email", email);
-    model.addAttribute("company", company);
+    model.addAttribute("companyName", companyName);
     model.addAttribute("status", status);
 
     return "leads/list";
@@ -53,18 +58,26 @@ public class LeadController {
   //форма создания лида
   @GetMapping("/leads/new")
   public String showCreateForm(Model model) {
-    model.addAttribute("lead", new Lead("", "", "", LeadStatus.NEW));
+    model.addAttribute("lead", new Lead("", "", LeadStatus.NEW));
+    model.addAttribute("companies", companyService.findAll());
     return "leads/create";
   }
 
   //создание лида
   @PostMapping("/leads")
-  public String createLead(@Valid @ModelAttribute Lead lead, BindingResult result, Model model) {
+  public String createLead(@Valid @ModelAttribute("request") LeadCreateRequest request,
+                           BindingResult result,
+                           Model model) {
     if (result.hasErrors()) {
       model.addAttribute("errors", result);
       return "leads/form";
     } else {
-      leadService.addLead(lead.name(), lead.email(), lead.company(), lead.status());
+
+      Company company = request.getCompanyId() != null
+          ? companyService.findById(request.getCompanyId()).orElse(null)
+          : null;
+
+      leadService.addLead(request.getName(), request.getEmail(), company, request.getStatus());
       return "redirect:/leads";
     }
   }
@@ -81,14 +94,17 @@ public class LeadController {
           "Cannot find lead with id " + id);
     } else {
       model.addAttribute("lead", lead.get());
+      model.addAttribute("companies", companyService.findAll());
     }
     return "leads/edit";
   }
 
   //обновление лида
   @PostMapping("/leads/{id}")
-  public String updateLead(@PathVariable UUID id, @Valid @ModelAttribute Lead lead,
-                           BindingResult result, Model model) {
+  public String updateLead(@PathVariable UUID id,
+                           @Valid @ModelAttribute("request") LeadUpdateRequest request,
+                           BindingResult result,
+                           Model model) {
 
     //избегаю Direct endpoint invocation
     if (leadService.findById(id).isEmpty()) {
@@ -102,6 +118,12 @@ public class LeadController {
         model.addAttribute("errors", result);
         return "leads/form";
       } else {
+
+        Company company = request.getCompanyId() != null
+            ? companyService.findById(request.getCompanyId()).orElse(null)
+            : null;
+
+        Lead lead = new Lead(request.getName(), request.getEmail(), company, request.getStatus());
         leadService.update(id, lead);
         return "redirect:/leads";
       }

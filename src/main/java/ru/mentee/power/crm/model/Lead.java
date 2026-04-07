@@ -47,8 +47,7 @@ public  class Lead {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "company_id")
-  private  @NotBlank(message = "Указать компанию обязательно")
-  Company company;
+  private Company company;
 
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
@@ -79,6 +78,12 @@ public  class Lead {
     this.id = id;
     this.email = email;
     this.company = company;
+    this.status = status;
+  }
+
+  public Lead(String name, String email, LeadStatus status) {
+    this.name = name;
+    this.email = email;
     this.status = status;
   }
 

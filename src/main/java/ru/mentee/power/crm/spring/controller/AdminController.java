@@ -28,10 +28,10 @@ public class AdminController {
   @ResponseBody
   public String addTestData(Model model) {
     if (leadService.findAll().isEmpty()) {
-      leadService.addLead("Ivan", "test1@example.ru", "FirstCorp", LeadStatus.NEW);
-      leadService.addLead("Anastasiya", "test2@example.ru", "SecondCorp", LeadStatus.NEW);
-      leadService.addLead("Konstantin", "test3@example.ru", "ThirdCorp", LeadStatus.NEW);
-      leadService.addLead("Nataliya", "test4@example.ru", "FourthCorp", LeadStatus.NEW);
+      leadService.addLead("Ivan", "test1@example.ru", null, LeadStatus.NEW);
+      leadService.addLead("Anastasiya", "test2@example.ru", null, LeadStatus.NEW);
+      leadService.addLead("Konstantin", "test3@example.ru", null, LeadStatus.NEW);
+      leadService.addLead("Nataliya", "test4@example.ru", null, LeadStatus.NEW);
       return "Data is added!";
     }
     return "Database already has data!";
