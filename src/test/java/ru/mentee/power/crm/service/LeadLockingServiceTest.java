@@ -39,7 +39,7 @@ class LeadLockingServiceTest {
   @Test
   void shouldPreventLostUpdateWhenPessimisticLockUsed() throws Exception {
     // Given: Lead с начальным статусом
-    Lead lead = new Lead("Patrick", "concurrent@test.com", "TestCorp", LeadStatus.NEW);
+    Lead lead = new Lead("Patrick", "concurrent@test.com", LeadStatus.NEW);
     lead = leadRepository.save(lead);
     UUID leadId = lead.getId();
 
@@ -84,7 +84,7 @@ class LeadLockingServiceTest {
   @Test
   void shouldThrowOptimisticLockExceptionWhenConcurrentUpdateWithoutLock() throws Exception {
     // Given: Lead с optimistic locking через @Version
-    Lead lead = new Lead("Patrick", "optimistic@test.com", "TestCorp", LeadStatus.NEW);
+    Lead lead = new Lead("Patrick", "optimistic@test.com", LeadStatus.NEW);
     lead = leadRepository.save(lead);
     UUID leadId = lead.getId();
 
@@ -123,4 +123,5 @@ class LeadLockingServiceTest {
     assertThat(exceptionThrown).isTrue();
     executor.shutdown();
   }
+
 }

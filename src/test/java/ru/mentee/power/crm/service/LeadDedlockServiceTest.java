@@ -30,11 +30,11 @@ public class LeadDedlockServiceTest {
 
   @Test
   void shouldTrowExceptionWhenDeadlock() {
-    Lead firstLead = new Lead("Patrick", "optimistic@test.com", "TestCorp", LeadStatus.NEW);
+    Lead firstLead = new Lead("Patrick", "optimistic@test.com", LeadStatus.NEW);
     firstLead = leadRepository.save(firstLead);
     UUID firstLeadId = firstLead.getId();
 
-    Lead secondLead = new Lead("Branon", "temperance@test.com", "FBICorp", LeadStatus.NEW);
+    Lead secondLead = new Lead("Branon", "temperance@test.com", LeadStatus.NEW);
     secondLead = leadRepository.save(secondLead);
     UUID secondLeadId = secondLead.getId();
 

@@ -70,7 +70,7 @@ class LeadControllerTest {
   void shouldShowEditForm() throws Exception {
 
     Lead lead = service.addLead("Dexter", "test1@example.ru",
-        "TestCorp", LeadStatus.NEW);
+        null, LeadStatus.NEW);
 
     mockMvc.perform(get("/leads/" + lead.id() + "/edit"))
         .andExpect(status().isOk())
@@ -92,7 +92,7 @@ class LeadControllerTest {
   @Test
   void shouldUpdateLead() throws Exception {
     Lead lead = service.addLead("Dexter", "old@example.ru",
-        "TestCorp", LeadStatus.NEW);
+        null, LeadStatus.NEW);
 
     mockMvc.perform(post("/leads/" + lead.id())
             .param("name", "Joys")

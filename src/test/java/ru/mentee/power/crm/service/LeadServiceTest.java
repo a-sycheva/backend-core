@@ -21,8 +21,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.IllegalTransactionStateException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.mentee.power.crm.model.Company;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.repository.CompanyRepository;
 import ru.mentee.power.crm.repository.LeadRepository;
 
 @SpringBootTest
@@ -35,25 +37,32 @@ class LeadServiceTest {
   @Autowired
   private LeadRepository repository;
 
+  @Autowired
+  private CompanyRepository companyRepository;
+
   @BeforeEach
 
   void setUp() {
     repository.deleteAll();
+    companyRepository.deleteAll();
 
     // Создаём 3 NEW лида
     for (int i = 1; i <= 3; i++) {
       Lead lead = new Lead();
       lead.setName("Name" + i);
       lead.setEmail("lead" + i + "@example.com");
-      lead.setCompany("Company " + i);
+      Company company = new Company("Company " + i, "TestIndustry");
       lead.setStatus(LeadStatus.NEW);
-      repository.save(lead);
+      company.addLead(lead);
+      companyRepository.save(company);
     }
   }
 
   @AfterEach
   void tearDown() {
+
     repository.deleteAll();
+    companyRepository.deleteAll();
   }
 
   @Test
@@ -86,14 +95,19 @@ class LeadServiceTest {
 
   @Test
   void searchByCompanyShouldReturnPage() {
+    Company company = companyRepository.findByName("Company 1").get();
+
     Lead lead = new Lead();
     lead.setName("Name" + 4);
     lead.setEmail("lead" + 4 + "@example.com");
-    lead.setCompany("Company " + 1);
     lead.setStatus(LeadStatus.NEW);
+    lead.setCompany(company);
     repository.save(lead);
 
-    Page<Lead> result = service.searchByCompany("Company 1", 0, 5);
+    // company.addLead(lead);
+    //companyRepository.save(company);
+
+    Page<Lead> result = service.searchByCompany(company, 0, 5);
 
     assertThat(result.getContent()).hasSize(2);
     assertThat(result.getTotalElements()).isEqualTo(2);
@@ -232,9 +246,10 @@ class LeadServiceTest {
     Lead lead = new Lead();
     lead.setName("John");
     lead.setEmail("john" + "@example.com");
-    lead.setCompany("TestComp ");
+    Company company = new Company("Company ", "TestIndustry");
     lead.setStatus(LeadStatus.NEW);
-    repository.save(lead);
+    company.addLead(lead);
+    companyRepository.save(company);
 
     // When транзакции A-> B внутри метода readThenWriteThenReadAgainWithReadCommitted
     List<String> results = service.readThenWriteThenReadAgainWithReadCommitted(

@@ -6,6 +6,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
+import ru.mentee.power.crm.model.Company;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 
@@ -21,36 +24,47 @@ import ru.mentee.power.crm.model.LeadStatus;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
 class LeadRepositoryTest {
+  @PersistenceContext
+  EntityManager entityManager;
 
   @Autowired
   private LeadRepository repository;
 
+  @Autowired
+      private CompanyRepository companyRepository;
+
   Lead firstLead;
   Lead secondLead;
+  Company firstCompany;
+  Company secondCompany;
 
   @BeforeEach
   void setUp() {
+
     firstLead = new Lead();
     firstLead.setName("John");
     firstLead.setEmail("john@example.com");
-    firstLead.setCompany("ACME Corp");
+    firstCompany = new Company("ACME Corp", "TestIndustry");
     firstLead.setStatus(LeadStatus.NEW);
     firstLead.setCreatedAt(LocalDateTime.now().minusDays(5));
-    repository.save(firstLead);
+    firstCompany.addLead(firstLead);
+    companyRepository.save(firstCompany);
+
 
     secondLead = new Lead();
     secondLead.setName("Jane");
     secondLead.setEmail("jane@example.com");
-    secondLead.setCompany("Tech Inc");
+    secondCompany = new Company("TechInc", "TestIndustry");
     secondLead.setStatus(LeadStatus.CONTACTED);
     secondLead.setCreatedAt(LocalDateTime.now().minusDays(2));
-    repository.save(secondLead);
+    secondCompany.addLead(secondLead);
+    companyRepository.save(secondCompany);
   }
 
   @Test
   void shouldSaveAndFindLeadByIdWhenValidData() {
-    Lead lead = new Lead("test@example.com",
-        "ACME", LeadStatus.NEW);
+    Lead lead = new Lead("Ellen", "test@example.com",
+        null, LeadStatus.NEW);
 
     Lead saved = repository.save(lead);
     Optional<Lead> found = repository.findById(saved.getId());
@@ -61,14 +75,10 @@ class LeadRepositoryTest {
 
   @Test
   void shouldFindByEmailNativeWhenLeadExists() {
-    Lead lead = new Lead("Joe", "native@test.com",
-        "TechCorp", LeadStatus.NEW);
-    repository.save(lead);
-
-    Optional<Lead> found = repository.findByEmailNative("native@test.com");
+    Optional<Lead> found = repository.findByEmailNative("jane@example.com");
 
     assertThat(found).isPresent();
-    assertThat(found.get().getCompany()).isEqualTo("TechCorp");
+    assertThat(found.get().id()).isEqualTo(secondLead.id());
   }
 
   @Test
@@ -88,10 +98,17 @@ class LeadRepositoryTest {
 
   @Test
   void shouldDeleteLeadWhenCalledDelete() {
+    Lead thirdLead = new Lead();
+    thirdLead.setName("Mike");
+    thirdLead.setEmail("mike@example.com");
+    thirdLead.setCompany(firstCompany);
+    thirdLead.setStatus(LeadStatus.NEW);
+    thirdLead.setCreatedAt(LocalDateTime.now().minusDays(5));
+    repository.save(thirdLead);
 
-    repository.delete(firstLead);
+    repository.delete(thirdLead);
 
-    assertThat(repository.findAll()).hasSize(1).contains(secondLead);
+    assertThat(repository.findAll()).hasSize(2).containsExactlyInAnyOrder(firstLead, secondLead);
   }
 
   @Test
@@ -99,7 +116,7 @@ class LeadRepositoryTest {
     Optional<Lead> found = repository.findByEmail("john@example.com");
 
     assertThat(found).isPresent();
-    assertThat(found.get().getCompany()).isEqualTo("ACME Corp");
+    assertThat(found.get().getCompany()).isEqualTo(firstCompany);
   }
 
   @Test
@@ -152,7 +169,7 @@ class LeadRepositoryTest {
     Lead thirdLead = new Lead();
     thirdLead.setName("Mike");
     thirdLead.setEmail("mike@example.com");
-    thirdLead.setCompany("ACME Corp");
+    thirdLead.setCompany(firstCompany);
     thirdLead.setStatus(LeadStatus.NEW);
     thirdLead.setCreatedAt(LocalDateTime.now().minusDays(5));
     repository.save(thirdLead);
@@ -160,14 +177,14 @@ class LeadRepositoryTest {
     Lead fourthLead = new Lead();
     fourthLead.setName("Fred");
     fourthLead.setEmail("fred@example.com");
-    fourthLead.setCompany("ACME Corp");
+    fourthLead.setCompany(firstCompany);
     fourthLead.setStatus(LeadStatus.CONTACTED);
     fourthLead.setCreatedAt(LocalDateTime.now().minusDays(2));
     repository.save(fourthLead);
     PageRequest pageRequest = PageRequest.of(0, 5);
 
     Page<Lead> result = repository.findByStatusAndCompany(
-        LeadStatus.NEW, "ACME Corp", pageRequest);
+        LeadStatus.NEW, firstCompany, pageRequest);
 
     assertThat(result.getTotalElements()).isEqualTo(2);
     assertThat(result.getContent()).containsExactlyInAnyOrder(firstLead, thirdLead);
@@ -178,7 +195,7 @@ class LeadRepositoryTest {
     Lead thirdLead = new Lead();
     thirdLead.setName("Mike");
     thirdLead.setEmail("mike@example.com");
-    thirdLead.setCompany("ACME Corp");
+    thirdLead.setCompany(firstCompany);
     thirdLead.setStatus(LeadStatus.NEW);
     thirdLead.setCreatedAt(LocalDateTime.now().minusDays(5));
     repository.save(thirdLead);
@@ -186,7 +203,7 @@ class LeadRepositoryTest {
     Lead fourthLead = new Lead();
     fourthLead.setName("Fred");
     fourthLead.setEmail("fred@example.com");
-    fourthLead.setCompany("ACME Corp");
+    fourthLead.setCompany(firstCompany);
     fourthLead.setStatus(LeadStatus.QUALIFIED);
     fourthLead.setCreatedAt(LocalDateTime.now().minusDays(2));
     repository.save(fourthLead);
