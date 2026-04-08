@@ -1,4 +1,4 @@
-package ru.mentee.power.crm.model;
+package ru.mentee.power.crm.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -12,11 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
-import ru.mentee.power.crm.repository.ProductJpaRepository;
+import ru.mentee.power.crm.model.Product;
 
 @DataJpaTest
 @ActiveProfiles("test")
-class ProductTest {
+class ProductJpaRepositoryTest {
   @Autowired
   private ProductJpaRepository productRepository;
 
