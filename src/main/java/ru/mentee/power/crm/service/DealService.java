@@ -49,4 +49,12 @@ public class DealService {
     return dealRepository.findAll().stream()
         .collect(Collectors.groupingBy(Deal::getStatus));
   }
+
+  public Deal addDeal(UUID leadId, BigDecimal amount) {
+    return dealRepository.save(new Deal(leadId, amount));
+  }
+
+  public Deal addDeal(Deal deal) {
+    return dealRepository.save(deal);
+  }
 }
