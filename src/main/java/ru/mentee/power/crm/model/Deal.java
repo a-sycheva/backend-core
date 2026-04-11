@@ -61,12 +61,12 @@ public class Deal {
     this.createdAt = createdAt;
   }
 
-  public void addDealProduct(DealProduct dealProduct){
+  public void addDealProduct(DealProduct dealProduct) {
     dealProducts.add(dealProduct);
-    dealProduct.setDeal(this.id);
+    dealProduct.setDeal(this);
   }
 
-  public void removeDealProduct(DealProduct dealProduct){
+  public void removeDealProduct(DealProduct dealProduct) {
     dealProducts.remove(dealProduct);
     dealProduct.setDeal(null);
   }
@@ -98,6 +98,10 @@ public class Deal {
 
   public LocalDateTime getCreatedAt() {
     return createdAt;
+  }
+
+  public List<DealProduct> getDealProducts() {
+    return dealProducts;
   }
 
   @Override

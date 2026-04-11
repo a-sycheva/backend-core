@@ -32,11 +32,11 @@ public class DealProduct {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "deal_id")
-  private UUID deal;
+  private Deal deal;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "product_id")
-  private UUID product;
+  private Product product;
 
   @Column(nullable = false)
   private int quantity;
@@ -44,8 +44,7 @@ public class DealProduct {
   @Column(name = "unit_price", nullable = false, precision = 19, scale = 2)
   private BigDecimal unitPrice;
 
-
-  public DealProduct(UUID deal, UUID product, int quantity, BigDecimal unitPrice) {
+  public DealProduct(Deal deal, Product product, int quantity, BigDecimal unitPrice) {
     this.deal = deal;
     this.product = product;
     this.quantity = quantity;
