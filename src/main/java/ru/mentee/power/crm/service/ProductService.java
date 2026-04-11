@@ -6,7 +6,6 @@ import java.util.Optional;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.mentee.power.crm.model.Company;
 import ru.mentee.power.crm.model.Product;
 import ru.mentee.power.crm.repository.ProductJpaRepository;
 
