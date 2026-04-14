@@ -12,23 +12,11 @@ import org.springframework.stereotype.Service;
 import ru.mentee.power.crm.model.Deal;
 import ru.mentee.power.crm.model.DealStatus;
 import ru.mentee.power.crm.repository.DealRepository;
-import ru.mentee.power.crm.repository.LeadRepository;
 
 @Service
 @RequiredArgsConstructor
 public class DealService {
   private final DealRepository dealRepository;
-  private final LeadRepository leadRepository;
-
-  public Deal convertLeadToDeal (UUID leadId, BigDecimal amount) {
-    if (leadRepository.findById(leadId).isEmpty()) {
-      throw new IllegalArgumentException("Lead not found: " + leadId);
-    } else {
-      Deal deal = new Deal(leadId, amount);
-      dealRepository.save(deal);
-      return deal;
-    }
-  }
 
   public Deal transitionDealStatus (UUID dealId, DealStatus newStatus) {
     Optional<Deal> deal = dealRepository.findById(dealId);

@@ -65,22 +65,6 @@ public class LeadService {
     return leadRepository.save(lead);
   }
 
-  public Lead addLead(String email, Company company, LeadStatus status) {
-
-    Optional<Lead> existing = leadRepository.findByEmail(email);
-    if (existing.isPresent()) {
-      throw new IllegalStateException("Lead with email already exists: " + email);
-    }
-
-    Lead lead = new Lead(
-        email,
-        company,
-        status
-    );
-
-    return leadRepository.save(lead);
-  }
-
   public Lead update(UUID id, Lead updatedLead) {
 
     Optional<Lead> existing = leadRepository.findById(id);

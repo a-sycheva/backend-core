@@ -57,7 +57,8 @@ class LeadServiceMockTest {
         .thenAnswer(invocation -> invocation.getArgument(0));
 
     // When: вызываем бизнес-метод
-    Lead result = service.addLead("new@example.com", null, LeadStatus.NEW);
+    Lead result = service.addLead("Jane", "new@example.com",
+        null, LeadStatus.NEW);
 
     // Then: проверяем что Repository.save() был вызван ровно 1 раз
     verify(mockRepository, times(1)).save(any(Lead.class));
@@ -80,7 +81,8 @@ class LeadServiceMockTest {
 
     // When/Then: ожидаем исключение
     assertThatThrownBy(() ->
-        service.addLead("existing@example.com", null, LeadStatus.NEW)
+        service.addLead("Jane", "existing@example.com",
+            null, LeadStatus.NEW)
     ).isInstanceOf(IllegalStateException.class);
 
     // Then: save() НЕ должен быть вызван
@@ -96,7 +98,8 @@ class LeadServiceMockTest {
         .thenAnswer(invocation -> invocation.getArgument(0));
 
     // When
-    service.addLead("test@example.com", null, LeadStatus.NEW);
+    service.addLead("Jane", "test@example.com",
+        null, LeadStatus.NEW);
 
     // Then: проверяем порядок вызовов
     var inOrder = inOrder(mockRepository);

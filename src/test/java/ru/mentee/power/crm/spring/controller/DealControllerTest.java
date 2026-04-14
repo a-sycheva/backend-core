@@ -65,19 +65,6 @@ class DealControllerTest {
   }
 
   @Test
-  void shouldShowConvertForm() throws Exception {
-    UUID leadId = UUID.randomUUID();
-    Lead lead = new Lead(leadId, "test@mail.ru",
-        new Company("TestCorp", "TestIndustry"), LeadStatus.NEW);
-    when(leadService.findById(leadId)).thenReturn(Optional.of(lead));
-
-    mockMvc.perform(get("/deals/convert/{leadId}", leadId))
-        .andExpect(status().isOk())
-        .andExpect(model().attributeExists("lead"))
-        .andExpect(view().name("deals/convert"));
-  }
-
-  @Test
   void shouldThrowExceptionWhenTryShowConvertFormWithNonExistingLead() throws Exception {
     UUID leadId = UUID.randomUUID();
 
@@ -85,20 +72,6 @@ class DealControllerTest {
 
     mockMvc.perform(get("/deals/convert/{leadId}", leadId))
         .andExpect(status().isNotFound());
-  }
-
-  @Test
-  void shouldConvertLeadToDeal() throws Exception {
-    UUID leadId = UUID.randomUUID();
-    BigDecimal amount = BigDecimal.valueOf(50000);
-
-    mockMvc.perform(post("/deals/convert")
-            .param("leadId", leadId.toString())
-            .param("amount", amount.toString()))
-        .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl("/deals"));
-
-    verify(dealService).convertLeadToDeal(leadId, amount);
   }
 
   @Test

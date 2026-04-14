@@ -124,9 +124,9 @@ class AdminControllerTest {
 
     mockMvc.perform(post("/admin/addTestDeal"))
         .andExpect(status().isOk())
-        .andExpect(content().string("All deal added!"));
+        .andExpect(content().string("All deals added!"));
 
-    verify(dealService, times(1)).addDeal(any(Deal.class));
+    verify(dealService, times(2)).addDeal(any(Deal.class));
   }
 
   @Test
@@ -164,7 +164,7 @@ class AdminControllerTest {
 
     mockMvc.perform(post("/admin/addTestDeal"))
         .andExpect(status().isOk())
-        .andExpect(content().string("All deal added!"));
+        .andExpect(content().string("All deals added!"));
 
     verify(dealService, never()).addDeal(any(Deal.class));
   }

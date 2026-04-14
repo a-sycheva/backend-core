@@ -1,5 +1,6 @@
 package ru.mentee.power.crm.spring.controller;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -143,6 +144,25 @@ public class LeadController {
     }
   }
 
+  //показать форму конвертации лида в сделку
+  @GetMapping("/leads/convert/{leadId}")
+  public String showConvertForm (@PathVariable UUID leadId, Model model) {
+    Optional<Lead> lead = leadService.findById(leadId);
+    if (lead.isEmpty()) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+    else {
+      model.addAttribute("lead", lead.get());
+      return "leads/convert";
+    }
+  }
+
+  //выполнить конвертацию
+  @PostMapping("leads/convert")
+  public String convertLeadToDeal (@RequestParam UUID leadId, @RequestParam BigDecimal amount) {
+    leadService.convertLeadToDeal(leadId, amount);
+    return "redirect:/leads";
+  }
 }
 
 

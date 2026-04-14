@@ -29,7 +29,7 @@ import ru.mentee.power.crm.repository.DealRepository;
 import ru.mentee.power.crm.repository.LeadRepository;
 
 @ExtendWith(MockitoExtension.class)
-class DealServiceTest {
+class DealServiceMockTest {
   Lead defLead;
   Deal defDeal;
 
@@ -43,28 +43,11 @@ class DealServiceTest {
 
   @BeforeEach
   void setUp () {
-    dealService = new DealService(mockDealRepository, mockLeadRepository);
+    dealService = new DealService(mockDealRepository);
     defLead = new Lead(UUID.randomUUID(), "test@example.ru",
         new Company("Test Corp", "TestIndustry"), LeadStatus.NEW);
     defDeal = new Deal(defLead.id(), defLead.id(), BigDecimal.valueOf(10_000),
         DealStatus.NEW, LocalDateTime.now());
-  }
-
-  @Test
-  void shouldConvertToDealWhenLeadExists() {
-    when(mockLeadRepository.findById(any(UUID.class))).thenReturn(Optional.of(defLead));
-
-    Deal deal = dealService.convertLeadToDeal(defLead.id(), BigDecimal.valueOf(10_000));
-
-    verify(mockDealRepository).save(deal);
-  }
-
-  @Test
-  void shouldThrowExceptionWhenConvertToDealCalledWithNonExistedLead() {
-    when(mockLeadRepository.findById(any(UUID.class))).thenReturn(Optional.empty());
-
-    assertThatThrownBy(() -> dealService.convertLeadToDeal(UUID.randomUUID()
-        , BigDecimal.valueOf(10_000))).isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
@@ -78,7 +61,7 @@ class DealServiceTest {
   }
 
   @Test
-  void shouldThrowExceptionWnenTransitionCalledWithNonExistedLead() {
+  void shouldThrowExceptionWhenTransitionCalledWithNonExistedLead() {
     when(mockDealRepository.findById(any(UUID.class))).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> dealService.transitionDealStatus(defDeal.getId(),
@@ -129,6 +112,19 @@ class DealServiceTest {
     else {
       assertThat(groupedDeals.get(status)).hasSize(count);
     }
+  }
+
+  @Test
+  void shouldAddDealWhenAddDealCalled() {
+    UUID secondDealId = UUID.randomUUID();
+    Deal thirdDeal = new Deal(UUID.randomUUID(), BigDecimal.valueOf(20_000));
+    when(mockDealRepository.save(thirdDeal)).thenReturn(thirdDeal);
+
+    dealService.addDeal(secondDealId, BigDecimal.valueOf(30_000));
+
+    verify(mockDealRepository).save(any(Deal.class));
+    assertThat(dealService.addDeal(thirdDeal))
+        .isEqualTo(thirdDeal);
   }
 
 }

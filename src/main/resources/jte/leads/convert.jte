@@ -7,7 +7,7 @@ content = @`
     <div class="max-w-md mx-auto mt-8">
         <h1 class="text-2xl font-bold mb-6">Конвертировать лида в сделку</h1>
 
-        <form action="/deals/convert" method="post" class="space-y-4">
+        <form action="/leads/convert" method="post" class="space-y-4">
             <div>
                 <input type="hidden" name="leadId" value="${String.valueOf(lead.id())}">
             </div>
@@ -32,7 +32,7 @@ content = @`
             </button>
             <!-- Cancel Link -->
             <a
-                    href="/deals"
+                    href="/leads"
                     class="block text-center text-sm text-gray-600 hover:text-gray-900"
             >
                 Отмена
