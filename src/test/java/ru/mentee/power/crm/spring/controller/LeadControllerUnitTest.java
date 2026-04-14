@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -198,4 +199,32 @@ public class LeadControllerUnitTest {
 
     verify(leadService).findAll();
   }
+
+  @Test
+  void shouldShowConvertForm() throws Exception {
+    UUID leadId = UUID.randomUUID();
+    Lead lead = new Lead(leadId, "test@mail.ru",
+        new Company("TestCorp", "TestIndustry"), LeadStatus.NEW);
+    when(leadService.findById(leadId)).thenReturn(Optional.of(lead));
+
+    mockMvc.perform(get("/leads/convert/{leadId}", leadId))
+        .andExpect(status().isOk())
+        .andExpect(model().attributeExists("lead"))
+        .andExpect(view().name("leads/convert"));
+  }
+
+  @Test
+  void shouldConvertLeadToDeal() throws Exception {
+    UUID leadId = UUID.randomUUID();
+    BigDecimal amount = BigDecimal.valueOf(50000);
+
+    mockMvc.perform(post("/leads/convert")
+            .param("leadId", leadId.toString())
+            .param("amount", amount.toString()))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/leads"));
+
+    verify(leadService).convertLeadToDeal(leadId, amount);
+  }
+
 }

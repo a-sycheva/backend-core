@@ -76,7 +76,7 @@ public class CompanyController {
     return "companies/edit";
   }
 
-  //обновление лида
+  //обновление компании
   @PostMapping("/companies/{id}")
   public String updateCompany(@PathVariable UUID id,
                            @Valid @ModelAttribute Company company,
@@ -101,7 +101,7 @@ public class CompanyController {
     }
   }
 
-  //удаление лида
+  //удаление компании
   @PostMapping("/companies/{id}/delete")
   public String deleteCompany(@PathVariable UUID id) {
     if (companyService.findById(id).isEmpty()) {

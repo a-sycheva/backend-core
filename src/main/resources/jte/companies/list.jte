@@ -28,9 +28,9 @@
                     Name:
                     <input type="text" name="name" value="${name}">
                 </label>
-                <label for="email">
-                    Email:
-                    <input type="text" name="email" value="${industry}">
+                <label for="industry">
+                    Industry:
+                    <input type="text" name="industry" value="${industry}">
                 </label>
                 <button type="submit"
                         class="bg-white rounded px-1 py-1 hover:bg-gray-200"
