@@ -2,9 +2,12 @@ package ru.mentee.power.crm.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -12,6 +15,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -34,6 +38,9 @@ public class Deal {
   @Column(name = "created_at", nullable = false, updatable = false)
   private LocalDateTime createdAt;
 
+  @OneToMany(mappedBy = "deal", cascade = CascadeType.ALL, orphanRemoval = true)
+  List<DealProduct> dealProducts = new ArrayList<>();
+
   public Deal() {
 
   }
@@ -52,6 +59,16 @@ public class Deal {
     this.amount = amount;
     this.status = status;
     this.createdAt = createdAt;
+  }
+
+  public void addDealProduct(DealProduct dealProduct) {
+    dealProducts.add(dealProduct);
+    dealProduct.setDeal(this);
+  }
+
+  public void removeDealProduct(DealProduct dealProduct) {
+    dealProducts.remove(dealProduct);
+    dealProduct.setDeal(null);
   }
 
   public void transitionTo(DealStatus newStatus) {
@@ -81,6 +98,10 @@ public class Deal {
 
   public LocalDateTime getCreatedAt() {
     return createdAt;
+  }
+
+  public List<DealProduct> getDealProducts() {
+    return dealProducts;
   }
 
   @Override
