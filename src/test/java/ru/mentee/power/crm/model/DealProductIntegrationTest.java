@@ -2,11 +2,10 @@ package ru.mentee.power.crm.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.math.BigDecimal;
-import java.util.UUID;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import java.math.BigDecimal;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,14 +18,11 @@ import ru.mentee.power.crm.repository.ProductJpaRepository;
 @Transactional
 @ActiveProfiles("test")
 class DealProductIntegrationTest {
-  @PersistenceContext
-  private EntityManager entityManager;
+  @PersistenceContext private EntityManager entityManager;
 
-  @Autowired
-  private DealRepository dealRepository;
+  @Autowired private DealRepository dealRepository;
 
-  @Autowired
-  private ProductJpaRepository productRepository;
+  @Autowired private ProductJpaRepository productRepository;
 
   @Test
   void testSaveDealWithProducts() {
@@ -47,10 +43,9 @@ class DealProductIntegrationTest {
     productRepository.save(firstProduct);
     productRepository.save(secondProduct);
 
-    DealProduct firstDealProduct = new DealProduct(deal, firstProduct,
-        2, firstProduct.getPrice());
-    DealProduct secondDealProduct = new DealProduct(deal, secondProduct,
-        1, secondProduct.getPrice());
+    DealProduct firstDealProduct = new DealProduct(deal, firstProduct, 2, firstProduct.getPrice());
+    DealProduct secondDealProduct =
+        new DealProduct(deal, secondProduct, 1, secondProduct.getPrice());
 
     deal.addDealProduct(firstDealProduct);
     deal.addDealProduct(secondDealProduct);
@@ -62,12 +57,12 @@ class DealProductIntegrationTest {
     assertThat(foundDeal.getDealProducts()).hasSize(2);
 
     assertThat(foundDeal.getDealProducts().get(0).getQuantity()).isEqualTo(2);
-    assertThat(foundDeal.getDealProducts().get(0)
-        .getUnitPrice()).isEqualTo(new BigDecimal("50000.00"));
+    assertThat(foundDeal.getDealProducts().get(0).getUnitPrice())
+        .isEqualTo(new BigDecimal("50000.00"));
 
     assertThat(foundDeal.getDealProducts().get(1).getQuantity()).isEqualTo(1);
-    assertThat(foundDeal.getDealProducts().get(1)
-        .getUnitPrice()).isEqualTo(new BigDecimal("70000.00"));
+    assertThat(foundDeal.getDealProducts().get(1).getUnitPrice())
+        .isEqualTo(new BigDecimal("70000.00"));
   }
 
   @Test
@@ -96,12 +91,10 @@ class DealProductIntegrationTest {
     productRepository.save(secondProduct);
     productRepository.save(thirdProduct);
 
-    DealProduct firstDealProduct = new DealProduct(deal, firstProduct,
-        1, firstProduct.getPrice());
-    DealProduct secondDealProduct = new DealProduct(deal, secondProduct,
-        1, secondProduct.getPrice());
-    DealProduct thirdDealProduct = new DealProduct(deal, thirdProduct,
-        1, thirdProduct.getPrice());
+    DealProduct firstDealProduct = new DealProduct(deal, firstProduct, 1, firstProduct.getPrice());
+    DealProduct secondDealProduct =
+        new DealProduct(deal, secondProduct, 1, secondProduct.getPrice());
+    DealProduct thirdDealProduct = new DealProduct(deal, thirdProduct, 1, thirdProduct.getPrice());
 
     deal.addDealProduct(firstDealProduct);
     deal.addDealProduct(secondDealProduct);
@@ -112,29 +105,29 @@ class DealProductIntegrationTest {
     entityManager.flush();
     entityManager.clear();
 
-    //без EntityGraph
-    //первый - SELECT deal
+    // без EntityGraph
+    // первый - SELECT deal
     Deal foundDeal = dealRepository.findById(deal.getId()).get();
 
-    //второй - SELECT deal_product
+    // второй - SELECT deal_product
     for (DealProduct dp : foundDeal.getDealProducts()) {
-      //еще по одному на каждом шаге цикла - SELECT products
+      // еще по одному на каждом шаге цикла - SELECT products
       System.out.println(dp.getProduct().getName());
     }
-    //итого 5 SELECT-запросов
+    // итого 5 SELECT-запросов
 
     entityManager.flush();
     entityManager.clear();
 
-    //с EntityGraph
-    //один SELECT deal с двумя LEFT JOIN
+    // с EntityGraph
+    // один SELECT deal с двумя LEFT JOIN
     Deal anothetFoundDeal = dealRepository.findDealWithProducts(deal.getId()).get();
 
-    //второй - SELECT deal_product
+    // второй - SELECT deal_product
     for (DealProduct dp : anothetFoundDeal.getDealProducts()) {
       System.out.println(dp.getProduct().getName());
     }
-    //итого 1 SELECT-запрос
+    // итого 1 SELECT-запрос
 
     entityManager.clear();
 
@@ -144,5 +137,4 @@ class DealProductIntegrationTest {
     assertThat(foundDeal.getDealProducts()).containsAll(anothetFoundDeal.getDealProducts());
     assertThat(anothetFoundDeal.getDealProducts()).containsAll(foundDeal.getDealProducts());
   }
-
 }

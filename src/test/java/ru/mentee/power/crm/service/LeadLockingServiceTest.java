@@ -9,7 +9,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,14 +21,12 @@ import ru.mentee.power.crm.repository.LeadRepository;
 
 @SpringBootTest
 @ActiveProfiles("test")
-//deadlock-тест вынесен отдельно в LeadDedlockServiceTest
+// deadlock-тест вынесен отдельно в LeadDedlockServiceTest
 class LeadLockingServiceTest {
 
-  @Autowired
-  private LeadLockingService leadLockingService;
+  @Autowired private LeadLockingService leadLockingService;
 
-  @Autowired
-  private LeadRepository leadRepository;
+  @Autowired private LeadRepository leadRepository;
 
   @AfterEach
   void tearDown() {
@@ -49,19 +46,23 @@ class LeadLockingServiceTest {
     CountDownLatch startLatch = new CountDownLatch(1);
     CountDownLatch doneLatch = new CountDownLatch(2);
 
-    Future<String> task1 = executor.submit(() -> {
-      startLatch.await(); // Синхронизируем старт
-      Lead updated = leadLockingService.convertLeadToDealWithLock(leadId, "CONTACTED");
-      doneLatch.countDown();
-      return updated.getStatus().toString();
-    });
+    Future<String> task1 =
+        executor.submit(
+            () -> {
+              startLatch.await(); // Синхронизируем старт
+              Lead updated = leadLockingService.convertLeadToDealWithLock(leadId, "CONTACTED");
+              doneLatch.countDown();
+              return updated.getStatus().toString();
+            });
 
-    Future<String> task2 = executor.submit(() -> {
-      startLatch.await();
-      Lead updated = leadLockingService.convertLeadToDealWithLock(leadId, "QUALIFIED");
-      doneLatch.countDown();
-      return updated.getStatus().toString();
-    });
+    Future<String> task2 =
+        executor.submit(
+            () -> {
+              startLatch.await();
+              Lead updated = leadLockingService.convertLeadToDealWithLock(leadId, "QUALIFIED");
+              doneLatch.countDown();
+              return updated.getStatus().toString();
+            });
 
     startLatch.countDown(); // Запускаем оба потока одновременно
     doneLatch.await(10, TimeUnit.SECONDS); // Ждём завершения
@@ -93,18 +94,22 @@ class LeadLockingServiceTest {
 
     CountDownLatch startLatch = new CountDownLatch(1);
 
-    Future<?> task1 = executor.submit(() -> {
-      startLatch.await();
-      leadLockingService.updateLeadStatusOptimistic(leadId, "CONTACTED");
-      return null;
-    });
+    Future<?> task1 =
+        executor.submit(
+            () -> {
+              startLatch.await();
+              leadLockingService.updateLeadStatusOptimistic(leadId, "CONTACTED");
+              return null;
+            });
 
-    Future<?> task2 = executor.submit(() -> {
-      startLatch.await();
-      Thread.sleep(50);
-      leadLockingService.updateLeadStatusOptimistic(leadId, "QUALIFIED");
-      return null;
-    });
+    Future<?> task2 =
+        executor.submit(
+            () -> {
+              startLatch.await();
+              Thread.sleep(50);
+              leadLockingService.updateLeadStatusOptimistic(leadId, "QUALIFIED");
+              return null;
+            });
 
     startLatch.countDown();
 
@@ -115,13 +120,11 @@ class LeadLockingServiceTest {
       task2.get(5, TimeUnit.SECONDS);
     } catch (ExecutionException e) {
       // Одна из транзакций должна выбросить OptimisticLockException
-      assertThat(e.getCause())
-          .isInstanceOfAny(ObjectOptimisticLockingFailureException.class);
+      assertThat(e.getCause()).isInstanceOfAny(ObjectOptimisticLockingFailureException.class);
       exceptionThrown = true;
     }
 
     assertThat(exceptionThrown).isTrue();
     executor.shutdown();
   }
-
 }

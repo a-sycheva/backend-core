@@ -3,7 +3,6 @@ package ru.mentee.power.crm.spring.controller;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,14 +31,15 @@ public class AdminController {
   @ResponseBody
   public String home() {
     return "Spring Boot CRM is running! Admin controller is OK. "
-        + "Total leads: " + leadService.findAll().size();
+        + "Total leads: "
+        + leadService.findAll().size();
   }
 
   // для curl.exe -X POST http://localhost:8081/admin/addTestLeads
   @PostMapping("/addTestLeads")
   @ResponseBody
   public String addTestLeads(Model model) {
-    //добавление лидов
+    // добавление лидов
     if (leadService.findAll().isEmpty()) {
       leadService.addLead("Ivan", "test1@example.ru", null, LeadStatus.NEW);
       leadService.addLead("Anastasiya", "test2@example.ru", null, LeadStatus.NEW);
@@ -55,19 +55,20 @@ public class AdminController {
   @ResponseBody
   public String addTestProducts(Model model) {
 
-    //добавление продуктов
+    // добавление продуктов
     if (productService.findAll().isEmpty()) {
-      productService.addProduct("Консультация по архитектуре", "CONSULT-ARCH-001",
-          new BigDecimal("50000.00"), true);
-      productService.addProduct("Консультация по бизнес-аналитике", "CONSULT-BI-001",
-          new BigDecimal("70000.00"), true);
-      productService.addProduct("ноутбук DELL", "LAPTOP-001",
-          new BigDecimal("90000.00"), true);
-      productService.addProduct("Подписка Microsoft 365 Business", "SOFT-MSFT-001",
-          new BigDecimal("8900.00"), true);
-      productService.addProduct("Оптимизация SQL запросов и производительности БД",
+      productService.addProduct(
+          "Консультация по архитектуре", "CONSULT-ARCH-001", new BigDecimal("50000.00"), true);
+      productService.addProduct(
+          "Консультация по бизнес-аналитике", "CONSULT-BI-001", new BigDecimal("70000.00"), true);
+      productService.addProduct("ноутбук DELL", "LAPTOP-001", new BigDecimal("90000.00"), true);
+      productService.addProduct(
+          "Подписка Microsoft 365 Business", "SOFT-MSFT-001", new BigDecimal("8900.00"), true);
+      productService.addProduct(
+          "Оптимизация SQL запросов и производительности БД",
           "CONSULT-DB-001",
-          new BigDecimal("80000.00"), true);
+          new BigDecimal("80000.00"),
+          true);
     }
 
     return "All products added!";
@@ -78,10 +79,10 @@ public class AdminController {
   @ResponseBody
   public String addTestDeal() {
 
-    //добавление сделки с продуктами
+    // добавление сделки с продуктами
     if (dealService.getAllDeals().isEmpty()) {
-      //будем создавать сделки с первым и последним лидом
-      List<Lead> allLeads = leadService.findAll();  // один раз
+      // будем создавать сделки с первым и последним лидом
+      List<Lead> allLeads = leadService.findAll(); // один раз
       UUID firstLeadId = allLeads.getFirst().getId();
       UUID lastLeadId = allLeads.getLast().getId();
 
@@ -90,11 +91,11 @@ public class AdminController {
 
       boolean even = false;
       for (Product p : productService.findAll()) {
-        //в одну сделку добавим все продукты
+        // в одну сделку добавим все продукты
         DealProduct firstDealProduct = new DealProduct(firstDeal, p, 1, p.getPrice());
         firstDeal.addDealProduct(firstDealProduct);
 
-        //в другую сделку добавим каждый второй продукт
+        // в другую сделку добавим каждый второй продукт
         if (even) {
           DealProduct lastDealProduct = new DealProduct(lastDeal, p, 1, p.getPrice());
           lastDeal.addDealProduct(lastDealProduct);

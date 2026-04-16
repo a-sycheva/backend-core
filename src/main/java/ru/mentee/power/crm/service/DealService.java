@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.mentee.power.crm.model.Deal;
@@ -18,7 +17,7 @@ import ru.mentee.power.crm.repository.DealRepository;
 public class DealService {
   private final DealRepository dealRepository;
 
-  public Deal transitionDealStatus (UUID dealId, DealStatus newStatus) {
+  public Deal transitionDealStatus(UUID dealId, DealStatus newStatus) {
     Optional<Deal> deal = dealRepository.findById(dealId);
     if (deal.isEmpty()) {
       throw new IllegalArgumentException("Deal not found: " + dealId);
@@ -34,8 +33,7 @@ public class DealService {
   }
 
   public Map<DealStatus, List<Deal>> getDealsByStatusForKanban() {
-    return dealRepository.findAll().stream()
-        .collect(Collectors.groupingBy(Deal::getStatus));
+    return dealRepository.findAll().stream().collect(Collectors.groupingBy(Deal::getStatus));
   }
 
   public Deal addDeal(UUID leadId, BigDecimal amount) {

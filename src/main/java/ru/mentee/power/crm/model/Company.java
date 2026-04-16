@@ -1,9 +1,5 @@
 package ru.mentee.power.crm.model;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,6 +8,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,8 +31,7 @@ public class Company {
   @Column(nullable = false, unique = true)
   private String name;
 
-  @Column
-  private String industry;
+  @Column private String industry;
 
   @OneToMany(mappedBy = "company", cascade = CascadeType.PERSIST)
   private List<Lead> leads = new ArrayList<>();

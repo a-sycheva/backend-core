@@ -1,11 +1,10 @@
 package ru.mentee.power.crm.repository;
 
+import jakarta.persistence.LockModeType;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -55,17 +54,13 @@ public interface LeadRepository extends JpaRepository<Lead, UUID> {
   @Modifying(clearAutomatically = true)
   @Query("UPDATE Lead l SET l.status = :newStatus WHERE l.status = :oldStatus")
   int updateStatusBulk(
-      @Param("oldStatus") LeadStatus oldStatus,
-      @Param("newStatus") LeadStatus newStatus
-  );
+      @Param("oldStatus") LeadStatus oldStatus, @Param("newStatus") LeadStatus newStatus);
 
   @Modifying(clearAutomatically = true)
   @Query("DELETE FROM Lead l WHERE l.status = :status")
-  int deleteByStatusBulk(
-      @Param("status") LeadStatus status
-  );
+  int deleteByStatusBulk(@Param("status") LeadStatus status);
 
-  //Native-запросы
+  // Native-запросы
   @Query(value = "SELECT * FROM leads WHERE email = ?1", nativeQuery = true)
   public Optional<Lead> findByEmailNative(String email);
 

@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,17 +30,13 @@ import ru.mentee.power.crm.repository.LeadRepository;
 @ActiveProfiles("test")
 class LeadServiceTest {
 
-  @Autowired
-  private LeadService service;
+  @Autowired private LeadService service;
 
-  @Autowired
-  private LeadRepository repository;
+  @Autowired private LeadRepository repository;
 
-  @Autowired
-  private CompanyRepository companyRepository;
+  @Autowired private CompanyRepository companyRepository;
 
   @BeforeEach
-
   void setUp() {
     repository.deleteAll();
     companyRepository.deleteAll();
@@ -69,9 +64,7 @@ class LeadServiceTest {
   void convertNewToContactedShouldUpdateMultipleLeads() {
     int updated = service.convertNewToContacted();
 
-
     assertThat(updated).isEqualTo(3);
-
 
     long contactedCount = repository.countByStatus(LeadStatus.CONTACTED);
     assertThat(contactedCount).isEqualTo(3);
@@ -86,7 +79,6 @@ class LeadServiceTest {
     assertThat(repository.findByStatus(LeadStatus.NEW)).hasSize(3);
 
     int archived = service.archiveOldLeads(LeadStatus.NEW);
-
 
     assertThat(archived).isEqualTo(3);
     long newLeads = repository.countByStatus(LeadStatus.NEW);
@@ -105,13 +97,12 @@ class LeadServiceTest {
     repository.save(lead);
 
     // company.addLead(lead);
-    //companyRepository.save(company);
+    // companyRepository.save(company);
 
     Page<Lead> result = service.searchByCompany(company, 0, 5);
 
     assertThat(result.getContent()).hasSize(2);
     assertThat(result.getTotalElements()).isEqualTo(2);
-
   }
 
   @Test
@@ -123,7 +114,6 @@ class LeadServiceTest {
     assertThat(result.getContent()).hasSize(1);
     assertThat(result.getTotalElements()).isEqualTo(3);
     assertThat(result.getTotalPages()).isEqualTo(3);
-
   }
 
   @Test
@@ -140,15 +130,19 @@ class LeadServiceTest {
   @Test
   @Transactional
   void convertLeadToDealShouldRollbackOnConstraintViolation() {
-    Exception exception =  assertThrows(IllegalArgumentException.class, () ->
-        service.convertLeadToDeal(UUID.randomUUID(), BigDecimal.valueOf(10_000)));
+    Exception exception =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> service.convertLeadToDeal(UUID.randomUUID(), BigDecimal.valueOf(10_000)));
     assertThat(exception.getMessage()).contains("Lead not found");
   }
 
-  @Test //self-invocation problem
+  @Test // self-invocation problem
   void demonstrateSelfInvocationProblem() {
-    List<LeadStatus> statusesBefore = service.findByStatus(LeadStatus.NEW).stream()
-        .map(Lead::getStatus).collect(Collectors.toList());
+    List<LeadStatus> statusesBefore =
+        service.findByStatus(LeadStatus.NEW).stream()
+            .map(Lead::getStatus)
+            .collect(Collectors.toList());
     List<UUID> ids = new ArrayList<>();
     for (Lead lead : service.findAll()) {
       ids.add(lead.id());
@@ -158,21 +152,24 @@ class LeadServiceTest {
 
     service.processLeadsWithInvocationProblem(ids);
 
+    List<LeadStatus> statusesAfter =
+        service.findByStatus(LeadStatus.NEW).stream()
+            .map(Lead::getStatus)
+            .collect(Collectors.toList());
 
-    List<LeadStatus> statusesAfter = service.findByStatus(LeadStatus.NEW).stream()
-        .map(Lead::getStatus).collect(Collectors.toList());
-
-    //статусы лидов не изменились, откат по всем
+    // статусы лидов не изменились, откат по всем
     assertThat(statusesBefore).isEqualTo(statusesAfter);
-    //нет лидов со статусом CONTACTED
+    // нет лидов со статусом CONTACTED
     assertThat(statusesAfter).hasSize(3);
   }
 
-  @Test //self-invocation problem solved
+  @Test // self-invocation problem solved
   void processLeadsShouldIsolateTransactionsPerLead() {
 
-    List<LeadStatus> statusesBefore = service.findByStatus(LeadStatus.NEW).stream()
-        .map(Lead::getStatus).collect(Collectors.toList());
+    List<LeadStatus> statusesBefore =
+        service.findByStatus(LeadStatus.NEW).stream()
+            .map(Lead::getStatus)
+            .collect(Collectors.toList());
     List<UUID> ids = new ArrayList<>();
     for (Lead lead : service.findAll()) {
       ids.add(lead.id());
@@ -182,23 +179,26 @@ class LeadServiceTest {
 
     String transactionName = service.processLeads(ids);
 
-    List<LeadStatus> statusesAfter = service.findByStatus(LeadStatus.NEW).stream()
-        .map(Lead::getStatus).collect(Collectors.toList());
+    List<LeadStatus> statusesAfter =
+        service.findByStatus(LeadStatus.NEW).stream()
+            .map(Lead::getStatus)
+            .collect(Collectors.toList());
 
-    //создает новую транзакцию
-    assertThat(transactionName).contains("LeadProcessor")
-            .contains("processSingleLead");
-    //статусы лидов изменились, откат только по ошибочной транзакции
+    // создает новую транзакцию
+    assertThat(transactionName).contains("LeadProcessor").contains("processSingleLead");
+    // статусы лидов изменились, откат только по ошибочной транзакции
     assertThat(statusesBefore).isNotEqualTo(statusesAfter);
-    //нет лидов со статусом NEW
+    // нет лидов со статусом NEW
     assertThat(statusesAfter).hasSize(0);
   }
 
   @Transactional
   @ParameterizedTest
-  //REQUIRES_NEW показан в предыдущем
+  // REQUIRES_NEW показан в предыдущем
   // тесте processLeadsShouldIsolateTransactionsPerLead
-  @EnumSource(value = Propagation.class, names = {"REQUIRED", "MANDATORY"})
+  @EnumSource(
+      value = Propagation.class,
+      names = {"REQUIRED", "MANDATORY"})
   void testPropagation(Propagation propagation) {
 
     List<UUID> ids = new ArrayList<>();
@@ -207,13 +207,13 @@ class LeadServiceTest {
     }
 
     switch (propagation) {
-      case REQUIRED: //присоединяется к имеющейся транзакции, не создает свою
+      case REQUIRED: // присоединяется к имеющейся транзакции, не создает свою
         assertThat(service.processLeadsWithRequires(ids))
             .contains("testPropagation")
             .doesNotContain("LeadProcessor")
             .doesNotContain("processSingleLeadWithRequired");
         break;
-      case MANDATORY://присоединяется к имеющейся транзакции, если есть
+      case MANDATORY: // присоединяется к имеющейся транзакции, если есть
         assertThat(service.processLeadsWithMandatory(ids))
             .contains("testPropagation")
             .doesNotContain("LeadProcessor")
@@ -222,7 +222,7 @@ class LeadServiceTest {
     }
   }
 
-  @Test //MANDATORY без активной транзакции
+  @Test // MANDATORY без активной транзакции
   void testPropagationMandatoryMethodShouldTrowExceptionWithoutTransaction() {
 
     List<UUID> ids = new ArrayList<>();
@@ -232,14 +232,14 @@ class LeadServiceTest {
     // Ошибка в одном processSingleLead
     ids.add(UUID.randomUUID());
 
-    //ошибка, если нет активных транзакций
-    assertThrows(IllegalTransactionStateException.class, () ->
-        service.processLeadsWithMandatory(ids));
+    // ошибка, если нет активных транзакций
+    assertThrows(
+        IllegalTransactionStateException.class, () -> service.processLeadsWithMandatory(ids));
   }
 
   @Test
-  //тест READ_COMMITED с последовательным вызовом транзакций A-> B
-  //для REPEATABLE_READ так не получилось,
+  // тест READ_COMMITED с последовательным вызовом транзакций A-> B
+  // для REPEATABLE_READ так не получилось,
   // в отдельном классе isolationTest параллельный тест
   void isolationReadCommitedAllowsNonRepeatableRead() {
     // Given
@@ -252,11 +252,10 @@ class LeadServiceTest {
     companyRepository.save(company);
 
     // When транзакции A-> B внутри метода readThenWriteThenReadAgainWithReadCommitted
-    List<String> results = service.readThenWriteThenReadAgainWithReadCommitted(
-        lead.getId(), "Jane");
+    List<String> results =
+        service.readThenWriteThenReadAgainWithReadCommitted(lead.getId(), "Jane");
 
     // Then должны увидеть "Jane" при READ_COMMITTED
     assertThat(results).containsExactly("John", "Jane");
   }
-
 }

@@ -1,10 +1,9 @@
 package ru.mentee.power.crm.spring.controller;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -22,7 +21,7 @@ import ru.mentee.power.crm.service.CompanyService;
 @Controller
 @RequiredArgsConstructor
 public class CompanyController {
-  private  final CompanyService companyService;
+  private final CompanyService companyService;
 
   @GetMapping("/companies")
   public String showCompanies(
@@ -38,18 +37,17 @@ public class CompanyController {
     return "companies/list";
   }
 
-  //форма создания компании
+  // форма создания компании
   @GetMapping("/companies/new")
   public String showCreateForm(Model model) {
     model.addAttribute("company", new Company("", ""));
     return "companies/create";
   }
 
-  //создание компании
+  // создание компании
   @PostMapping("/companies")
-  public String createCompanies (@Valid @ModelAttribute Company company,
-                           BindingResult result,
-                           Model model) {
+  public String createCompanies(
+      @Valid @ModelAttribute Company company, BindingResult result, Model model) {
     if (result.hasErrors()) {
       model.addAttribute("errors", result);
       return "companies/form";
@@ -60,35 +58,32 @@ public class CompanyController {
     }
   }
 
-  //форма обновления компании
+  // форма обновления компании
   @GetMapping("/companies/{id}/edit")
   public String showEditForm(@PathVariable UUID id, Model model) {
 
     Optional<Company> company = companyService.findById(id);
     if (company.isEmpty()) {
 
-      throw new ResponseStatusException(
-          HttpStatus.NOT_FOUND,
-          "Cannot find company with id " + id);
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Cannot find company with id " + id);
     } else {
       model.addAttribute("company", company.get());
     }
     return "companies/edit";
   }
 
-  //обновление компании
+  // обновление компании
   @PostMapping("/companies/{id}")
-  public String updateCompany(@PathVariable UUID id,
-                           @Valid @ModelAttribute Company company,
-                           BindingResult result,
-                           Model model) {
+  public String updateCompany(
+      @PathVariable UUID id,
+      @Valid @ModelAttribute Company company,
+      BindingResult result,
+      Model model) {
 
-    //избегаю Direct endpoint invocation
+    // избегаю Direct endpoint invocation
     if (companyService.findById(id).isEmpty()) {
 
-      throw new ResponseStatusException(
-          HttpStatus.NOT_FOUND,
-          "Cannot find company with id " + id);
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Cannot find company with id " + id);
     } else {
       if (result.hasErrors()) {
         model.addAttribute("errors", result);
@@ -97,20 +92,18 @@ public class CompanyController {
         companyService.update(id, company);
         return "redirect:/companies";
       }
-
     }
   }
 
-  //удаление компании
+  // удаление компании
   @PostMapping("/companies/{id}/delete")
   public String deleteCompany(@PathVariable UUID id) {
     if (companyService.findById(id).isEmpty()) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-          "Company with id = " + id + " not exists");
+      throw new ResponseStatusException(
+          HttpStatus.NOT_FOUND, "Company with id = " + id + " not exists");
     } else {
       companyService.delete(id);
       return "redirect:/companies";
     }
   }
-
 }

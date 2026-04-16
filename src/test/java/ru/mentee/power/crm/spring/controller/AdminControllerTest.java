@@ -16,7 +16,6 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -36,29 +35,35 @@ import ru.mentee.power.crm.service.ProductService;
 @ActiveProfiles("test")
 class AdminControllerTest {
 
-  @Autowired
-  private MockMvc mockMvc;
-  @MockitoBean
-  private LeadService leadService;
-  @MockitoBean
-  private DealService dealService;
-  @MockitoBean
-  private ProductService productService;
+  @Autowired private MockMvc mockMvc;
+  @MockitoBean private LeadService leadService;
+  @MockitoBean private DealService dealService;
+  @MockitoBean private ProductService productService;
 
   @Test
   void shouldReturnHomePageWithCorrectLeadCount() throws Exception {
-    List<Lead> leads = List.of(
-        new Lead(UUID.randomUUID(), "Anna", "anna@test.ru",
-            new Company("Corp 1", "TestIndustry"), LeadStatus.NEW),
-        new Lead(UUID.randomUUID(), "Bob", "bob@test.ru",
-            new Company("Corp 2", "TestIndustry"), LeadStatus.NEW)
-    );
+    List<Lead> leads =
+        List.of(
+            new Lead(
+                UUID.randomUUID(),
+                "Anna",
+                "anna@test.ru",
+                new Company("Corp 1", "TestIndustry"),
+                LeadStatus.NEW),
+            new Lead(
+                UUID.randomUUID(),
+                "Bob",
+                "bob@test.ru",
+                new Company("Corp 2", "TestIndustry"),
+                LeadStatus.NEW));
     when(leadService.findAll()).thenReturn(leads);
 
-    mockMvc.perform(get("/admin"))
+    mockMvc
+        .perform(get("/admin"))
         .andExpect(status().isOk())
-        .andExpect(content().string("Spring Boot CRM is running! "
-            + "Admin controller is OK. Total leads: 2"));
+        .andExpect(
+            content()
+                .string("Spring Boot CRM is running! " + "Admin controller is OK. Total leads: 2"));
 
     verify(leadService).findAll();
   }
@@ -68,38 +73,43 @@ class AdminControllerTest {
     when(leadService.findAll()).thenReturn(Collections.emptyList());
 
     // when & then
-    mockMvc.perform(post("/admin/addTestLeads"))
+    mockMvc
+        .perform(post("/admin/addTestLeads"))
         .andExpect(status().isOk())
         .andExpect(content().string("All leads added!"));
 
-    verify(leadService, times(1)).addLead("Ivan",
-        "test1@example.ru",  null, LeadStatus.NEW);
-    verify(leadService, times(1)).addLead("Anastasiya",
-        "test2@example.ru", null, LeadStatus.NEW);
-    verify(leadService, times(1)).addLead("Konstantin",
-        "test3@example.ru", null, LeadStatus.NEW);
-    verify(leadService, times(1)).addLead("Nataliya",
-        "test4@example.ru", null, LeadStatus.NEW);
+    verify(leadService, times(1)).addLead("Ivan", "test1@example.ru", null, LeadStatus.NEW);
+    verify(leadService, times(1)).addLead("Anastasiya", "test2@example.ru", null, LeadStatus.NEW);
+    verify(leadService, times(1)).addLead("Konstantin", "test3@example.ru", null, LeadStatus.NEW);
+    verify(leadService, times(1)).addLead("Nataliya", "test4@example.ru", null, LeadStatus.NEW);
   }
 
   @Test
   void shouldAddTestProductsWhenDatabaseIsEmpty() throws Exception {
     when(productService.findAll()).thenReturn(Collections.emptyList());
 
-    mockMvc.perform(post("/admin/addTestProducts"))
+    mockMvc
+        .perform(post("/admin/addTestProducts"))
         .andExpect(status().isOk())
         .andExpect(content().string("All products added!"));
 
-    verify(productService, times(1)).addProduct("Консультация по архитектуре",
-        "CONSULT-ARCH-001", new BigDecimal("50000.00"), true);
-    verify(productService, times(1)).addProduct("Консультация по бизнес-аналитике",
-        "CONSULT-BI-001", new BigDecimal("70000.00"), true);
-    verify(productService, times(1)).addProduct("ноутбук DELL",
-        "LAPTOP-001", new BigDecimal("90000.00"), true);
-    verify(productService, times(1)).addProduct("Подписка Microsoft 365 Business",
-        "SOFT-MSFT-001", new BigDecimal("8900.00"), true);
-    verify(productService, times(1)).addProduct("Оптимизация SQL запросов и производительности БД",
-        "CONSULT-DB-001", new BigDecimal("80000.00"), true);
+    verify(productService, times(1))
+        .addProduct(
+            "Консультация по архитектуре", "CONSULT-ARCH-001", new BigDecimal("50000.00"), true);
+    verify(productService, times(1))
+        .addProduct(
+            "Консультация по бизнес-аналитике", "CONSULT-BI-001", new BigDecimal("70000.00"), true);
+    verify(productService, times(1))
+        .addProduct("ноутбук DELL", "LAPTOP-001", new BigDecimal("90000.00"), true);
+    verify(productService, times(1))
+        .addProduct(
+            "Подписка Microsoft 365 Business", "SOFT-MSFT-001", new BigDecimal("8900.00"), true);
+    verify(productService, times(1))
+        .addProduct(
+            "Оптимизация SQL запросов и производительности БД",
+            "CONSULT-DB-001",
+            new BigDecimal("80000.00"),
+            true);
   }
 
   @Test
@@ -110,19 +120,25 @@ class AdminControllerTest {
     testLead.setId(UUID.randomUUID());
     testLead.setName("Tom");
 
-    List<Product> testProducts = List.of(
-        new Product("Консультация по архитектуре", "CONSULT-ARCH-001",
-            new BigDecimal("50000.00"), true),
-        new Product("Консультация по бизнес-аналитике", "CONSULT-BI-001",
-            new BigDecimal("70000.00"), true),
-        new Product("ноутбук DELL", "LAPTOP-001",
-            new BigDecimal("90000.00"), true)
-    );
+    List<Product> testProducts =
+        List.of(
+            new Product(
+                "Консультация по архитектуре",
+                "CONSULT-ARCH-001",
+                new BigDecimal("50000.00"),
+                true),
+            new Product(
+                "Консультация по бизнес-аналитике",
+                "CONSULT-BI-001",
+                new BigDecimal("70000.00"),
+                true),
+            new Product("ноутбук DELL", "LAPTOP-001", new BigDecimal("90000.00"), true));
 
     when(leadService.findAll()).thenReturn(List.of(testLead));
     when(productService.findAll()).thenReturn(testProducts);
 
-    mockMvc.perform(post("/admin/addTestDeal"))
+    mockMvc
+        .perform(post("/admin/addTestDeal"))
         .andExpect(status().isOk())
         .andExpect(content().string("All deals added!"));
 
@@ -135,9 +151,10 @@ class AdminControllerTest {
 
     when(leadService.findAll()).thenReturn(List.of(existingLead));
 
-    mockMvc.perform(post("/admin/addTestLeads"))
+    mockMvc
+        .perform(post("/admin/addTestLeads"))
         .andExpect(status().isOk())
-        .andExpect(content().string("All leads added!"));  // сообщение то же самое
+        .andExpect(content().string("All leads added!")); // сообщение то же самое
 
     verify(leadService, never()).addLead(anyString(), anyString(), any(), any(LeadStatus.class));
   }
@@ -148,12 +165,13 @@ class AdminControllerTest {
 
     when(productService.findAll()).thenReturn(List.of(existingProduct));
 
-    mockMvc.perform(post("/admin/addTestProducts"))
+    mockMvc
+        .perform(post("/admin/addTestProducts"))
         .andExpect(status().isOk())
         .andExpect(content().string("All products added!"));
 
-    verify(productService, never()).addProduct(anyString(), anyString(),
-        any(BigDecimal.class), anyBoolean());
+    verify(productService, never())
+        .addProduct(anyString(), anyString(), any(BigDecimal.class), anyBoolean());
   }
 
   @Test
@@ -162,11 +180,11 @@ class AdminControllerTest {
 
     when(dealService.getAllDeals()).thenReturn(List.of(existingDeal));
 
-    mockMvc.perform(post("/admin/addTestDeal"))
+    mockMvc
+        .perform(post("/admin/addTestDeal"))
         .andExpect(status().isOk())
         .andExpect(content().string("All deals added!"));
 
     verify(dealService, never()).addDeal(any(Deal.class));
   }
-
 }

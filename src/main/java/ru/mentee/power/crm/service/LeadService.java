@@ -1,5 +1,6 @@
 package ru.mentee.power.crm.service;
 
+import jakarta.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,8 +8,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -34,8 +33,8 @@ public class LeadService {
   private final DealRepository dealRepository;
   private final LeadProcessor leadProcessor;
 
-  public LeadService(LeadRepository leadRepository,
-                     DealRepository dealRepository, LeadProcessor leadProcessor) {
+  public LeadService(
+      LeadRepository leadRepository, DealRepository dealRepository, LeadProcessor leadProcessor) {
     this.leadRepository = leadRepository;
     this.dealRepository = dealRepository;
     this.leadProcessor = leadProcessor;
@@ -55,12 +54,7 @@ public class LeadService {
       throw new IllegalStateException("Lead with email already exists: " + email);
     }
 
-    Lead lead = new Lead(
-        name,
-        email,
-        company,
-        status
-    );
+    Lead lead = new Lead(name, email, company, status);
 
     return leadRepository.save(lead);
   }
@@ -69,9 +63,7 @@ public class LeadService {
 
     Optional<Lead> existing = leadRepository.findById(id);
     if (existing.isEmpty()) {
-      throw new ResponseStatusException(
-          HttpStatus.NOT_FOUND,
-          "Cannot find lead with id " + id);
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Cannot find lead with id " + id);
     }
 
     existing.get().setName(updatedLead.name());
@@ -84,8 +76,8 @@ public class LeadService {
 
   public void delete(UUID id) {
     if (leadRepository.findById(id).isEmpty()) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-          "Lead with id = " + id + "not exists!");
+      throw new ResponseStatusException(
+          HttpStatus.NOT_FOUND, "Lead with id = " + id + "not exists!");
     } else {
       leadRepository.deleteById(id);
     }
@@ -100,15 +92,15 @@ public class LeadService {
   }
 
   public Optional<Lead> findByEmail(String email) {
-    return  leadRepository.findByEmail(email);
+    return leadRepository.findByEmail(email);
   }
 
   public List<Lead> findByStatuses(LeadStatus... statuses) {
-    return  leadRepository.findByStatusIn(List.of(statuses));
+    return leadRepository.findByStatusIn(List.of(statuses));
   }
 
   public List<Lead> findByStatus(LeadStatus status) {
-    return  leadRepository.findAll().stream()
+    return leadRepository.findAll().stream()
         .filter(lead -> lead.status().equals(status))
         .collect(Collectors.toList());
   }
@@ -122,8 +114,14 @@ public class LeadService {
       stream = stream.filter(lead -> lead.email().toLowerCase().contains(email.toLowerCase()));
     }
     if (companyName != null && !companyName.isBlank()) {
-      stream = stream.filter(lead -> lead.company() != null
-          && lead.company().getName().toLowerCase().contains(companyName.toLowerCase()));
+      stream =
+          stream.filter(
+              lead ->
+                  lead.company() != null
+                      && lead.company()
+                          .getName()
+                          .toLowerCase()
+                          .contains(companyName.toLowerCase()));
     }
     if (status != null) {
       stream = stream.filter(lead -> lead.status().equals(status));
@@ -131,22 +129,20 @@ public class LeadService {
     return stream.collect(Collectors.toList());
   }
 
-  public Page<Lead> searchByCompany (Company company, int pageNumber, int pageSize) {
-    PageRequest pageRequest = PageRequest.of(
-        pageNumber, pageSize);
+  public Page<Lead> searchByCompany(Company company, int pageNumber, int pageSize) {
+    PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
     return leadRepository.findByCompany(company, pageRequest);
   }
 
   public Page<Lead> getFirstPage(int pageSize) {
-    PageRequest pageRequest = PageRequest.of(
-        0, pageSize, Sort.by("createdAt").descending());
+    PageRequest pageRequest = PageRequest.of(0, pageSize, Sort.by("createdAt").descending());
     return leadRepository.findAll(pageRequest);
   }
 
   @Transactional
   public int convertNewToContacted() {
     int updated = leadRepository.updateStatusBulk(LeadStatus.NEW, LeadStatus.CONTACTED);
-    //логи
+    // логи
     System.out.printf("Converted %d leads from NEW to CONTACTED%n", updated);
     return updated;
   }
@@ -157,10 +153,11 @@ public class LeadService {
   }
 
   @Transactional
-  public void convertLeadToDeal (UUID leadId, BigDecimal amount) {
-    Lead lead = leadRepository.findById(leadId)
-        .orElseThrow(() -> new IllegalArgumentException(
-            "Lead not found: " + leadId));
+  public void convertLeadToDeal(UUID leadId, BigDecimal amount) {
+    Lead lead =
+        leadRepository
+            .findById(leadId)
+            .orElseThrow(() -> new IllegalArgumentException("Lead not found: " + leadId));
     Deal deal = new Deal(leadId, amount);
     lead.setStatus(LeadStatus.CONTACTED);
     dealRepository.save(deal);
@@ -179,7 +176,7 @@ public class LeadService {
     return transactionName;
   }
 
-  //self-invocation
+  // self-invocation
   public void processLeadsWithInvocationProblem(List<UUID> ids) {
     for (UUID id : ids) {
       try {
@@ -196,7 +193,7 @@ public class LeadService {
     if (leadRepository.existsById(id)) {
       leadRepository.findById(id).get().setStatus(LeadStatus.CONTACTED);
     } else {
-      throw new IllegalArgumentException(); //ошибка для rollback
+      throw new IllegalArgumentException(); // ошибка для rollback
     }
   }
 
@@ -233,12 +230,12 @@ public class LeadService {
   public List<String> readThenWriteThenReadAgainWithReadCommitted(UUID leadId, String newName) {
     List<String> results = new ArrayList<>();
 
-    //Транзакция A читает Lead (name = "John")
+    // Транзакция A читает Lead (name = "John")
     Lead lead = leadRepository.findById(leadId).orElseThrow();
-    results.add(lead.getName());  // "John"
+    results.add(lead.getName()); // "John"
 
-    //Транзакция B обновляет Lead (name = "Jane") и commit
-    updateLeadName(leadId, newName);  // обновляет на "Jane"
+    // Транзакция B обновляет Lead (name = "Jane") и commit
+    updateLeadName(leadId, newName); // обновляет на "Jane"
 
     // Транзакция A читает Lead повторно
     // должны увидеть "Jane" при READ_COMMITTED
@@ -272,4 +269,3 @@ public class LeadService {
     return results;
   }
 }
-

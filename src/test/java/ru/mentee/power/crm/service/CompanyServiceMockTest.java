@@ -11,7 +11,6 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,8 +27,7 @@ public class CompanyServiceMockTest {
   private UUID id;
   private Company company;
 
-  @Mock
-  private CompanyRepository mockCompanyRepository;
+  @Mock private CompanyRepository mockCompanyRepository;
 
   @BeforeEach
   void setUp() {
@@ -63,10 +61,8 @@ public class CompanyServiceMockTest {
 
   @Test
   void shouldReturnAllCompaniesWhenNoFilters() {
-    List<Company> companies = List.of(
-        new Company("ACME Corp", "IT"),
-        new Company("TechInc", "Finance")
-    );
+    List<Company> companies =
+        List.of(new Company("ACME Corp", "IT"), new Company("TechInc", "Finance"));
     when(mockCompanyRepository.findAll()).thenReturn(companies);
 
     List<Company> result = companyService.findCompanies(null, null);
@@ -77,10 +73,8 @@ public class CompanyServiceMockTest {
 
   @Test
   void shouldFilterCompaniesByName() {
-    List<Company> companies = List.of(
-        new Company("ACME Corp", "IT"),
-        new Company("TechInc", "Finance")
-    );
+    List<Company> companies =
+        List.of(new Company("ACME Corp", "IT"), new Company("TechInc", "Finance"));
     when(mockCompanyRepository.findAll()).thenReturn(companies);
 
     List<Company> result = companyService.findCompanies("Tech", null);
@@ -92,10 +86,8 @@ public class CompanyServiceMockTest {
 
   @Test
   void shouldFilterCompaniesByIndustry() {
-    List<Company> companies = List.of(
-        new Company("ACME Corp", "IT"),
-        new Company("TechInc", "Finance")
-    );
+    List<Company> companies =
+        List.of(new Company("ACME Corp", "IT"), new Company("TechInc", "Finance"));
     when(mockCompanyRepository.findAll()).thenReturn(companies);
 
     List<Company> result = companyService.findCompanies(null, "Finance");
@@ -107,11 +99,11 @@ public class CompanyServiceMockTest {
 
   @Test
   void shouldFilterCompaniesByNameAndIndustry() {
-    List<Company> companies = List.of(
-        new Company("ACME Corp", "IT"),
-        new Company("TechInc", "Finance"),
-        new Company("TechCorp", "IT")
-    );
+    List<Company> companies =
+        List.of(
+            new Company("ACME Corp", "IT"),
+            new Company("TechInc", "Finance"),
+            new Company("TechCorp", "IT"));
     when(mockCompanyRepository.findAll()).thenReturn(companies);
 
     List<Company> result = companyService.findCompanies("Tech", "IT");
@@ -123,10 +115,8 @@ public class CompanyServiceMockTest {
 
   @Test
   void shouldReturnEmptyListWhenNoMatchByName() {
-    List<Company> companies = List.of(
-        new Company("ACME Corp", "IT"),
-        new Company("TechInc", "Finance")
-    );
+    List<Company> companies =
+        List.of(new Company("ACME Corp", "IT"), new Company("TechInc", "Finance"));
     when(mockCompanyRepository.findAll()).thenReturn(companies);
 
     List<Company> result = companyService.findCompanies("NonExistent", null);
@@ -137,10 +127,8 @@ public class CompanyServiceMockTest {
 
   @Test
   void shouldReturnEmptyListWhenNoMatchByIndustry() {
-    List<Company> companies = List.of(
-        new Company("ACME Corp", "IT"),
-        new Company("TechInc", "Finance")
-    );
+    List<Company> companies =
+        List.of(new Company("ACME Corp", "IT"), new Company("TechInc", "Finance"));
     when(mockCompanyRepository.findAll()).thenReturn(companies);
 
     List<Company> result = companyService.findCompanies(null, "NonExistent");
@@ -224,5 +212,4 @@ public class CompanyServiceMockTest {
     verify(mockCompanyRepository).findById(id);
     verify(mockCompanyRepository, never()).deleteById(any(UUID.class));
   }
-
 }

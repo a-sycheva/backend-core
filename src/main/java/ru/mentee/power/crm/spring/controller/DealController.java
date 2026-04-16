@@ -1,7 +1,6 @@
 package ru.mentee.power.crm.spring.controller;
 
 import java.util.UUID;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,25 +18,25 @@ import ru.mentee.power.crm.service.LeadService;
 @RequiredArgsConstructor
 public class DealController {
   private final DealService dealService;
-  private  final LeadService leadService;
+  private final LeadService leadService;
 
   @GetMapping
-  public String listDeals (Model model) {
+  public String listDeals(Model model) {
     model.addAttribute("deals", dealService.getAllDeals());
     return "deals/list";
   }
 
-  //показать доску канбан
+  // показать доску канбан
   @GetMapping("/kanban")
-  public String kanbanView (Model model) {
+  public String kanbanView(Model model) {
     model.addAttribute("dealsByStatus", dealService.getDealsByStatusForKanban());
     return "deals/kanban";
   }
 
-  //выполнить переход статуса
+  // выполнить переход статуса
   @PostMapping("/{dealId}/transition")
-  public String transitionStatus (@PathVariable UUID dealId, @RequestParam DealStatus newStatus) {
+  public String transitionStatus(@PathVariable UUID dealId, @RequestParam DealStatus newStatus) {
     dealService.transitionDealStatus(dealId, newStatus);
-    return  "redirect:/deals/kanban";
+    return "redirect:/deals/kanban";
   }
 }

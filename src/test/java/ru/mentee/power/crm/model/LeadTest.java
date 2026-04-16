@@ -3,7 +3,6 @@ package ru.mentee.power.crm.model;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import java.util.UUID;
-
 import org.junit.jupiter.api.Test;
 
 class LeadTest {
@@ -19,8 +18,9 @@ class LeadTest {
 
   @Test
   void shouldReturnFalseWhenEqualsNullOrNoninstanceObjects() {
-    Lead firstLead = new Lead(UUID.randomUUID(), "test1@example.ru",
-        new Company("Yandex", "IT"), LeadStatus.NEW);
+    Lead firstLead =
+        new Lead(
+            UUID.randomUUID(), "test1@example.ru", new Company("Yandex", "IT"), LeadStatus.NEW);
     String someString = "some string";
 
     assertThat(firstLead.equals(null)).isFalse();
@@ -29,10 +29,10 @@ class LeadTest {
 
   @Test
   void shouldReturnTrueWhenEqualsItself() {
-    Lead lead = new Lead(UUID.randomUUID(), "test1@example.ru",
-        new Company("Yandex", "IT"), LeadStatus.NEW);
+    Lead lead =
+        new Lead(
+            UUID.randomUUID(), "test1@example.ru", new Company("Yandex", "IT"), LeadStatus.NEW);
 
     assertThat(lead.equals(lead)).isTrue();
   }
-
 }
