@@ -1,7 +1,6 @@
 package ru.mentee.power.crm.service;
 
 import java.util.UUID;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,7 +41,7 @@ public class LeadProcessor {
     if (leadRepository.existsById(id)) {
       leadRepository.findById(id).get().setStatus(LeadStatus.CONTACTED);
     } else {
-      throw new IllegalArgumentException(); //ошибка для rollback
+      throw new IllegalArgumentException(); // ошибка для rollback
     }
   }
 }

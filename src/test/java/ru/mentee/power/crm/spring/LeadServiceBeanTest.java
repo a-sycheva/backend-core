@@ -14,8 +14,7 @@ import ru.mentee.power.crm.service.LeadService;
 @ActiveProfiles("test")
 public class LeadServiceBeanTest {
 
-  @Autowired
-  private ApplicationContext context;
+  @Autowired private ApplicationContext context;
 
   @Test
   void shouldCreateLeadServiceBean() {

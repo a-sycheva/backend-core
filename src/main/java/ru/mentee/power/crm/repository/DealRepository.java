@@ -3,7 +3,6 @@ package ru.mentee.power.crm.repository;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -22,5 +21,5 @@ public interface DealRepository extends JpaRepository<Deal, UUID> {
   @Query("SELECT d FROM Deal d WHERE d.id = :id")
   Optional<Deal> findDealWithProducts(UUID id);
 
-  void deleteById (UUID id);
+  void deleteById(UUID id);
 }

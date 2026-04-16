@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -29,12 +28,13 @@ public class CompanyService {
   public List<Company> findCompanies(String name, String industry) {
     Stream<Company> stream = companyRepository.findAll().stream();
     if (name != null && !name.isBlank()) {
-      stream = stream.filter(company -> company.getName()
-          .toLowerCase().contains(name.toLowerCase()));
+      stream =
+          stream.filter(company -> company.getName().toLowerCase().contains(name.toLowerCase()));
     }
     if (industry != null && !industry.isBlank()) {
-      stream = stream.filter(company -> company.getIndustry()
-          .toLowerCase().contains(industry.toLowerCase()));
+      stream =
+          stream.filter(
+              company -> company.getIndustry().toLowerCase().contains(industry.toLowerCase()));
     }
     return stream.collect(Collectors.toList());
   }
@@ -51,9 +51,7 @@ public class CompanyService {
 
     Optional<Company> existing = companyRepository.findById(id);
     if (existing.isEmpty()) {
-      throw new ResponseStatusException(
-          HttpStatus.NOT_FOUND,
-          "Cannot find company with id " + id);
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Cannot find company with id " + id);
     }
 
     existing.get().setName(updatedCompany.getName());
@@ -64,8 +62,8 @@ public class CompanyService {
 
   public void delete(UUID id) {
     if (companyRepository.findById(id).isEmpty()) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-          "Company with id = " + id + "not exists!");
+      throw new ResponseStatusException(
+          HttpStatus.NOT_FOUND, "Company with id = " + id + "not exists!");
     } else {
       companyRepository.deleteById(id);
     }

@@ -6,15 +6,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
-
 import org.junit.jupiter.api.Test;
 
 class DealTest {
   UUID leadId = UUID.randomUUID();
   BigDecimal amount = new BigDecimal(100_000.00);
 
-  Deal deal = new Deal(UUID.randomUUID(), leadId, amount,
-      DealStatus.NEW, LocalDateTime.now());
+  Deal deal = new Deal(UUID.randomUUID(), leadId, amount, DealStatus.NEW, LocalDateTime.now());
 
   @Test
   void shouldCreateDealWithNewStatus() {
@@ -34,13 +32,17 @@ class DealTest {
   @Test
   void shouldThrowExceptionWhenTransitionInvalid() {
 
-    Deal wonDeal = new Deal(UUID.randomUUID(), UUID.randomUUID(), BigDecimal.valueOf(100_000),
-        DealStatus.WON, LocalDateTime.now());
+    Deal wonDeal =
+        new Deal(
+            UUID.randomUUID(),
+            UUID.randomUUID(),
+            BigDecimal.valueOf(100_000),
+            DealStatus.WON,
+            LocalDateTime.now());
 
     assertThatThrownBy(() -> wonDeal.transitionTo(DealStatus.NEW))
         .isInstanceOf(IllegalStateException.class)
-        .hasMessage("Cannot transition from " + wonDeal.getStatus()
-            + " to " + DealStatus.NEW);
+        .hasMessage("Cannot transition from " + wonDeal.getStatus() + " to " + DealStatus.NEW);
   }
 
   @Test
@@ -50,8 +52,13 @@ class DealTest {
 
   @Test
   void shouldBeEqualsAndHasSameHashCodeWhenDealsHasSimilarIds() {
-    Deal anotherDeal = new Deal(deal.getId(), UUID.randomUUID(), BigDecimal.valueOf(100_000),
-        DealStatus.WON, LocalDateTime.now());
+    Deal anotherDeal =
+        new Deal(
+            deal.getId(),
+            UUID.randomUUID(),
+            BigDecimal.valueOf(100_000),
+            DealStatus.WON,
+            LocalDateTime.now());
 
     assertThat(anotherDeal).isEqualTo(deal);
     assertThat(anotherDeal).hasSameHashCodeAs(deal);
@@ -59,9 +66,8 @@ class DealTest {
 
   @Test
   void shouldNotBeEqualsWhenDealsHasDifferentIds() {
-    Deal anotherDeal = new Deal(UUID.randomUUID(), leadId, amount,
-        DealStatus.NEW, LocalDateTime.now());
+    Deal anotherDeal =
+        new Deal(UUID.randomUUID(), leadId, amount, DealStatus.NEW, LocalDateTime.now());
     assertThat(anotherDeal).isNotEqualTo(deal);
   }
-
 }

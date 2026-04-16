@@ -8,7 +8,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,11 +21,9 @@ import ru.mentee.power.crm.repository.LeadRepository;
 @ActiveProfiles("test")
 public class LeadDedlockServiceTest {
 
-  @Autowired
-  private LeadLockingService leadLockingService;
+  @Autowired private LeadLockingService leadLockingService;
 
-  @Autowired
-  private LeadRepository leadRepository;
+  @Autowired private LeadRepository leadRepository;
 
   @Test
   void shouldTrowExceptionWhenDeadlock() {
@@ -42,18 +39,21 @@ public class LeadDedlockServiceTest {
 
     CountDownLatch startLatch = new CountDownLatch(1);
 
+    Future<?> task1 =
+        executor.submit(
+            () -> {
+              startLatch.await();
+              leadLockingService.blockLeadsInOrder(firstLeadId, secondLeadId);
+              return null;
+            });
 
-    Future<?> task1 = executor.submit(() -> {
-      startLatch.await();
-      leadLockingService.blockLeadsInOrder(firstLeadId, secondLeadId);
-      return null;
-    });
-
-    Future<?> task2 = executor.submit(() -> {
-      startLatch.await();
-      leadLockingService.blockLeadsInOrder(secondLeadId, firstLeadId);
-      return null;
-    });
+    Future<?> task2 =
+        executor.submit(
+            () -> {
+              startLatch.await();
+              leadLockingService.blockLeadsInOrder(secondLeadId, firstLeadId);
+              return null;
+            });
 
     startLatch.countDown();
     // Then: Одна транзакция должна выбросить CannotAcquireLockException
@@ -63,13 +63,11 @@ public class LeadDedlockServiceTest {
       task2.get(5, TimeUnit.SECONDS);
     } catch (Exception e) {
       // Одна из транзакций должна выбросить OptimisticLockException
-      assertThat(e.getCause())
-          .isInstanceOfAny(CannotAcquireLockException.class);
+      assertThat(e.getCause()).isInstanceOfAny(CannotAcquireLockException.class);
       exceptionThrown = true;
     }
 
     assertThat(exceptionThrown).isTrue();
     executor.shutdown();
   }
-
 }

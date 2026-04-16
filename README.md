@@ -1,5 +1,5 @@
 # backend-core Project
-[![Java CI with Jacoco and Checkstyle](https://github.com/a-sycheva/backend-core/actions/workflows/ci.yml/badge.svg)](https://github.com/a-sycheva/backend-core/actions/workflows/ci.yml)
+[![Java CI with Spotless](https://github.com/a-sycheva/backend-core/actions/workflows/ci.yml/badge.svg)](https://github.com/a-sycheva/backend-core/actions/workflows/ci.yml)
 
 ---
 

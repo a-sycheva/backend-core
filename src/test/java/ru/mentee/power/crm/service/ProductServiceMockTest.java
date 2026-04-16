@@ -11,7 +11,6 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,8 +24,7 @@ public class ProductServiceMockTest {
 
   private ProductService productService;
 
-  @Mock
-  private ProductJpaRepository productRepository;
+  @Mock private ProductJpaRepository productRepository;
 
   @BeforeEach
   void setUp() {
@@ -35,12 +33,10 @@ public class ProductServiceMockTest {
 
   @Test
   void shouldFindAllProducts() {
-    List<Product> expectedProducts = List.of(
-        new Product("Первый продукт", "ПРОД-ТЕСТ-001",
-            new BigDecimal("10000.00"), true),
-        new Product("Второй продукт", "ПРОД-ТЕСТ-002",
-            new BigDecimal("20000.00"), true)
-    );
+    List<Product> expectedProducts =
+        List.of(
+            new Product("Первый продукт", "ПРОД-ТЕСТ-001", new BigDecimal("10000.00"), true),
+            new Product("Второй продукт", "ПРОД-ТЕСТ-002", new BigDecimal("20000.00"), true));
     when(productRepository.findAll()).thenReturn(expectedProducts);
 
     List<Product> result = productService.findAll();

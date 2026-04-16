@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -17,8 +16,7 @@ import ru.mentee.power.crm.model.Product;
 @DataJpaTest
 @ActiveProfiles("test")
 class ProductJpaRepositoryTest {
-  @Autowired
-  private ProductJpaRepository productRepository;
+  @Autowired private ProductJpaRepository productRepository;
 
   @Test
   void shouldSaveAndFindProductWhenValidData() {
@@ -80,12 +78,11 @@ class ProductJpaRepositoryTest {
 
     List<Product> activeProducts = productRepository.findByActiveTrue();
 
-    assertThat(activeProducts).hasSize(2)
-        .containsExactlyInAnyOrder(firstProduct, thirdProduct);
+    assertThat(activeProducts).hasSize(2).containsExactlyInAnyOrder(firstProduct, thirdProduct);
   }
 
   @Test
-  void  shouldThrowExceptionWhenSaveProductWithSameSku() {
+  void shouldThrowExceptionWhenSaveProductWithSameSku() {
     Product firstProduct = new Product();
     firstProduct.setName("Консультация по архитектуре");
     firstProduct.setSku("CONSULT-ARCH-001");

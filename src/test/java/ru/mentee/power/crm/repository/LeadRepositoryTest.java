@@ -2,12 +2,11 @@ package ru.mentee.power.crm.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,14 +23,11 @@ import ru.mentee.power.crm.model.LeadStatus;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
 class LeadRepositoryTest {
-  @PersistenceContext
-  EntityManager entityManager;
+  @PersistenceContext EntityManager entityManager;
 
-  @Autowired
-  private LeadRepository repository;
+  @Autowired private LeadRepository repository;
 
-  @Autowired
-      private CompanyRepository companyRepository;
+  @Autowired private CompanyRepository companyRepository;
 
   Lead firstLead;
   Lead secondLead;
@@ -50,7 +46,6 @@ class LeadRepositoryTest {
     firstCompany.addLead(firstLead);
     companyRepository.save(firstCompany);
 
-
     secondLead = new Lead();
     secondLead.setName("Jane");
     secondLead.setEmail("jane@example.com");
@@ -63,8 +58,7 @@ class LeadRepositoryTest {
 
   @Test
   void shouldSaveAndFindLeadByIdWhenValidData() {
-    Lead lead = new Lead("Ellen", "test@example.com",
-        null, LeadStatus.NEW);
+    Lead lead = new Lead("Ellen", "test@example.com", null, LeadStatus.NEW);
 
     Lead saved = repository.save(lead);
     Optional<Lead> found = repository.findById(saved.getId());
@@ -183,8 +177,8 @@ class LeadRepositoryTest {
     repository.save(fourthLead);
     PageRequest pageRequest = PageRequest.of(0, 5);
 
-    Page<Lead> result = repository.findByStatusAndCompany(
-        LeadStatus.NEW, firstCompany, pageRequest);
+    Page<Lead> result =
+        repository.findByStatusAndCompany(LeadStatus.NEW, firstCompany, pageRequest);
 
     assertThat(result.getTotalElements()).isEqualTo(2);
     assertThat(result.getContent()).containsExactlyInAnyOrder(firstLead, thirdLead);
@@ -212,7 +206,6 @@ class LeadRepositoryTest {
     List<Lead> leads = repository.findByStatus(LeadStatus.CONTACTED);
 
     assertThat(result).isEqualTo(2);
-    assertThat(leads).hasSize(3)
-        .containsExactlyInAnyOrder(firstLead, secondLead, thirdLead);
+    assertThat(leads).hasSize(3).containsExactlyInAnyOrder(firstLead, secondLead, thirdLead);
   }
 }

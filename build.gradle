@@ -7,6 +7,7 @@ plugins {
     id 'gg.jte.gradle' version '3.1.15'
     id 'org.springframework.boot' version '3.5.7'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.diffplug.spotless' version '8.4.0'
 }
 
 check.dependsOn checkstyleMain
@@ -102,6 +103,17 @@ jte {
     sourceDirectory = file("src/main/resources/jte").toPath()
     contentType = "Html"
     binaryStaticContent = false
+}
+
+spotless {
+    java {
+        target 'src/**/*.java'
+        targetExclude 'build/**'
+        googleJavaFormat('1.35.0')
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
 }
 
 checkstyleMain {

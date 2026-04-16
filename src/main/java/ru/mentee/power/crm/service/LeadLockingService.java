@@ -2,9 +2,8 @@ package ru.mentee.power.crm.service;
 
 import static java.lang.Thread.sleep;
 
-import java.util.UUID;
-
 import jakarta.persistence.OptimisticLockException;
+import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.mentee.power.crm.model.Lead;
@@ -24,8 +23,10 @@ public class LeadLockingService {
   @Transactional
   public Lead convertLeadToDealWithLock(UUID leadId, String newStatus) {
     // Блокируем Lead эксклюзивно до конца транзакции
-    Lead lead = leadRepository.findByIdForUpdate(leadId)
-        .orElseThrow(() -> new IllegalArgumentException("Lead not found: " + leadId));
+    Lead lead =
+        leadRepository
+            .findByIdForUpdate(leadId)
+            .orElseThrow(() -> new IllegalArgumentException("Lead not found: " + leadId));
 
     // Здесь могла бы быть сложная бизнес-логика конверсии:
     // - создание Deal
@@ -40,13 +41,15 @@ public class LeadLockingService {
   // Обычное обновление с optimistic lock (через @Version)
   @Transactional
   public Lead updateLeadStatusOptimistic(UUID leadId, String newStatus) {
-    Lead lead = leadRepository.findById(leadId)
-        .orElseThrow(() -> new IllegalArgumentException("Lead not found: " + leadId));
+    Lead lead =
+        leadRepository
+            .findById(leadId)
+            .orElseThrow(() -> new IllegalArgumentException("Lead not found: " + leadId));
 
     // Блокировки НЕТ — другие транзакции могут читать и изменять
     // При сохранении JPA проверит version и выбросит OptimisticLockException если конфликт
 
-    try { //задержка для увеличения шанса конфликта
+    try { // задержка для увеличения шанса конфликта
       sleep(50);
     } catch (InterruptedException anotherE) {
       Thread.currentThread().interrupt();
@@ -69,8 +72,7 @@ public class LeadLockingService {
 
         if (attempt >= maxRetries) {
           throw new RuntimeException(
-              "Не удалось обновить лида после " + maxRetries
-                  + " попыток", e);
+              "Не удалось обновить лида после " + maxRetries + " попыток", e);
         }
 
         // задержка перед повторной попыткой
@@ -79,7 +81,6 @@ public class LeadLockingService {
         } catch (InterruptedException anotherE) {
           Thread.currentThread().interrupt();
         }
-
       }
     }
     throw new RuntimeException("Цикл заверщен без возврата значения");
@@ -90,7 +91,7 @@ public class LeadLockingService {
     // Блокируем первый
     Lead lead1 = leadRepository.findByIdForUpdate(leadId1).get();
 
-    sleep(50);  // Даем второму потоку время заблокировать второй лид
+    sleep(50); // Даем второму потоку время заблокировать второй лид
 
     // Блокируем второй
     Lead lead2 = leadRepository.findByIdForUpdate(leadId2).get();

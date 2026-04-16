@@ -1,11 +1,10 @@
 package ru.mentee.power.crm.spring.controller;
 
+import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -30,13 +29,14 @@ import ru.mentee.power.crm.service.LeadService;
 @RequiredArgsConstructor
 public class LeadController {
   private final LeadService leadService;
-  private  final CompanyService companyService;
+  private final CompanyService companyService;
 
   @GetMapping
   @ResponseBody
   public String home() {
     return "Spring Boot CRM is running! Leads in Database: "
-        + leadService.findAll().size() + " leads.";
+        + leadService.findAll().size()
+        + " leads.";
   }
 
   @GetMapping("/leads")
@@ -56,7 +56,7 @@ public class LeadController {
     return "leads/list";
   }
 
-  //форма создания лида
+  // форма создания лида
   @GetMapping("/leads/new")
   public String showCreateForm(Model model) {
     model.addAttribute("lead", new Lead("", "", LeadStatus.NEW));
@@ -64,35 +64,35 @@ public class LeadController {
     return "leads/create";
   }
 
-  //создание лида
+  // создание лида
   @PostMapping("/leads")
-  public String createLead(@Valid @ModelAttribute("request") LeadCreateRequest request,
-                           BindingResult result,
-                           Model model) {
+  public String createLead(
+      @Valid @ModelAttribute("request") LeadCreateRequest request,
+      BindingResult result,
+      Model model) {
     if (result.hasErrors()) {
       model.addAttribute("errors", result);
       return "leads/form";
     } else {
 
-      Company company = request.getCompanyId() != null
-          ? companyService.findById(request.getCompanyId()).orElse(null)
-          : null;
+      Company company =
+          request.getCompanyId() != null
+              ? companyService.findById(request.getCompanyId()).orElse(null)
+              : null;
 
       leadService.addLead(request.getName(), request.getEmail(), company, request.getStatus());
       return "redirect:/leads";
     }
   }
 
-  //форма обновления лида
+  // форма обновления лида
   @GetMapping("/leads/{id}/edit")
   public String showEditForm(@PathVariable UUID id, Model model) {
 
     Optional<Lead> lead = leadService.findById(id);
     if (lead.isEmpty()) {
 
-      throw new ResponseStatusException(
-          HttpStatus.NOT_FOUND,
-          "Cannot find lead with id " + id);
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Cannot find lead with id " + id);
     } else {
       model.addAttribute("lead", lead.get());
       model.addAttribute("companies", companyService.findAll());
@@ -100,19 +100,18 @@ public class LeadController {
     return "leads/edit";
   }
 
-  //обновление лида
+  // обновление лида
   @PostMapping("/leads/{id}")
-  public String updateLead(@PathVariable UUID id,
-                           @Valid @ModelAttribute("request") LeadUpdateRequest request,
-                           BindingResult result,
-                           Model model) {
+  public String updateLead(
+      @PathVariable UUID id,
+      @Valid @ModelAttribute("request") LeadUpdateRequest request,
+      BindingResult result,
+      Model model) {
 
-    //избегаю Direct endpoint invocation
+    // избегаю Direct endpoint invocation
     if (leadService.findById(id).isEmpty()) {
 
-      throw new ResponseStatusException(
-          HttpStatus.NOT_FOUND,
-          "Cannot find lead with id " + id);
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Cannot find lead with id " + id);
     } else {
 
       if (result.hasErrors()) {
@@ -120,49 +119,46 @@ public class LeadController {
         return "leads/form";
       } else {
 
-        Company company = request.getCompanyId() != null
-            ? companyService.findById(request.getCompanyId()).orElse(null)
-            : null;
+        Company company =
+            request.getCompanyId() != null
+                ? companyService.findById(request.getCompanyId()).orElse(null)
+                : null;
 
         Lead lead = new Lead(request.getName(), request.getEmail(), company, request.getStatus());
         leadService.update(id, lead);
         return "redirect:/leads";
       }
-
     }
   }
 
-  //удаление лида
+  // удаление лида
   @PostMapping("/leads/{id}/delete")
   public String deleteLead(@PathVariable UUID id) {
     if (leadService.findById(id).isEmpty()) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-          "Lead with id = " + id + " not exists");
+      throw new ResponseStatusException(
+          HttpStatus.NOT_FOUND, "Lead with id = " + id + " not exists");
     } else {
       leadService.delete(id);
       return "redirect:/leads";
     }
   }
 
-  //показать форму конвертации лида в сделку
+  // показать форму конвертации лида в сделку
   @GetMapping("/leads/convert/{leadId}")
-  public String showConvertForm (@PathVariable UUID leadId, Model model) {
+  public String showConvertForm(@PathVariable UUID leadId, Model model) {
     Optional<Lead> lead = leadService.findById(leadId);
     if (lead.isEmpty()) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-    }
-    else {
+    } else {
       model.addAttribute("lead", lead.get());
       return "leads/convert";
     }
   }
 
-  //выполнить конвертацию
+  // выполнить конвертацию
   @PostMapping("leads/convert")
-  public String convertLeadToDeal (@RequestParam UUID leadId, @RequestParam BigDecimal amount) {
+  public String convertLeadToDeal(@RequestParam UUID leadId, @RequestParam BigDecimal amount) {
     leadService.convertLeadToDeal(leadId, amount);
     return "redirect:/leads";
   }
 }
-
-

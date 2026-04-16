@@ -1,12 +1,5 @@
 package ru.mentee.power.crm.model;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,6 +10,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 @Entity
 @Table(name = "deals")
@@ -29,7 +28,7 @@ public class Deal {
   private UUID leadId;
 
   @Column(nullable = false)
-  private  BigDecimal amount;
+  private BigDecimal amount;
 
   @Column(name = "stage", nullable = false)
   @Enumerated(EnumType.STRING)
@@ -41,13 +40,12 @@ public class Deal {
   @OneToMany(mappedBy = "deal", cascade = CascadeType.ALL, orphanRemoval = true)
   List<DealProduct> dealProducts = new ArrayList<>();
 
-  public Deal() {
+  public Deal() {}
 
-  }
-
-  public Deal (UUID leadId, BigDecimal amount) {
+  public Deal(UUID leadId, BigDecimal amount) {
     this.leadId = Objects.requireNonNull(leadId, "LeadId must not be null");
-    this.amount = Objects.requireNonNull(amount, "amount must not be null");;
+    this.amount = Objects.requireNonNull(amount, "amount must not be null");
+    ;
     this.status = DealStatus.NEW;
     this.createdAt = LocalDateTime.now();
   }
@@ -75,8 +73,7 @@ public class Deal {
     if (this.status.canTransition(newStatus)) {
       this.status = newStatus;
     } else {
-      throw new IllegalStateException("Cannot transition from "
-          + this.status + " to " + newStatus);
+      throw new IllegalStateException("Cannot transition from " + this.status + " to " + newStatus);
     }
   }
 

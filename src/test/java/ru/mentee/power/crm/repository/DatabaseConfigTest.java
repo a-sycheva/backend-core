@@ -14,22 +14,23 @@ import ru.mentee.power.crm.Application;
 @ActiveProfiles("test")
 public class DatabaseConfigTest {
 
-  @Autowired
-  private JdbcTemplate jdbcTemplate;
+  @Autowired private JdbcTemplate jdbcTemplate;
 
   @Test
   void shouldConnectToH2Database() throws InterruptedException {
-    String databaseProductName = jdbcTemplate.execute((ConnectionCallback<String>) connection ->
-        connection.getMetaData().getDatabaseProductName()
-    );
+    String databaseProductName =
+        jdbcTemplate.execute(
+            (ConnectionCallback<String>)
+                connection -> connection.getMetaData().getDatabaseProductName());
     assertThat(databaseProductName).isEqualTo("H2");
   }
 
   @Test
   void shouldHaveLeadsTableCreated() {
-    Integer count = jdbcTemplate.queryForObject(
-        "Select COUNT(*) FROM information_schema.tables"
-            + " WHERE table_name='LEADS'", Integer.class);
+    Integer count =
+        jdbcTemplate.queryForObject(
+            "Select COUNT(*) FROM information_schema.tables" + " WHERE table_name='LEADS'",
+            Integer.class);
     assertThat(count).isEqualTo(1);
   }
 }

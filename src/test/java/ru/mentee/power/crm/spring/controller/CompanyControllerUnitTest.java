@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -31,14 +30,11 @@ import ru.mentee.power.crm.service.LeadService;
 @WebMvcTest(CompanyController.class)
 public class CompanyControllerUnitTest {
 
-  @Autowired
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
-  @MockitoBean
-  private CompanyService companyService;
+  @MockitoBean private CompanyService companyService;
 
-  @MockitoBean
-  private  LeadService leadService;
+  @MockitoBean private LeadService leadService;
 
   @Test
   void shouldReturnCompaniesWhenFilteredByName() throws Exception {
@@ -46,11 +42,10 @@ public class CompanyControllerUnitTest {
     List<Company> companies = new ArrayList<>();
     companies.add(company);
 
-    when(companyService.findCompanies("TestCorp", null))
-        .thenReturn(companies);
+    when(companyService.findCompanies("TestCorp", null)).thenReturn(companies);
 
-    mockMvc.perform(get("/companies")
-            .param("name", "TestCorp"))
+    mockMvc
+        .perform(get("/companies").param("name", "TestCorp"))
         .andDo(print())
         .andExpect(status().isOk())
         .andExpect(model().attribute("companies", companies))
@@ -63,11 +58,10 @@ public class CompanyControllerUnitTest {
     List<Company> companies = new ArrayList<>();
     companies.add(company);
 
-    when(companyService.findCompanies(null, "TestIndustry"))
-        .thenReturn(companies);
+    when(companyService.findCompanies(null, "TestIndustry")).thenReturn(companies);
 
-    mockMvc.perform(get("/companies")
-            .param("industry", "TestIndustry"))
+    mockMvc
+        .perform(get("/companies").param("industry", "TestIndustry"))
         .andDo(print())
         .andExpect(status().isOk())
         .andExpect(model().attribute("companies", companies))
@@ -76,7 +70,8 @@ public class CompanyControllerUnitTest {
 
   @Test
   void shouldShowCreateForm() throws Exception {
-    mockMvc.perform(get("/companies/new"))
+    mockMvc
+        .perform(get("/companies/new"))
         .andExpect(status().isOk())
         .andExpect(model().attributeExists("company"))
         .andExpect(view().name("companies/create"));
@@ -84,9 +79,8 @@ public class CompanyControllerUnitTest {
 
   @Test
   void shouldCreateCompanyWhenValid() throws Exception {
-    mockMvc.perform(post("/companies")
-            .param("name", "New Corp")
-            .param("industry", "IT"))
+    mockMvc
+        .perform(post("/companies").param("name", "New Corp").param("industry", "IT"))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl("/companies"));
 
@@ -99,7 +93,8 @@ public class CompanyControllerUnitTest {
     Company company = new Company("TestCorp", "TestIndustry");
     when(companyService.findById(id)).thenReturn(Optional.of(company));
 
-    mockMvc.perform(get("/companies/{id}/edit", id))
+    mockMvc
+        .perform(get("/companies/{id}/edit", id))
         .andExpect(status().isOk())
         .andExpect(model().attribute("company", company))
         .andExpect(view().name("companies/edit"));
@@ -112,8 +107,7 @@ public class CompanyControllerUnitTest {
     UUID id = UUID.randomUUID();
     when(companyService.findById(id)).thenReturn(Optional.empty());
 
-    mockMvc.perform(get("/companies/{id}/edit", id))
-        .andExpect(status().isNotFound());
+    mockMvc.perform(get("/companies/{id}/edit", id)).andExpect(status().isNotFound());
 
     verify(companyService).findById(id);
   }
@@ -126,9 +120,11 @@ public class CompanyControllerUnitTest {
     when(companyService.findById(id)).thenReturn(Optional.of(existingCompany));
     when(companyService.update(eq(id), any(Company.class))).thenReturn(updatedCompany);
 
-    mockMvc.perform(post("/companies/{id}", id)
-            .param("name", "Updated Corp")
-            .param("industry", "UpdatedIndustry"))
+    mockMvc
+        .perform(
+            post("/companies/{id}", id)
+                .param("name", "Updated Corp")
+                .param("industry", "UpdatedIndustry"))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl("/companies"));
 
@@ -140,9 +136,8 @@ public class CompanyControllerUnitTest {
     UUID id = UUID.randomUUID();
     when(companyService.findById(id)).thenReturn(Optional.empty());
 
-    mockMvc.perform(post("/companies/{id}", id)
-            .param("name", "New Corp")
-            .param("industry", "IT"))
+    mockMvc
+        .perform(post("/companies/{id}", id).param("name", "New Corp").param("industry", "IT"))
         .andExpect(status().isNotFound());
 
     verify(companyService, never()).update(eq(id), any(Company.class));
@@ -152,8 +147,7 @@ public class CompanyControllerUnitTest {
   void shouldThrowExceptionWhenDeleteNotExistedCompany() throws Exception {
     UUID id = UUID.randomUUID();
 
-    mockMvc.perform(post("/companies/{id}/delete", id))
-        .andExpect(status().is4xxClientError());
+    mockMvc.perform(post("/companies/{id}/delete", id)).andExpect(status().is4xxClientError());
 
     verify(companyService).findById(id);
   }
@@ -166,7 +160,8 @@ public class CompanyControllerUnitTest {
     when(companyService.findById(id)).thenReturn(Optional.of(company));
     doNothing().when(companyService).delete(id);
 
-    mockMvc.perform(post("/companies/{id}/delete", id))
+    mockMvc
+        .perform(post("/companies/{id}/delete", id))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl("/companies"));
 

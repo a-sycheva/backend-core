@@ -1,6 +1,5 @@
 package ru.mentee.power.crm.repository;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import jakarta.persistence.EntityManager;
@@ -17,14 +16,11 @@ import ru.mentee.power.crm.model.LeadStatus;
 @ActiveProfiles("test")
 class CompanyRepositoryTest {
 
-  @PersistenceContext
-  private EntityManager entityManager;
+  @PersistenceContext private EntityManager entityManager;
 
-  @Autowired
-  private CompanyRepository companyRepository;
+  @Autowired private CompanyRepository companyRepository;
 
-  @Autowired
-  private LeadRepository leadRepository;
+  @Autowired private LeadRepository leadRepository;
 
   @Test
   void shouldSaveCompanyWithLeads() {
@@ -50,7 +46,7 @@ class CompanyRepositoryTest {
     Company found = companyRepository.findById(saved.getId()).orElseThrow();
     assertThat(found.getLeads()).hasSize(3);
 
-    //проверяем что у Lead обновилась company
+    // проверяем что у Lead обновилась company
     assertThat(firstLead.getCompany()).isEqualTo(company);
     assertThat(secondLead.getCompany()).isEqualTo(company);
     assertThat(thirdLead.getCompany()).isEqualTo(company);
@@ -78,5 +74,4 @@ class CompanyRepositoryTest {
 
     // SQL логи содержат 1 SELCT-запрос с LEFT JOIN leads
   }
-
 }

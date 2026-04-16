@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +17,9 @@ import ru.mentee.power.crm.repository.LeadRepository;
 @SpringBootTest
 @ActiveProfiles("test")
 public class IsolationTest {
-  @Autowired
-  private LeadService leadService;
+  @Autowired private LeadService leadService;
 
-  @Autowired
-  private LeadRepository leadRepository;
+  @Autowired private LeadRepository leadRepository;
 
   @BeforeEach
   void setUp() {
@@ -31,8 +28,8 @@ public class IsolationTest {
   }
 
   @Test
-    //для REPEATABLE_READ c параллельными транзакциями
-    //тест READ_COMMITED с последовательным вызовов транзакций A-> B в LeadServiceTest
+  // для REPEATABLE_READ c параллельными транзакциями
+  // тест READ_COMMITED с последовательным вызовов транзакций A-> B в LeadServiceTest
   void isolationRepeatableReadPreventsNonRepeatableRead() throws Exception {
     // Given: создаем лида
     Lead lead = new Lead();
@@ -44,17 +41,21 @@ public class IsolationTest {
     UUID leadId = lead.getId();
 
     // When: читатель и писатель работают параллельно
-    CompletableFuture<List<String>> reader = CompletableFuture.supplyAsync(() -> {
-      try {
-        return leadService.readLeadNameWithRepeatableRead(leadId);
-      } catch (InterruptedException e) {
-        throw new RuntimeException(e);
-      }
-    });
+    CompletableFuture<List<String>> reader =
+        CompletableFuture.supplyAsync(
+            () -> {
+              try {
+                return leadService.readLeadNameWithRepeatableRead(leadId);
+              } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+              }
+            });
 
-    CompletableFuture<Void> writer = CompletableFuture.runAsync(() -> {
-      leadService.updateLeadName(leadId, "Jane");
-    });
+    CompletableFuture<Void> writer =
+        CompletableFuture.runAsync(
+            () -> {
+              leadService.updateLeadName(leadId, "Jane");
+            });
 
     CompletableFuture.allOf(reader, writer).join();
 
@@ -62,5 +63,4 @@ public class IsolationTest {
     List<String> results = reader.get();
     assertThat(results).containsExactly("John", "John");
   }
-
 }

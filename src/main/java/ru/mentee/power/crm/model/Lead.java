@@ -1,8 +1,5 @@
 package ru.mentee.power.crm.model;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -19,6 +16,8 @@ import jakarta.persistence.Version;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -31,19 +30,19 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public  class Lead {
+public class Lead {
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
   @EqualsAndHashCode.Include
-  private  UUID id;
+  private UUID id;
 
   @Column(nullable = false)
   private String name;
 
   @Column(nullable = false, unique = true)
-  private  @NotBlank(message = "Email обязателен")
-  @Email(regexp = ".+@.+\\..+", message = "Некорректный формат email")
-  String email;
+  private @NotBlank(message = "Email обязателен") @Email(
+      regexp = ".+@.+\\..+",
+      message = "Некорректный формат email") String email;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "company_id")
@@ -51,8 +50,7 @@ public  class Lead {
 
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
-  private  @NotNull(message = "Указать статус обязательно")
-  LeadStatus status;
+  private @NotNull(message = "Указать статус обязательно") LeadStatus status;
 
   @Version
   @Column(name = "version", nullable = false)
@@ -67,14 +65,13 @@ public  class Lead {
     createdAt = LocalDateTime.now();
   }
 
-  public Lead(UUID id,
-              @NotBlank(message = "Email обязателен")
-              @Email(regexp = ".+@.+\\..+", message = "Некорректный формат email")
-              String email,
-              @NotBlank(message = "Указать компанию обязательно")
-              Company company,
-              @NotNull(message = "Указать статус обязательно")
-              LeadStatus status) {
+  public Lead(
+      UUID id,
+      @NotBlank(message = "Email обязателен")
+          @Email(regexp = ".+@.+\\..+", message = "Некорректный формат email")
+          String email,
+      @NotBlank(message = "Указать компанию обязательно") Company company,
+      @NotNull(message = "Указать статус обязательно") LeadStatus status) {
     this.id = id;
     this.email = email;
     this.company = company;
@@ -87,14 +84,14 @@ public  class Lead {
     this.status = status;
   }
 
-  //конструктор для старых тестов
+  // конструктор для старых тестов
   public Lead(String email, Company company, LeadStatus status) {
     this.email = email;
     this.company = company;
     this.status = status;
   }
 
-  //конструктор для тестов
+  // конструктор для тестов
   public Lead(UUID id, String name, String email, Company company, LeadStatus status) {
     this.id = id;
     this.name = name;
@@ -118,9 +115,9 @@ public  class Lead {
     return name;
   }
 
-  public @NotBlank(message = "Email обязателен")
-      @Email(regexp = ".+@.+\\..+", message = "Некорректный формат email")
-      String email() {
+  public @NotBlank(message = "Email обязателен") @Email(
+      regexp = ".+@.+\\..+",
+      message = "Некорректный формат email") String email() {
     return email;
   }
 
@@ -135,9 +132,17 @@ public  class Lead {
   @Override
   public String toString() {
     return "Lead["
-        + "id=" + id + ", "
-        + "email=" + email + ", "
-        + "company=" + company + ", "
-        + "status=" + status + ']';
+        + "id="
+        + id
+        + ", "
+        + "email="
+        + email
+        + ", "
+        + "company="
+        + company
+        + ", "
+        + "status="
+        + status
+        + ']';
   }
 }
