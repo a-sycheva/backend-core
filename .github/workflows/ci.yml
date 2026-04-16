@@ -1,4 +1,4 @@
-name: Java CI with Jacoco and Checkstyle
+name: Java CI with Spotless
 
 on:
   push:
