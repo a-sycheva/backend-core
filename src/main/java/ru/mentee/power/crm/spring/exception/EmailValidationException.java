@@ -9,5 +9,4 @@ public class EmailValidationException extends RuntimeException {
     super(message);
     this.statusCode = statusCode;
   }
-
 }

@@ -1,6 +1,5 @@
 package ru.mentee.power.crm.spring.rest;
 
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -9,11 +8,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -29,14 +27,11 @@ import ru.mentee.power.crm.service.LeadService;
 @ActiveProfiles("test")
 class LeadRestControllerUnitTest {
 
-  @Autowired
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
-  @Autowired
-  private ObjectMapper objectMapper;
+  @Autowired private ObjectMapper objectMapper;
 
-  @MockitoBean
-  private LeadService leadService;
+  @MockitoBean private LeadService leadService;
 
   @Test
   void getAllLeadsShouldReturnListOfLeads() throws Exception {
@@ -46,7 +41,8 @@ class LeadRestControllerUnitTest {
     when(leadService.findAll()).thenReturn(List.of(firstLead, secondLead));
 
     // when & then
-    mockMvc.perform(get("/api/leads"))
+    mockMvc
+        .perform(get("/api/leads"))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.length()").value(2))
@@ -62,7 +58,8 @@ class LeadRestControllerUnitTest {
     when(leadService.findById(id)).thenReturn(Optional.of(lead));
 
     // when & then
-    mockMvc.perform(get("/api/leads/{id}", id))
+    mockMvc
+        .perform(get("/api/leads/{id}", id))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.name").value("John"));
@@ -75,9 +72,10 @@ class LeadRestControllerUnitTest {
     when(leadService.findById(id)).thenReturn(Optional.empty());
 
     // when & then
-    mockMvc.perform(get("/api/leads/{id}", id))
+    mockMvc
+        .perform(get("/api/leads/{id}", id))
         .andExpect(status().isOk())
-        .andExpect(content().string(""));  // null → пустое тело
+        .andExpect(content().string("")); // null → пустое тело
   }
 
   @Test
@@ -89,9 +87,11 @@ class LeadRestControllerUnitTest {
     when(leadService.addLead(any(), any(), any(), any())).thenReturn(savedLead);
 
     // when & then
-    mockMvc.perform(post("/api/leads")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(requestLead)))
+    mockMvc
+        .perform(
+            post("/api/leads")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestLead)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.name").value("John"));
   }
