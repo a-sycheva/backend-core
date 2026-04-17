@@ -59,6 +59,21 @@ public class LeadService {
     return leadRepository.save(lead);
   }
 
+  public Optional<Lead> updateLead(UUID id, Lead updatedLead) {
+
+    Optional<Lead> existing = leadRepository.findById(id);
+    if (existing.isEmpty()) {
+      return Optional.empty();
+    }
+
+    existing.get().setName(updatedLead.name());
+    existing.get().setEmail(updatedLead.email());
+    existing.get().setCompany(updatedLead.company());
+    existing.get().setStatus(updatedLead.status());
+
+    return Optional.of(leadRepository.save(existing.get()));
+  }
+
   public Lead update(UUID id, Lead updatedLead) {
 
     Optional<Lead> existing = leadRepository.findById(id);
@@ -81,6 +96,14 @@ public class LeadService {
     } else {
       leadRepository.deleteById(id);
     }
+  }
+
+  public boolean deleteLead(UUID id) {
+    if (leadRepository.findById(id).isEmpty()) {
+      return  false;
+    }
+    leadRepository.deleteById(id);
+    return  true;
   }
 
   public List<Lead> findAll() {
