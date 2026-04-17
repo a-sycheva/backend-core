@@ -14,6 +14,14 @@ spring:
     enabled: true
     drop-first: false
 
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+      indent-output: true
+    deserialization:
+      fail-on-unknown-properties: false
+
   jpa:
     show-sql: true
     properties:
@@ -28,3 +36,8 @@ gg:
     development-mode: true
     usePrecompiledTemplates: false
     suffix: .jte
+
+# Внешние API
+email:
+  validation:
+    base-url: ${EMAIL_VALIDATION_URL:http://localhost:8089}

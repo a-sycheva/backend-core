@@ -97,6 +97,9 @@ dependencies {
     runtimeOnly "com.h2database:h2:${h2DataBaseVersion}" //для BootRun with H2
 
     implementation 'org.liquibase:liquibase-core'
+
+    // WireMock для интеграционных тестов внешних API
+    testImplementation 'org.wiremock:wiremock-standalone:3.13.2'
 }
 
 jte {
