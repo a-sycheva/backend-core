@@ -51,7 +51,7 @@ class LeadRestControllerUnitTest {
   }
 
   @Test
-  void getLeadById_whenExists_shouldReturnLead() throws Exception {
+  void getLeadByIdWhenExistsShouldReturnLead() throws Exception {
     // given
     UUID id = UUID.randomUUID();
     Lead lead = new Lead("John", "john@test.ru", null, LeadStatus.NEW);
@@ -66,7 +66,7 @@ class LeadRestControllerUnitTest {
   }
 
   @Test
-  void getLeadById_whenNotExists_shouldReturnNull() throws Exception {
+  void getLeadByIdWhenNotExistsShouldReturnNull() throws Exception {
     // given
     UUID id = UUID.randomUUID();
     when(leadService.findById(id)).thenReturn(Optional.empty());
@@ -79,7 +79,7 @@ class LeadRestControllerUnitTest {
   }
 
   @Test
-  void createLead_shouldCreateAndReturnLead() throws Exception {
+  void createLeadShouldCreateAndReturnLead() throws Exception {
     // given
     Lead requestLead = new Lead("John", "john@test.ru", null, LeadStatus.NEW);
     Lead savedLead = new Lead("John", "john@test.ru", null, LeadStatus.NEW);
