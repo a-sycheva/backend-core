@@ -1,5 +1,6 @@
 package ru.mentee.power.crm.service;
 
+import io.github.resilience4j.retry.annotation.Retry;
 import jakarta.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -25,6 +26,8 @@ import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.repository.DealRepository;
 import ru.mentee.power.crm.repository.LeadRepository;
+import ru.mentee.power.crm.spring.client.EmailValidationFeignClient;
+import ru.mentee.power.crm.spring.client.EmailValidationResponse;
 
 @Service
 public class LeadService {
@@ -32,12 +35,17 @@ public class LeadService {
   private final LeadRepository leadRepository;
   private final DealRepository dealRepository;
   private final LeadProcessor leadProcessor;
+  private final EmailValidationFeignClient emailValidationClient;
 
   public LeadService(
-      LeadRepository leadRepository, DealRepository dealRepository, LeadProcessor leadProcessor) {
+      LeadRepository leadRepository,
+      DealRepository dealRepository,
+      LeadProcessor leadProcessor,
+      EmailValidationFeignClient emailValidationClient) {
     this.leadRepository = leadRepository;
     this.dealRepository = dealRepository;
     this.leadProcessor = leadProcessor;
+    this.emailValidationClient = emailValidationClient;
 
     LOG.info("LeadService constructor called");
   }
@@ -47,15 +55,39 @@ public class LeadService {
     LOG.info("LeadService @PostConstruct init() called - Bean lifecycle phase");
   }
 
+  @Retry(name = "email-validation", fallbackMethod = "addLeadFallback")
   public Lead addLead(String name, String email, Company company, LeadStatus status) {
+    System.out.println("=== addLead called for: " + email + " ===");
+
+    Lead lead = new Lead(name, email, company, status);
+
+    EmailValidationResponse validation = emailValidationClient.validateEmail(lead.getEmail());
+
+    if (!validation.valid()) {
+      throw new IllegalArgumentException("Invalid email: " + validation.reason());
+    }
 
     Optional<Lead> existing = leadRepository.findByEmail(email);
     if (existing.isPresent()) {
       throw new IllegalStateException("Lead with email already exists: " + email);
     }
 
-    Lead lead = new Lead(name, email, company, status);
+    return leadRepository.save(lead);
+  }
 
+  // Fallback метод — вызывается после исчерпания retry попыток
+  public Lead addLeadFallback(
+      String name, String email, Company company, LeadStatus status, Exception ex) {
+    LOG.warn(
+        "Email validation service unavailable after retries. "
+            + "Creating lead without validation. Error: {}",
+        ex.getMessage());
+
+    // Graceful degradation: создаём лида без валидации
+    // В production можно: 1) пометить для последующей проверки
+    //                     2) отправить в очередь на валидацию
+    //                     3) отклонить запрос (throw new ServiceUnavailableException)
+    Lead lead = new Lead(name, email, company, status);
     return leadRepository.save(lead);
   }
 
@@ -100,10 +132,10 @@ public class LeadService {
 
   public boolean deleteLead(UUID id) {
     if (leadRepository.findById(id).isEmpty()) {
-      return  false;
+      return false;
     }
     leadRepository.deleteById(id);
-    return  true;
+    return true;
   }
 
   public List<Lead> findAll() {

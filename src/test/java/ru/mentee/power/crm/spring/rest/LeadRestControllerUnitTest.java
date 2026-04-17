@@ -2,7 +2,6 @@ package ru.mentee.power.crm.spring.rest;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -76,9 +75,7 @@ class LeadRestControllerUnitTest {
     when(leadService.findById(id)).thenReturn(Optional.empty());
 
     // when & then
-    mockMvc
-        .perform(get("/api/leads/{id}", id))
-        .andExpect(status().isNotFound());
+    mockMvc.perform(get("/api/leads/{id}", id)).andExpect(status().isNotFound());
   }
 
   @Test
@@ -113,43 +110,47 @@ class LeadRestControllerUnitTest {
   }
 
   @Test
-  void shouldReturn404_whenGetNonExistentLead() throws Exception {
+  void shouldReturn404WhenGetNonExistentLead() throws Exception {
     when(leadService.findById(any(UUID.class))).thenReturn(Optional.empty());
 
-    mockMvc.perform(get("/api/leads/00000000-0000-0000-0000-000000000000"))
+    mockMvc
+        .perform(get("/api/leads/00000000-0000-0000-0000-000000000000"))
         .andExpect(status().isNotFound());
   }
 
   @Test
   void shouldReturn201WithLocationWhenCreateLead() throws Exception {
-    Lead lead = new Lead(UUID.randomUUID(), "Anton", "test@example.ru",
-        null, LeadStatus.NEW);
+    Lead lead = new Lead(UUID.randomUUID(), "Anton", "test@example.ru", null, LeadStatus.NEW);
 
     when(leadService.addLead(lead.getName(), lead.getEmail(), null, lead.getStatus()))
         .thenReturn(lead);
 
-    mockMvc.perform(post("/api/leads")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(objectMapper.writeValueAsString(lead)))
+    mockMvc
+        .perform(
+            post("/api/leads")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(lead)))
         .andExpect(status().isCreated())
         .andExpect(header().exists("Location"))
         .andExpect(header().string("Location", containsString("/api/leads/" + lead.getId())));
   }
 
   @Test
-  void shouldReturn204_whenDeleteExistingLead() throws Exception {
+  void shouldReturn204WhenDeleteExistingLead() throws Exception {
     when(leadService.deleteLead(any(UUID.class))).thenReturn(true);
 
-    mockMvc.perform(delete("/api/leads/" + UUID.randomUUID()))
+    mockMvc
+        .perform(delete("/api/leads/" + UUID.randomUUID()))
         .andExpect(status().isNoContent())
         .andExpect(content().string(""));
   }
 
   @Test
-  void shouldReturn404_whenDeleteNonExistentLead() throws Exception {
+  void shouldReturn404WhenDeleteNonExistentLead() throws Exception {
     when(leadService.deleteLead(any(UUID.class))).thenReturn(false);
 
-    mockMvc.perform(delete("/api/leads/00000000-0000-0000-0000-000000000000"))
+    mockMvc
+        .perform(delete("/api/leads/00000000-0000-0000-0000-000000000000"))
         .andExpect(status().isNotFound());
   }
 }

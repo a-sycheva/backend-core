@@ -5,7 +5,7 @@ plugins {
     id 'jacoco'
     id 'com.bakdata.mockito' version '1.9.0'
     id 'gg.jte.gradle' version '3.1.15'
-    id 'org.springframework.boot' version '3.5.7'
+    id 'org.springframework.boot' version '3.4.4'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'com.diffplug.spotless' version '8.4.0'
 }
@@ -75,7 +75,7 @@ dependencies {
     implementation "gg.jte:jte-runtime:${jteVersion}"
 
     // Spring Boot Starters
-    implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-web"
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
@@ -100,6 +100,13 @@ dependencies {
 
     // WireMock для интеграционных тестов внешних API
     testImplementation 'org.wiremock:wiremock-standalone:3.13.2'
+
+    // Spring Cloud OpenFeign для декларативных HTTP клиентов
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.2.2'
+
+    // Resilience4j для retry, circuit breaker, rate limiter
+    implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.2.0'
+    implementation 'io.github.resilience4j:resilience4j-feign:2.2.0'
 }
 
 jte {
