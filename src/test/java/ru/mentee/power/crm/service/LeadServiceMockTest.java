@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
 import ru.mentee.power.crm.model.Company;
+import ru.mentee.power.crm.model.CompanyGroup;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.repository.DealRepository;
@@ -363,5 +364,31 @@ class LeadServiceMockTest {
 
     verify(mockRepository).findByStatusIn(statuses);
     assertThat(result).containsExactlyInAnyOrder(firstLead, secondLead);
+  }
+
+  @Test
+  void shouldChangeLeadStatusByCompanuGroup() {
+    CompanyGroup companyGroup = new CompanyGroup();
+    companyGroup.setId(UUID.randomUUID());
+    companyGroup.setEmail("group@email.ru");
+
+    Company company = new Company("Corp1", "TestGroup", companyGroup);
+
+    Lead firstLead = new Lead(UUID.randomUUID(), "Anna", "anna@test.ru", company, LeadStatus.NEW);
+
+    Lead secondLead =
+        new Lead(UUID.randomUUID(), "Charlie", "charlie@test.ru", company, LeadStatus.CONTACTED);
+
+    Lead thirdLead = new Lead(UUID.randomUUID(), "Anna", "anna@test.ru", null, LeadStatus.NEW);
+
+    List<Lead> leadList = List.of(firstLead, secondLead, thirdLead);
+
+    when(mockRepository.findAll()).thenReturn(leadList);
+
+    service.changeLeadStatusByCompaniesGroup(companyGroup.getId(), LeadStatus.CONTACTED);
+
+    assertThat(leadList.get(0).getStatus()).isEqualTo(LeadStatus.CONTACTED);
+    assertThat(leadList.get(1).getStatus()).isEqualTo(LeadStatus.CONTACTED);
+    assertThat(leadList.get(2).getStatus()).isEqualTo(LeadStatus.NEW);
   }
 }

@@ -268,4 +268,19 @@ public class LeadService {
 
     return results;
   }
+
+  // изменения статусов лидов по группе компаний
+  public void changeLeadStatusByCompaniesGroup(UUID companyGroupId, LeadStatus newStatus) {
+    List<Lead> leadList = leadRepository.findAll();
+
+    for (Lead l : leadList) {
+      if (l.getCompany() != null) {
+        UUID leadCompanyId = l.getCompany().getCompanyGroup().getId();
+
+        if (leadCompanyId == companyGroupId) {
+          l.setStatus(newStatus);
+        }
+      }
+    }
+  }
 }
