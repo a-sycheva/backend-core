@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -25,6 +26,8 @@ import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.repository.DealRepository;
 import ru.mentee.power.crm.repository.LeadRepository;
+import ru.mentee.power.crm.spring.client.EmailValidationFeignClient;
+import ru.mentee.power.crm.spring.client.EmailValidationResponse;
 
 @ExtendWith(MockitoExtension.class)
 class LeadServiceMockTest {
@@ -35,15 +38,22 @@ class LeadServiceMockTest {
 
   @Mock private LeadProcessor mockLeadProcessor;
 
+  @Mock private EmailValidationFeignClient mockEmailValidationClient;
+
   private LeadService service;
 
   @BeforeEach
   void setUp() {
-    service = new LeadService(mockRepository, mockDealRepository, mockLeadProcessor);
+    service =
+        new LeadService(
+            mockRepository, mockDealRepository, mockLeadProcessor, mockEmailValidationClient);
   }
 
   @Test
   void shouldCallRepositorySaveWhenAddingNewLead() {
+    EmailValidationResponse response = new EmailValidationResponse("new@example.com", true, null);
+    when(mockEmailValidationClient.validateEmail("new@example.com")).thenReturn(response);
+
     // Given: Repository возвращает пустой Optional (email уникален)
     when(mockRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
@@ -61,7 +71,21 @@ class LeadServiceMockTest {
   }
 
   @Test
+  void shouldThrowExceptionWhenValidationFailed() {
+    EmailValidationResponse response =
+        new EmailValidationResponse("example.com", false, "invalid email");
+    when(mockEmailValidationClient.validateEmail("example.com")).thenReturn(response);
+
+    assertThatThrownBy(() -> service.addLead("Jane", "example.com", null, LeadStatus.NEW))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("Invalid email: " + response.reason());
+  }
+
+  @Test
   void shouldNotCallSaveWhenEmailExists() {
+    EmailValidationResponse response = new EmailValidationResponse("new@example.com", true, null);
+    when(mockEmailValidationClient.validateEmail(anyString())).thenReturn(response);
+
     // Given: Repository возвращает существующий Lead
     Lead existingLead =
         new Lead(
@@ -81,6 +105,8 @@ class LeadServiceMockTest {
 
   @Test
   void shouldCallFindByEmailBeforeSave() {
+    EmailValidationResponse response = new EmailValidationResponse("new@example.com", true, null);
+    when(mockEmailValidationClient.validateEmail(anyString())).thenReturn(response);
     // Given
     when(mockRepository.findByEmail(anyString())).thenReturn(Optional.empty());
     when(mockRepository.save(any(Lead.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -130,6 +156,44 @@ class LeadServiceMockTest {
                         new Company("Test Corp", "TestIndustry"),
                         LeadStatus.NEW)))
         .isInstanceOf(ResponseStatusException.class);
+  }
+
+  @Test
+  void shouldReturnEmptyWhenUpdateLeadNotExistedLead() {
+    when(mockRepository.findById(any(UUID.class))).thenReturn(Optional.empty());
+
+    Optional<Lead> updatedLead =
+        service.updateLead(
+            UUID.randomUUID(), new Lead("Jane", "test@test.ru", null, LeadStatus.NEW));
+    assertThat(updatedLead).isNotPresent();
+  }
+
+  @Test
+  void shouldReturnLeadWhenUpdateLeadExistedLead() {
+    Lead lead = new Lead(UUID.randomUUID(), "Jane", "test@test.ru", null, LeadStatus.NEW);
+
+    when(mockRepository.findById(any(UUID.class))).thenReturn(Optional.of(lead));
+    when(mockRepository.save(any(Lead.class))).thenReturn(lead);
+
+    Optional<Lead> updatedLead = service.updateLead(UUID.randomUUID(), lead);
+
+    assertThat(updatedLead).isPresent();
+  }
+
+  @Test
+  void shouldReturnTrueWhenDeleteLeadExistedLead() {
+    Lead lead = new Lead(UUID.randomUUID(), "Jane", "test@test.ru", null, LeadStatus.NEW);
+    when(mockRepository.findById(any(UUID.class))).thenReturn(Optional.of(lead));
+    doNothing().when(mockRepository).deleteById(any(UUID.class));
+
+    assertThat(service.deleteLead(lead.getId())).isTrue();
+  }
+
+  @Test
+  void shouldReturnFalseWhenDeleteLeadNotExistedLead() {
+    when(mockRepository.findById(any(UUID.class))).thenReturn(Optional.empty());
+
+    assertThat(service.deleteLead(UUID.randomUUID())).isFalse();
   }
 
   @Test
@@ -261,7 +325,10 @@ class LeadServiceMockTest {
   }
 
   @Test
-  void shouldThrowExceptionWhenAddedLeadWithSaneEmail() {
+  void shouldThrowExceptionWhenAddedLeadWithSameEmail() {
+    EmailValidationResponse response = new EmailValidationResponse("new@example.com", true, null);
+    when(mockEmailValidationClient.validateEmail(anyString())).thenReturn(response);
+
     Lead lead =
         new Lead(
             UUID.randomUUID(),

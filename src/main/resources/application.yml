@@ -5,6 +5,8 @@ logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE
+    feign: DEBUG
+    io.github.resilience4j: DEBUG
 
 spring:
   application:
@@ -13,7 +15,18 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.yaml
     enabled: true
     drop-first: false
-
+  # Feign конфигурация
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connect-timeout: 5000
+            read-timeout: 10000
+            logger-level: full
+          email-validation:
+            connect-timeout: 3000
+            read-timeout: 5000
   jackson:
     default-property-inclusion: non_null
     serialization:
@@ -21,7 +34,6 @@ spring:
       indent-output: true
     deserialization:
       fail-on-unknown-properties: false
-
   jpa:
     show-sql: true
     properties:
@@ -30,6 +42,7 @@ spring:
         use_sql_comments: true
     hibernate:
       ddl-auto: validate
+
 gg:
   jte:
     template-location: ./src/main/resources/jte
@@ -41,3 +54,29 @@ gg:
 email:
   validation:
     base-url: ${EMAIL_VALIDATION_URL:http://localhost:8089}
+
+# Resilience4j Retry конфигурация
+resilience4j:
+  retry:
+    instances:
+      email-validation:
+        max-attempts: 3
+        wait-duration: 500ms
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - java.net.ConnectException
+          - java.net.SocketTimeoutException
+          - feign.RetryableException
+          - feign.FeignException.InternalServerError
+        ignore-exceptions:
+          - feign.FeignException.BadRequest  # 400 не retry
+          - feign.FeignException.NotFound    # 404 не retry
+
+  circuitbreaker:
+    instances:
+      email-validation:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
