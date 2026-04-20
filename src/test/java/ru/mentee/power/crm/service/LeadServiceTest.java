@@ -30,11 +30,14 @@ import ru.mentee.power.crm.repository.LeadRepository;
 @ActiveProfiles("test")
 class LeadServiceTest {
 
-  @Autowired private LeadService service;
+  @Autowired
+  private LeadService service;
 
-  @Autowired private LeadRepository repository;
+  @Autowired
+  private LeadRepository repository;
 
-  @Autowired private CompanyRepository companyRepository;
+  @Autowired
+  private CompanyRepository companyRepository;
 
   @BeforeEach
   void setUp() {
@@ -136,126 +139,5 @@ class LeadServiceTest {
             () -> service.convertLeadToDeal(UUID.randomUUID(), BigDecimal.valueOf(10_000)));
     assertThat(exception.getMessage()).contains("Lead not found");
   }
-
-  @Test // self-invocation problem
-  void demonstrateSelfInvocationProblem() {
-    List<LeadStatus> statusesBefore =
-        service.findByStatus(LeadStatus.NEW).stream()
-            .map(Lead::getStatus)
-            .collect(Collectors.toList());
-    List<UUID> ids = new ArrayList<>();
-    for (Lead lead : service.findAll()) {
-      ids.add(lead.id());
-    }
-    // Ошибка в одном processSingleLead
-    ids.add(UUID.randomUUID());
-
-    service.processLeadsWithInvocationProblem(ids);
-
-    List<LeadStatus> statusesAfter =
-        service.findByStatus(LeadStatus.NEW).stream()
-            .map(Lead::getStatus)
-            .collect(Collectors.toList());
-
-    // статусы лидов не изменились, откат по всем
-    assertThat(statusesBefore).isEqualTo(statusesAfter);
-    // нет лидов со статусом CONTACTED
-    assertThat(statusesAfter).hasSize(3);
-  }
-
-  @Test // self-invocation problem solved
-  void processLeadsShouldIsolateTransactionsPerLead() {
-
-    List<LeadStatus> statusesBefore =
-        service.findByStatus(LeadStatus.NEW).stream()
-            .map(Lead::getStatus)
-            .collect(Collectors.toList());
-    List<UUID> ids = new ArrayList<>();
-    for (Lead lead : service.findAll()) {
-      ids.add(lead.id());
-    }
-    // Ошибка в одном processSingleLead
-    ids.add(UUID.randomUUID());
-
-    String transactionName = service.processLeads(ids);
-
-    List<LeadStatus> statusesAfter =
-        service.findByStatus(LeadStatus.NEW).stream()
-            .map(Lead::getStatus)
-            .collect(Collectors.toList());
-
-    // создает новую транзакцию
-    assertThat(transactionName).contains("LeadProcessor").contains("processSingleLead");
-    // статусы лидов изменились, откат только по ошибочной транзакции
-    assertThat(statusesBefore).isNotEqualTo(statusesAfter);
-    // нет лидов со статусом NEW
-    assertThat(statusesAfter).hasSize(0);
-  }
-
-  @Transactional
-  @ParameterizedTest
-  // REQUIRES_NEW показан в предыдущем
-  // тесте processLeadsShouldIsolateTransactionsPerLead
-  @EnumSource(
-      value = Propagation.class,
-      names = {"REQUIRED", "MANDATORY"})
-  void testPropagation(Propagation propagation) {
-
-    List<UUID> ids = new ArrayList<>();
-    for (Lead lead : service.findAll()) {
-      ids.add(lead.id());
-    }
-
-    switch (propagation) {
-      case REQUIRED: // присоединяется к имеющейся транзакции, не создает свою
-        assertThat(service.processLeadsWithRequires(ids))
-            .contains("testPropagation")
-            .doesNotContain("LeadProcessor")
-            .doesNotContain("processSingleLeadWithRequired");
-        break;
-      case MANDATORY: // присоединяется к имеющейся транзакции, если есть
-        assertThat(service.processLeadsWithMandatory(ids))
-            .contains("testPropagation")
-            .doesNotContain("LeadProcessor")
-            .doesNotContain("processSingleLeadWithMandatory");
-        break;
-    }
-  }
-
-  @Test // MANDATORY без активной транзакции
-  void testPropagationMandatoryMethodShouldTrowExceptionWithoutTransaction() {
-
-    List<UUID> ids = new ArrayList<>();
-    for (Lead lead : service.findAll()) {
-      ids.add(lead.id());
-    }
-    // Ошибка в одном processSingleLead
-    ids.add(UUID.randomUUID());
-
-    // ошибка, если нет активных транзакций
-    assertThrows(
-        IllegalTransactionStateException.class, () -> service.processLeadsWithMandatory(ids));
-  }
-
-  @Test
-  // тест READ_COMMITED с последовательным вызовом транзакций A-> B
-  // для REPEATABLE_READ так не получилось,
-  // в отдельном классе isolationTest параллельный тест
-  void isolationReadCommitedAllowsNonRepeatableRead() {
-    // Given
-    Lead lead = new Lead();
-    lead.setName("John");
-    lead.setEmail("john" + "@example.com");
-    Company company = new Company("Company ", "TestIndustry");
-    lead.setStatus(LeadStatus.NEW);
-    company.addLead(lead);
-    companyRepository.save(company);
-
-    // When транзакции A-> B внутри метода readThenWriteThenReadAgainWithReadCommitted
-    List<String> results =
-        service.readThenWriteThenReadAgainWithReadCommitted(lead.getId(), "Jane");
-
-    // Then должны увидеть "Jane" при READ_COMMITTED
-    assertThat(results).containsExactly("John", "Jane");
-  }
 }
+

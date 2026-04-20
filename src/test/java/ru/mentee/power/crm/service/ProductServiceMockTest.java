@@ -17,14 +17,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.mentee.power.crm.model.Product;
-import ru.mentee.power.crm.repository.ProductJpaRepository;
+import ru.mentee.power.crm.repository.ProductRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class ProductServiceMockTest {
 
   private ProductService productService;
 
-  @Mock private ProductJpaRepository productRepository;
+  @Mock private ProductRepository productRepository;
 
   @BeforeEach
   void setUp() {

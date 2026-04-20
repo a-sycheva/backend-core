@@ -34,17 +34,14 @@ public class LeadService {
   private static final Logger LOG = LoggerFactory.getLogger(LeadService.class);
   private final LeadRepository leadRepository;
   private final DealRepository dealRepository;
-  private final LeadProcessor leadProcessor;
   private final EmailValidationFeignClient emailValidationClient;
 
   public LeadService(
       LeadRepository leadRepository,
       DealRepository dealRepository,
-      LeadProcessor leadProcessor,
       EmailValidationFeignClient emailValidationClient) {
     this.leadRepository = leadRepository;
     this.dealRepository = dealRepository;
-    this.leadProcessor = leadProcessor;
     this.emailValidationClient = emailValidationClient;
 
     LOG.info("LeadService constructor called");
@@ -218,109 +215,4 @@ public class LeadService {
     dealRepository.save(deal);
   }
 
-  public String processLeads(List<UUID> ids) {
-    String transactionName = "None";
-    for (UUID id : ids) {
-      try {
-        transactionName = leadProcessor.processSingleLead(id);
-      } catch (Exception e) {
-        // Перехват исключения
-        System.out.println("Failed to process lead: " + id);
-      }
-    }
-    return transactionName;
-  }
-
-  // self-invocation
-  public void processLeadsWithInvocationProblem(List<UUID> ids) {
-    for (UUID id : ids) {
-      try {
-        this.processSingleLead(id);
-      } catch (Exception e) {
-        // Перехват исключения
-        System.out.println("Failed to process lead: " + id);
-      }
-    }
-  }
-
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
-  private void processSingleLead(UUID id) {
-    if (leadRepository.existsById(id)) {
-      leadRepository.findById(id).get().setStatus(LeadStatus.CONTACTED);
-    } else {
-      throw new IllegalArgumentException(); // ошибка для rollback
-    }
-  }
-
-  public String processLeadsWithRequires(List<UUID> ids) {
-    String transactionName = "none";
-    for (UUID id : ids) {
-      try {
-        transactionName = leadProcessor.processSingleLeadWithRequired(id);
-      } catch (Exception e) {
-        // Перехват исключения
-        System.out.println("Failed to process lead: " + id);
-      }
-    }
-
-    return transactionName;
-  }
-
-  public String processLeadsWithMandatory(List<UUID> ids) {
-    String transactionName = "none";
-    for (UUID id : ids) {
-      try {
-        transactionName = leadProcessor.processSingleLeadWithMandatory(id);
-      } catch (IllegalArgumentException e) {
-        // Перехват исключения
-        System.out.println("Failed to process lead: " + id);
-      }
-    }
-
-    return transactionName;
-  }
-
-  // Транзакция A (читает) для последовательного вызова
-  @Transactional(isolation = Isolation.READ_COMMITTED)
-  public List<String> readThenWriteThenReadAgainWithReadCommitted(UUID leadId, String newName) {
-    List<String> results = new ArrayList<>();
-
-    // Транзакция A читает Lead (name = "John")
-    Lead lead = leadRepository.findById(leadId).orElseThrow();
-    results.add(lead.getName()); // "John"
-
-    // Транзакция B обновляет Lead (name = "Jane") и commit
-    updateLeadName(leadId, newName); // обновляет на "Jane"
-
-    // Транзакция A читает Lead повторно
-    // должны увидеть "Jane" при READ_COMMITTED
-    lead = leadRepository.findById(leadId).orElseThrow();
-    results.add(lead.getName());
-
-    return results;
-  }
-
-  // Транзакция B (обновляет)
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void updateLeadName(UUID leadId, String newName) {
-    Lead lead = leadRepository.findById(leadId).orElseThrow();
-    lead.setName(newName);
-    // Транзакция Б завершается и КОММИТИТ
-  }
-
-  // Метод для REPEATABLE_READ в параллельном тесте
-  @Transactional(isolation = Isolation.REPEATABLE_READ)
-  public List<String> readLeadNameWithRepeatableRead(UUID leadId) throws InterruptedException {
-    List<String> results = new ArrayList<>();
-
-    Lead lead = leadRepository.findById(leadId).orElseThrow();
-    results.add(lead.getName());
-
-    Thread.sleep(100);
-
-    lead = leadRepository.findById(leadId).orElseThrow();
-    results.add(lead.getName());
-
-    return results;
-  }
 }

@@ -6,12 +6,12 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.mentee.power.crm.model.Product;
-import ru.mentee.power.crm.repository.ProductJpaRepository;
+import ru.mentee.power.crm.repository.ProductRepository;
 
 @Service
 @AllArgsConstructor
 public class ProductService {
-  private final ProductJpaRepository productRepository;
+  private final ProductRepository productRepository;
 
   public List<Product> findAll() {
     return productRepository.findAll();

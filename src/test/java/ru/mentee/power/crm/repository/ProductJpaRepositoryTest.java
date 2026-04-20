@@ -16,7 +16,7 @@ import ru.mentee.power.crm.model.Product;
 @DataJpaTest
 @ActiveProfiles("test")
 class ProductJpaRepositoryTest {
-  @Autowired private ProductJpaRepository productRepository;
+  @Autowired private ProductRepository productRepository;
 
   @Test
   void shouldSaveAndFindProductWhenValidData() {
