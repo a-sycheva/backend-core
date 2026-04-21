@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import ru.mentee.power.crm.model.Product;
 
-public interface ProductJpaRepository extends JpaRepository<Product, UUID> {
+public interface ProductRepository extends JpaRepository<Product, UUID> {
 
   Optional<Product> findBySku(String sku);
 

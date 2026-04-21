@@ -12,7 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import ru.mentee.power.crm.repository.DealRepository;
-import ru.mentee.power.crm.repository.ProductJpaRepository;
+import ru.mentee.power.crm.repository.ProductRepository;
 
 @SpringBootTest
 @Transactional
@@ -22,7 +22,7 @@ class DealProductIntegrationTest {
 
   @Autowired private DealRepository dealRepository;
 
-  @Autowired private ProductJpaRepository productRepository;
+  @Autowired private ProductRepository productRepository;
 
   @Test
   void testSaveDealWithProducts() {

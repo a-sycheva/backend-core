@@ -36,17 +36,13 @@ class LeadServiceMockTest {
 
   @Mock private DealRepository mockDealRepository;
 
-  @Mock private LeadProcessor mockLeadProcessor;
-
   @Mock private EmailValidationFeignClient mockEmailValidationClient;
 
   private LeadService service;
 
   @BeforeEach
   void setUp() {
-    service =
-        new LeadService(
-            mockRepository, mockDealRepository, mockLeadProcessor, mockEmailValidationClient);
+    service = new LeadService(mockRepository, mockDealRepository, mockEmailValidationClient);
   }
 
   @Test
