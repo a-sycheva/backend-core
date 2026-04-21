@@ -1,10 +1,13 @@
 package ru.mentee.power.crm.spring.rest;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +26,7 @@ import ru.mentee.power.crm.spring.mapper.LeadMapper;
 @RestController
 @RequestMapping("/api/leads")
 @RequiredArgsConstructor
+@Validated
 public class LeadRestController {
   private final LeadService leadService;
   private final LeadMapper leadMapper;
@@ -34,7 +38,8 @@ public class LeadRestController {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<LeadResponse> getLeadById(@PathVariable UUID id) {
+  public ResponseEntity<LeadResponse> getLeadById(
+      @PathVariable @NotNull(message = "ID лида обязателен") UUID id) {
     return leadService
         .findById(id)
         .map(leadMapper::toResponse)
@@ -43,7 +48,7 @@ public class LeadRestController {
   }
 
   @PostMapping
-  public ResponseEntity<LeadResponse> createLead(@RequestBody CreateLeadRequest request) {
+  public ResponseEntity<LeadResponse> createLead(@Valid @RequestBody CreateLeadRequest request) {
     Lead lead = leadMapper.toEntity(request);
     leadService.addLead(lead.getName(), lead.getEmail(), lead.getCompany(), lead.getStatus());
     LeadResponse response = leadMapper.toResponse(lead);
