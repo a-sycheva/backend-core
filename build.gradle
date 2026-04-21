@@ -31,6 +31,8 @@ ext {
     validationApiVersion = '3.1.1'
     hibernateValidatorVersion = '9.1.0.Final'
     h2DataBaseVersion = '2.3.232'
+    mapstructVersion = '1.6.3'
+    lombokMapstructBindingVersion = '0.2.0'
 
 }
 
@@ -107,6 +109,20 @@ dependencies {
     // Resilience4j для retry, circuit breaker, rate limiter
     implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.2.0'
     implementation 'io.github.resilience4j:resilience4j-feign:2.2.0'
+
+    // lombok-mapstruct-binding
+    implementation "org.projectlombok:lombok-mapstruct-binding:${lombokMapstructBindingVersion}"
+
+    // MapStruct (должен быть после Lombok в annotationProcessor)
+    implementation "org.mapstruct:mapstruct:${mapstructVersion}"
+    annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs += [
+            '-Amapstruct.defaultComponentModel=spring',
+            '-Amapstruct.unmappedTargetPolicy=ERROR'
+    ]
 }
 
 jte {

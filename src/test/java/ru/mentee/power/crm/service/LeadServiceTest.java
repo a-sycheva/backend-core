@@ -4,21 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.IllegalTransactionStateException;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.mentee.power.crm.model.Company;
 import ru.mentee.power.crm.model.Lead;
@@ -30,14 +23,11 @@ import ru.mentee.power.crm.repository.LeadRepository;
 @ActiveProfiles("test")
 class LeadServiceTest {
 
-  @Autowired
-  private LeadService service;
+  @Autowired private LeadService service;
 
-  @Autowired
-  private LeadRepository repository;
+  @Autowired private LeadRepository repository;
 
-  @Autowired
-  private CompanyRepository companyRepository;
+  @Autowired private CompanyRepository companyRepository;
 
   @BeforeEach
   void setUp() {
@@ -140,4 +130,3 @@ class LeadServiceTest {
     assertThat(exception.getMessage()).contains("Lead not found");
   }
 }
-
