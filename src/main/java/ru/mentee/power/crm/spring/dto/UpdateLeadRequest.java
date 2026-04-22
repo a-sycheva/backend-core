@@ -18,7 +18,7 @@ public class UpdateLeadRequest {
   @NotBlank(message = "Указать имя обязательно")
   private String name;
 
-  @NotBlank(message = "{Email обязателен")
+  @NotBlank(message = "Email обязателен")
   @Email(regexp = ".+@.+\\..+", message = "Некорректный формат email")
   private String email;
 

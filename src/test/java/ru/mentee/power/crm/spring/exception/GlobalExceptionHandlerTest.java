@@ -73,7 +73,8 @@ public class GlobalExceptionHandlerTest {
     mockMvc.perform(get("/api/leads/" + id))
         .andExpect(status().isInternalServerError())
         .andExpect(jsonPath("$.error").value("Internal Server Error"))
-        .andExpect(jsonPath("$.message").value("Internal Server Error"));
+        .andExpect(jsonPath("$.message").value("Internal Server Error"))
+        .andExpect(jsonPath("$.stackTrace").doesNotExist());
   }
 
 }

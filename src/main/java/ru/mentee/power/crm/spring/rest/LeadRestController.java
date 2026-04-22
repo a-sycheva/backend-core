@@ -66,4 +66,9 @@ public class LeadRestController {
     leadService.deleteLead(id);
     return ResponseEntity.noContent().build();
   }
+
+  @GetMapping("/test-500")
+  public String test500() {
+    throw new RuntimeException("Test internal server error");
+  }
 }
