@@ -2,7 +2,6 @@ package ru.mentee.power.crm.spring.rest;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -17,7 +16,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -185,7 +183,6 @@ class LeadRestControllerUnitTest {
         .andExpect(content().string(""));
   }
 
-
   @Test
   void updateLeadShouldReturnUpdatedLeadWhenLeadExists() throws Exception {
     // given
@@ -216,10 +213,10 @@ class LeadRestControllerUnitTest {
             null,
             null,
             LeadStatus.CONTACTED,
-            LocalDateTime.now()
-        );
+            LocalDateTime.now());
 
-    when(leadService.updateLead(any(UUID.class), any(UpdateLeadRequest.class))).thenReturn(response);
+    when(leadService.updateLead(any(UUID.class), any(UpdateLeadRequest.class)))
+        .thenReturn(response);
 
     // when & then
     mockMvc

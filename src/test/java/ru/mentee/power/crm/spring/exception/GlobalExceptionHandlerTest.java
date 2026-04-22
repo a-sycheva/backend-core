@@ -8,7 +8,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.UUID;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -21,14 +20,11 @@ import ru.mentee.power.crm.spring.rest.LeadRestController;
 
 @WebMvcTest(LeadRestController.class)
 public class GlobalExceptionHandlerTest {
-  @Autowired
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
-  @MockitoBean
-  private LeadService mockLeadService;
+  @MockitoBean private LeadService mockLeadService;
 
-  @MockitoBean
-  private LeadMapper mockLeadMapper;
+  @MockitoBean private LeadMapper mockLeadMapper;
 
   @Test
   void shouldReturn404WhenEntityNotFound() throws Exception {
@@ -36,7 +32,8 @@ public class GlobalExceptionHandlerTest {
     when(mockLeadService.getLeadById(id))
         .thenThrow(new EntityNotFoundException("Lead", id.toString()));
 
-    mockMvc.perform(get("/api/leads/" + id))
+    mockMvc
+        .perform(get("/api/leads/" + id))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.timestamp").exists())
         .andExpect(jsonPath("$.status").value("404"))
@@ -46,7 +43,8 @@ public class GlobalExceptionHandlerTest {
 
   @Test
   void shouldReturn400WithFieldErrorsWhenValidationFals() throws Exception {
-    String jsonBody = """
+    String jsonBody =
+        """
         {
             "name": "Anastasiya",
             "email": "not-an-email",
@@ -54,9 +52,8 @@ public class GlobalExceptionHandlerTest {
         }
         """;
 
-    mockMvc.perform(post("/api/leads")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(jsonBody))
+    mockMvc
+        .perform(post("/api/leads").contentType(MediaType.APPLICATION_JSON).content(jsonBody))
         .andDo(print())
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.errors").exists())
@@ -67,14 +64,13 @@ public class GlobalExceptionHandlerTest {
   @Test
   void shouldReturn500WhenUnexpectedExceptionOccurs() throws Exception {
     UUID id = UUID.randomUUID();
-    when(mockLeadService.getLeadById(id))
-        .thenThrow(new RuntimeException());
+    when(mockLeadService.getLeadById(id)).thenThrow(new RuntimeException());
 
-    mockMvc.perform(get("/api/leads/" + id))
+    mockMvc
+        .perform(get("/api/leads/" + id))
         .andExpect(status().isInternalServerError())
         .andExpect(jsonPath("$.error").value("Internal Server Error"))
         .andExpect(jsonPath("$.message").value("Internal Server Error"))
         .andExpect(jsonPath("$.stackTrace").doesNotExist());
   }
-
 }

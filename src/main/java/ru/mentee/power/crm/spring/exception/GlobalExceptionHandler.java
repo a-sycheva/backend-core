@@ -27,7 +27,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
       HttpStatusCode status,
       WebRequest request) {
 
-    Map<String, String> fieldErrors = new HashMap<>();  ;
+    Map<String, String> fieldErrors = new HashMap<>();
+    ;
 
     for (FieldError er : ex.getBindingResult().getFieldErrors()) {
       fieldErrors.put(er.getField(), er.getDefaultMessage());
