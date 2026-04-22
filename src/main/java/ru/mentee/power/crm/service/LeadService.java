@@ -25,6 +25,10 @@ import ru.mentee.power.crm.repository.DealRepository;
 import ru.mentee.power.crm.repository.LeadRepository;
 import ru.mentee.power.crm.spring.client.EmailValidationFeignClient;
 import ru.mentee.power.crm.spring.client.EmailValidationResponse;
+import ru.mentee.power.crm.spring.dto.LeadResponse;
+import ru.mentee.power.crm.spring.dto.UpdateLeadRequest;
+import ru.mentee.power.crm.spring.exception.EntityNotFoundException;
+import ru.mentee.power.crm.spring.mapper.LeadMapper;
 
 @Service
 public class LeadService {
@@ -32,14 +36,17 @@ public class LeadService {
   private final LeadRepository leadRepository;
   private final DealRepository dealRepository;
   private final EmailValidationFeignClient emailValidationClient;
+  private final LeadMapper leadMapper;
 
   public LeadService(
       LeadRepository leadRepository,
       DealRepository dealRepository,
-      EmailValidationFeignClient emailValidationClient) {
+      EmailValidationFeignClient emailValidationClient,
+      LeadMapper leadMapper) {
     this.leadRepository = leadRepository;
     this.dealRepository = dealRepository;
     this.emailValidationClient = emailValidationClient;
+    this.leadMapper = leadMapper;
 
     LOG.info("LeadService constructor called");
   }
@@ -124,14 +131,6 @@ public class LeadService {
     }
   }
 
-  public boolean deleteLead(UUID id) {
-    if (leadRepository.findById(id).isEmpty()) {
-      return false;
-    }
-    leadRepository.deleteById(id);
-    return true;
-  }
-
   public List<Lead> findAll() {
     return leadRepository.findAll();
   }
@@ -210,5 +209,34 @@ public class LeadService {
     Deal deal = new Deal(leadId, amount);
     lead.setStatus(LeadStatus.CONTACTED);
     dealRepository.save(deal);
+  }
+
+  // методы REST-контроллера с кастомными исключениями
+  public LeadResponse getLeadById(UUID id) {
+    Lead lead =
+        leadRepository
+            .findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Lead", id.toString()));
+
+    return leadMapper.toResponse(lead);
+  }
+
+  public LeadResponse updateLead(UUID id, UpdateLeadRequest request) {
+    Lead lead =
+        leadRepository
+            .findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Lead", id.toString()));
+
+    leadMapper.updateEntity(request, lead);
+
+    return leadMapper.toResponse(leadRepository.save(lead));
+  }
+
+  public boolean deleteLead(UUID id) {
+    if (!leadRepository.existsById(id)) {
+      throw new EntityNotFoundException("Lead", id.toString());
+    }
+    leadRepository.deleteById(id);
+    return true;
   }
 }

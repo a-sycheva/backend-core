@@ -9,14 +9,10 @@ public record ErrorResponse(
     String error,
     String message,
     String path,
-    Map<String, String> errors
-) {
+    Map<String, String> errors) {
 
-  public ErrorResponse(LocalDateTime timestamp,
-                       int status,
-                       String error,
-                       String message,
-                       String path) {
+  public ErrorResponse(
+      LocalDateTime timestamp, int status, String error, String message, String path) {
     this(timestamp, status, error, message, path, null);
   }
 }

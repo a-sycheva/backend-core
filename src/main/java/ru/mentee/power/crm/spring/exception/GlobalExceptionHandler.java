@@ -1,9 +1,8 @@
 package ru.mentee.power.crm.spring.exception;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
-
-import org.apache.coyote.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -28,16 +27,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
       HttpStatusCode status,
       WebRequest request) {
 
-    Map<String, String> fieldErrors = Map.of();
+    Map<String, String> fieldErrors = new HashMap<>();  ;
 
-    for(FieldError er : ex.getBindingResult().getFieldErrors()) {
+    for (FieldError er : ex.getBindingResult().getFieldErrors()) {
       fieldErrors.put(er.getField(), er.getDefaultMessage());
     }
 
-    ErrorResponse errorResponse = new ErrorResponse(LocalDateTime.now(),
-        status.value(), "Validation failed", "Argument validation failed",
-        request.getDescription(false).substring(4), fieldErrors);
-
+    ErrorResponse errorResponse =
+        new ErrorResponse(
+            LocalDateTime.now(),
+            status.value(),
+            "Validation failed",
+            "Argument validation failed",
+            request.getDescription(false).substring(4),
+            fieldErrors);
 
     return ResponseEntity.badRequest().body(errorResponse);
   }
@@ -45,12 +48,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler(EntityNotFoundException.class)
   public ResponseEntity<ErrorResponse> handleEntityNotFound(
       EntityNotFoundException ex, WebRequest request) {
-    ErrorResponse errorResponse = new ErrorResponse(
-        LocalDateTime.now(),
-        HttpStatus.NOT_FOUND.value(),
-        HttpStatus.NOT_FOUND.getReasonPhrase(),
-        ex.getMessage(),
-        request.getDescription(false).substring(4));
+    ErrorResponse errorResponse =
+        new ErrorResponse(
+            LocalDateTime.now(),
+            HttpStatus.NOT_FOUND.value(),
+            HttpStatus.NOT_FOUND.getReasonPhrase(),
+            ex.getMessage(),
+            request.getDescription(false).substring(4));
 
     LOG.warn("Entity not found: " + ex.getMessage());
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
@@ -60,13 +64,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, WebRequest request) {
     LOG.error("Unexpected server error", ex);
 
-    ErrorResponse errorResponse = new ErrorResponse(
-        LocalDateTime.now(),
-        HttpStatus.INTERNAL_SERVER_ERROR.value(),
-        HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
-        "Internal server error",
-        request.getDescription(false).substring(4)
-    );
+    ErrorResponse errorResponse =
+        new ErrorResponse(
+            LocalDateTime.now(),
+            HttpStatus.INTERNAL_SERVER_ERROR.value(),
+            HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+            "Internal Server Error",
+            request.getDescription(false).substring(4));
 
     return ResponseEntity.internalServerError().body(errorResponse);
   }
