@@ -116,6 +116,9 @@ dependencies {
     // MapStruct (должен быть после Lombok в annotationProcessor)
     implementation "org.mapstruct:mapstruct:${mapstructVersion}"
     annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+
+    // Spring Boot Starter Validation (Jakarta Bean Validation + Hibernate Validator)
+    implementation "org.springframework.boot:spring-boot-starter-validation"
 }
 
 tasks.withType(JavaCompile) {

@@ -21,7 +21,7 @@ public class LeadUpdateRequest {
   private String name;
 
   @NotBlank(message = "{Email обязателен")
-  @Email(message = ".+@.+\\\\..+\", message = \"Некорректный формат email")
+  @Email(regexp = ".+@.+\\..+", message = "Некорректный формат email")
   private String email;
 
   private UUID companyId;
