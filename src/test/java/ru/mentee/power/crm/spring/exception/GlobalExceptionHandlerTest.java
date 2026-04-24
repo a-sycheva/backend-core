@@ -58,7 +58,7 @@ public class GlobalExceptionHandlerTest {
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.errors").exists())
         .andExpect(jsonPath("$.errors.email").value("Некорректный формат email"))
-        .andExpect(jsonPath("$.errors.status").value("Указать статус обязательно"));
+        .andExpect(jsonPath("$.errors.status").value("Поле не может быть null"));
   }
 
   @Test
