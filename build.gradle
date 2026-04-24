@@ -242,12 +242,13 @@ jacocoTestCoverageVerification {
         }
     }
 
-    // Исключаем Main из отчёта покрытия
+    // Исключаем из отчёта покрытия
     afterEvaluate {
         classDirectories.setFrom(files(classDirectories.files.collect { dir ->
             fileTree(dir: dir, exclude: [
                     '**/Main.class',
-                    '**/Application.class'
+                    '**/Application.class',
+                    '**/generated/**'
             ])
         }))
     }
