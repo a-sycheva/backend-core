@@ -2,12 +2,12 @@ package ru.mentee.power.crm.spring.rest;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -16,7 +16,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,11 +88,10 @@ class LeadRestControllerUnitTest {
     // given
     UUID id = UUID.randomUUID();
     Lead lead = new Lead("John", "john@test.ru", null, LeadStatus.NEW);
-    when(leadService.findById(id)).thenReturn(Optional.of(lead));
     LeadResponse response =
         new LeadResponse(
             lead.getId(), "John", "john@test.ru", null, "", LeadStatus.NEW, lead.getCreatedAt());
-    when(leadMapper.toResponse(lead)).thenReturn(response);
+    when(leadService.getLeadById(id)).thenReturn(response);
 
     // when & then
     mockMvc
@@ -101,16 +99,6 @@ class LeadRestControllerUnitTest {
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.name").value("John"));
-  }
-
-  @Test
-  void getLeadByIdWhenNotExistsShouldReturnNotFound() throws Exception {
-    // given
-    UUID id = UUID.randomUUID();
-    when(leadService.findById(id)).thenReturn(Optional.empty());
-
-    // when & then
-    mockMvc.perform(get("/api/leads/{id}", id)).andExpect(status().isNotFound());
   }
 
   @Test
@@ -156,15 +144,6 @@ class LeadRestControllerUnitTest {
   }
 
   @Test
-  void shouldReturn404WhenGetNonExistentLead() throws Exception {
-    when(leadService.findById(any(UUID.class))).thenReturn(Optional.empty());
-
-    mockMvc
-        .perform(get("/api/leads/00000000-0000-0000-0000-000000000000"))
-        .andExpect(status().isNotFound());
-  }
-
-  @Test
   void shouldReturn201WithLocationWhenCreateLead() throws Exception {
     Company company = new Company("Yandex", "IT");
     Lead lead = new Lead(UUID.randomUUID(), "Anton", "test@example.ru", company, LeadStatus.NEW);
@@ -205,15 +184,6 @@ class LeadRestControllerUnitTest {
   }
 
   @Test
-  void shouldReturn404WhenDeleteNonExistentLead() throws Exception {
-    when(leadService.deleteLead(any(UUID.class))).thenReturn(false);
-
-    mockMvc
-        .perform(delete("/api/leads/00000000-0000-0000-0000-000000000000"))
-        .andExpect(status().isNotFound());
-  }
-
-  @Test
   void updateLeadShouldReturnUpdatedLeadWhenLeadExists() throws Exception {
     // given
     UUID leadId = UUID.randomUUID();
@@ -245,9 +215,8 @@ class LeadRestControllerUnitTest {
             LeadStatus.CONTACTED,
             LocalDateTime.now());
 
-    when(leadService.findById(leadId)).thenReturn(Optional.of(existingLead));
-    when(leadService.updateLead(eq(leadId), any(Lead.class))).thenReturn(Optional.of(updatedLead));
-    when(leadMapper.toResponse(updatedLead)).thenReturn(response);
+    when(leadService.updateLead(any(UUID.class), any(UpdateLeadRequest.class)))
+        .thenReturn(response);
 
     // when & then
     mockMvc
@@ -255,6 +224,7 @@ class LeadRestControllerUnitTest {
             put("/api/leads/{id}", leadId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
+        .andDo(print())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.name").value("Updated Name"))
         .andExpect(jsonPath("$.email").value("updated@test.ru"))

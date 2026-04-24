@@ -40,11 +40,7 @@ public class LeadRestController {
   @GetMapping("/{id}")
   public ResponseEntity<LeadResponse> getLeadById(
       @PathVariable @NotNull(message = "ID лида обязателен") UUID id) {
-    return leadService
-        .findById(id)
-        .map(leadMapper::toResponse)
-        .map(ResponseEntity::ok)
-        .orElse(ResponseEntity.notFound().build());
+    return ResponseEntity.ok().body(leadService.getLeadById(id));
   }
 
   @PostMapping
@@ -61,25 +57,18 @@ public class LeadRestController {
   public ResponseEntity<LeadResponse> updateLead(
       @PathVariable UUID id, @RequestBody UpdateLeadRequest request) {
 
-    return leadService
-        .findById(id)
-        .map(
-            lead -> {
-              leadMapper.updateEntity(request, lead);
-              return leadService.updateLead(id, lead);
-            })
-        .flatMap(optional -> optional)
-        .map(leadMapper::toResponse)
-        .map(ResponseEntity::ok)
-        .orElse(ResponseEntity.notFound().build());
+    LeadResponse response = leadService.updateLead(id, request);
+    return ResponseEntity.ok(response); // ← только 200 OK с телом
   }
 
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteLead(@PathVariable UUID id) {
-    if (leadService.deleteLead(id)) {
-      return ResponseEntity.noContent().build();
-    } else {
-      return ResponseEntity.notFound().build();
-    }
+    leadService.deleteLead(id);
+    return ResponseEntity.noContent().build();
+  }
+
+  @GetMapping("/test-500")
+  public String test500() {
+    throw new RuntimeException("Test internal server error");
   }
 }

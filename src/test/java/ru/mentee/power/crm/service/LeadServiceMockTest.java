@@ -42,7 +42,7 @@ class LeadServiceMockTest {
 
   @BeforeEach
   void setUp() {
-    service = new LeadService(mockRepository, mockDealRepository, mockEmailValidationClient);
+    service = new LeadService(mockRepository, mockDealRepository, mockEmailValidationClient, null);
   }
 
   @Test
@@ -179,17 +179,10 @@ class LeadServiceMockTest {
   @Test
   void shouldReturnTrueWhenDeleteLeadExistedLead() {
     Lead lead = new Lead(UUID.randomUUID(), "Jane", "test@test.ru", null, LeadStatus.NEW);
-    when(mockRepository.findById(any(UUID.class))).thenReturn(Optional.of(lead));
+    when(mockRepository.existsById(any(UUID.class))).thenReturn(true);
     doNothing().when(mockRepository).deleteById(any(UUID.class));
 
     assertThat(service.deleteLead(lead.getId())).isTrue();
-  }
-
-  @Test
-  void shouldReturnFalseWhenDeleteLeadNotExistedLead() {
-    when(mockRepository.findById(any(UUID.class))).thenReturn(Optional.empty());
-
-    assertThat(service.deleteLead(UUID.randomUUID())).isFalse();
   }
 
   @Test

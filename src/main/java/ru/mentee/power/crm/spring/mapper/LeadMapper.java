@@ -13,7 +13,7 @@ public interface LeadMapper {
 
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "createdAt", ignore = true)
-  @Mapping(target = "company", ignore = true) // установить в сервисе
+  @Mapping(target = "company", ignore = true)
   Lead toEntity(CreateLeadRequest dto);
 
   @Mapping(target = "companyId", source = "company.id")
@@ -22,7 +22,7 @@ public interface LeadMapper {
 
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "createdAt", ignore = true)
-  @Mapping(target = "company", ignore = true) // установить в сервисе
+  @Mapping(target = "company", ignore = true)
   @Mapping(target = "version", ignore = true)
   void updateEntity(UpdateLeadRequest dto, @MappingTarget Lead entity);
 }
