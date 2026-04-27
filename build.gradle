@@ -8,6 +8,7 @@ plugins {
     id 'org.springframework.boot' version '3.4.4'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'com.diffplug.spotless' version '8.4.0'
+    id 'org.openapi.generator' version '7.1.0'
 }
 
 check.dependsOn checkstyleMain
@@ -26,13 +27,14 @@ ext {
     servletVersion = '6.1.0'
     tomcatVersion = '11.0.1'
     jteVersion = '3.1.15'
-    springBootVersion = '3.5.7'
+    springBootVersion = '3.4.4'
     jteSpringBootVersion = '3.1.15'
     validationApiVersion = '3.1.1'
     hibernateValidatorVersion = '9.1.0.Final'
     h2DataBaseVersion = '2.3.232'
     mapstructVersion = '1.6.3'
     lombokMapstructBindingVersion = '0.2.0'
+    springdocVersion = '2.8.3'
 
 }
 
@@ -119,7 +121,40 @@ dependencies {
 
     // Spring Boot Starter Validation (Jakarta Bean Validation + Hibernate Validator)
     implementation "org.springframework.boot:spring-boot-starter-validation"
+
+    // Sprint 8: OpenAPI документация
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}"
+    implementation 'org.openapitools:jackson-databind-nullable:0.2.10'
 }
+
+
+
+openApiGenerate {
+    generatorName = "spring"
+    inputSpec = "${rootProject.projectDir}/src/main/resources/api/api-spec.yaml".replace('\\', '/')
+    outputDir = "${buildDir}/generated"
+    apiPackage = "ru.mentee.power.crm.spring.rest.generated"
+    modelPackage = "ru.mentee.power.crm.spring.dto.generated"
+    configOptions = [
+            interfaceOnly: "true",
+            useTags: "true",
+            dateLibrary: "java8",
+            useSpringBoot3: "true",
+            documentationProvider: "none"
+    ]
+}
+
+// Добавить сгенерированные файлы в sourceSets
+sourceSets {
+    main {
+        java {
+            srcDir "${buildDir}/generated/src/main/java"
+        }
+    }
+}
+
+// Привязать генерацию к компиляции
+compileJava.dependsOn tasks.openApiGenerate
 
 tasks.withType(JavaCompile) {
     options.compilerArgs += [
@@ -143,6 +178,10 @@ spotless {
         trimTrailingWhitespace()
         endWithNewline()
     }
+}
+
+tasks.named('checkstyleMain') {
+    source = source.filter { !it.path.contains(File.separator + 'build' + File.separator) }
 }
 
 checkstyleMain {
@@ -180,12 +219,13 @@ jacocoTestReport {
         html.outputLocation = layout.buildDirectory.dir('reports/jacoco/test/html')
     }
 
-    // Исключаем Main из отчёта покрытия
+    // Исключаем из отчёта покрытия
     afterEvaluate {
         classDirectories.setFrom(files(classDirectories.files.collect { dir ->
             fileTree(dir: dir, exclude: [
                     '**/Main.class',
-                    '**/Application.class'
+                    '**/Application.class',
+                    '**/generated/**'
             ])
         }))
     }
@@ -202,12 +242,13 @@ jacocoTestCoverageVerification {
         }
     }
 
-    // Исключаем Main из отчёта покрытия
+    // Исключаем из отчёта покрытия
     afterEvaluate {
         classDirectories.setFrom(files(classDirectories.files.collect { dir ->
             fileTree(dir: dir, exclude: [
                     '**/Main.class',
-                    '**/Application.class'
+                    '**/Application.class',
+                    '**/generated/**'
             ])
         }))
     }

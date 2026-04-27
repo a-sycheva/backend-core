@@ -43,6 +43,14 @@ spring:
     hibernate:
       ddl-auto: validate
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+
 gg:
   jte:
     template-location: ./src/main/resources/jte

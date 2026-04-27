@@ -15,6 +15,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -28,8 +30,9 @@ import ru.mentee.power.crm.model.Company;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.service.LeadService;
-import ru.mentee.power.crm.spring.dto.LeadResponse;
-import ru.mentee.power.crm.spring.dto.UpdateLeadRequest;
+import ru.mentee.power.crm.spring.dto.generated.CreateLeadRequest;
+import ru.mentee.power.crm.spring.dto.generated.LeadResponse;
+import ru.mentee.power.crm.spring.dto.generated.UpdateLeadRequest;
 import ru.mentee.power.crm.spring.mapper.LeadMapper;
 
 @WebMvcTest(LeadRestController.class)
@@ -55,19 +58,15 @@ class LeadRestControllerUnitTest {
             firstLead.getId(),
             "John",
             "john@test.ru",
-            null,
-            null,
-            LeadStatus.NEW,
-            firstLead.getCreatedAt());
+            map(LeadStatus.NEW),
+            map(firstLead.getCreatedAt()));
     LeadResponse secondResponse =
         new LeadResponse(
             secondLead.getId(),
             "Jane",
             "jane@test.ru",
-            null,
-            null,
-            LeadStatus.CONTACTED,
-            secondLead.getCreatedAt());
+            map(LeadStatus.CONTACTED),
+            map(secondLead.getCreatedAt()));
 
     when(leadService.findAll()).thenReturn(List.of(firstLead, secondLead));
     when(leadMapper.toResponse(firstLead)).thenReturn(firstResponse);
@@ -90,7 +89,7 @@ class LeadRestControllerUnitTest {
     Lead lead = new Lead("John", "john@test.ru", null, LeadStatus.NEW);
     LeadResponse response =
         new LeadResponse(
-            lead.getId(), "John", "john@test.ru", null, "", LeadStatus.NEW, lead.getCreatedAt());
+            lead.getId(), "John", "john@test.ru", map(LeadStatus.NEW), map(lead.getCreatedAt()));
     when(leadService.getLeadById(id)).thenReturn(response);
 
     // when & then
@@ -105,6 +104,7 @@ class LeadRestControllerUnitTest {
   void createLeadShouldCreateAndReturnLead() throws Exception {
     // given
     Company company = new Company("Yandex", "IT");
+    company.setId(UUID.randomUUID());
     Lead requestLead = new Lead("John", "john@test.ru", company, LeadStatus.NEW);
     Lead savedLead = new Lead("John", "john@test.ru", company, LeadStatus.NEW);
     when(leadMapper.toEntity(any())).thenReturn(requestLead);
@@ -114,18 +114,22 @@ class LeadRestControllerUnitTest {
             savedLead.getId(),
             savedLead.getName(),
             savedLead.getEmail(),
-            savedLead.getCompany().getId(),
-            savedLead.getCompany().getName(),
-            savedLead.getStatus(),
-            savedLead.getCreatedAt());
+            map(savedLead.getStatus()),
+            map(savedLead.getCreatedAt()));
+    response.setCompanyId(savedLead.getCompany().getId());
+    response.setCompanyName(savedLead.getCompany().getName());
     when(leadMapper.toResponse(any())).thenReturn(response);
 
+    CreateLeadRequest request =
+        new CreateLeadRequest(
+            requestLead.getName(), requestLead.getEmail(), map(requestLead.getStatus()));
+    request.setCompanyId(requestLead.getCompany().getId());
     // when & then
     mockMvc
         .perform(
             post("/api/leads")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(requestLead)))
+                .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.name").value("John"));
   }
@@ -157,10 +161,10 @@ class LeadRestControllerUnitTest {
             lead.getId(),
             lead.getName(),
             lead.getEmail(),
-            lead.getCompany().getId(),
-            lead.getCompany().getName(),
-            lead.getStatus(),
-            lead.getCreatedAt());
+            map(lead.getStatus()),
+            map(lead.getCreatedAt()));
+    response.setCompanyId(lead.getCompany().getId());
+    response.setCompanyName(lead.getCompany().getName());
     when(leadMapper.toResponse(any())).thenReturn(response);
 
     mockMvc
@@ -190,7 +194,7 @@ class LeadRestControllerUnitTest {
     UpdateLeadRequest request = new UpdateLeadRequest();
     request.setName("Updated Name");
     request.setEmail("updated@test.ru");
-    request.setStatus(LeadStatus.CONTACTED);
+    request.setStatus(ru.mentee.power.crm.spring.dto.generated.LeadStatus.CONTACTED);
     request.setCompanyId(null);
 
     Lead existingLead = new Lead();
@@ -210,10 +214,8 @@ class LeadRestControllerUnitTest {
             leadId,
             "Updated Name",
             "updated@test.ru",
-            null,
-            null,
-            LeadStatus.CONTACTED,
-            LocalDateTime.now());
+            map(LeadStatus.CONTACTED),
+            map(LocalDateTime.now()));
 
     when(leadService.updateLead(any(UUID.class), any(UpdateLeadRequest.class)))
         .thenReturn(response);
@@ -229,5 +231,26 @@ class LeadRestControllerUnitTest {
         .andExpect(jsonPath("$.name").value("Updated Name"))
         .andExpect(jsonPath("$.email").value("updated@test.ru"))
         .andExpect(jsonPath("$.status").value("CONTACTED"));
+  }
+
+  // вспомогательные методы
+  private OffsetDateTime map(LocalDateTime value) {
+    return value != null ? value.atOffset(ZoneOffset.UTC) : null;
+  }
+
+  private LocalDateTime map(OffsetDateTime value) {
+    return value != null ? value.toLocalDateTime() : null;
+  }
+
+  private ru.mentee.power.crm.model.LeadStatus map(
+      ru.mentee.power.crm.spring.dto.generated.LeadStatus status) {
+    return status == null ? null : ru.mentee.power.crm.model.LeadStatus.valueOf(status.name());
+  }
+
+  private ru.mentee.power.crm.spring.dto.generated.LeadStatus map(
+      ru.mentee.power.crm.model.LeadStatus status) {
+    return status == null
+        ? null
+        : ru.mentee.power.crm.spring.dto.generated.LeadStatus.valueOf(status.name());
   }
 }

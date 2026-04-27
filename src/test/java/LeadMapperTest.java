@@ -9,9 +9,9 @@ import ru.mentee.power.crm.Application;
 import ru.mentee.power.crm.model.Company;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
-import ru.mentee.power.crm.spring.dto.CreateLeadRequest;
-import ru.mentee.power.crm.spring.dto.LeadResponse;
-import ru.mentee.power.crm.spring.dto.UpdateLeadRequest;
+import ru.mentee.power.crm.spring.dto.generated.CreateLeadRequest;
+import ru.mentee.power.crm.spring.dto.generated.LeadResponse;
+import ru.mentee.power.crm.spring.dto.generated.UpdateLeadRequest;
 import ru.mentee.power.crm.spring.mapper.LeadMapper;
 
 @SpringBootTest(classes = Application.class)
@@ -23,7 +23,8 @@ class LeadMapperTest {
   @Test
   void shouldMapCreateRequestToEntityWhenValidData() {
     CreateLeadRequest request =
-        new CreateLeadRequest("Billy", "test@test.ru", null, LeadStatus.NEW);
+        new CreateLeadRequest(
+            "Billy", "test@test.ru", ru.mentee.power.crm.spring.dto.generated.LeadStatus.NEW);
 
     Lead lead = leadMapper.toEntity(request);
 
@@ -39,18 +40,19 @@ class LeadMapperTest {
     Lead lead = new Lead(UUID.randomUUID(), "Billy", "test@test.ru", company, LeadStatus.NEW);
     LeadResponse response = leadMapper.toResponse(lead);
 
-    assertThat(response.id()).isEqualTo(lead.getId());
-    assertThat(response.name()).isEqualTo(lead.getName());
-    assertThat(response.email()).isEqualTo(lead.getEmail());
-    assertThat(response.status()).isEqualTo(lead.getStatus());
-    assertThat(response.companyId()).isEqualTo(lead.getCompany().getId());
-    assertThat(response.companyName()).isEqualTo(lead.getCompany().getName());
+    assertThat(response.getId()).isEqualTo(lead.getId());
+    assertThat(response.getName()).isEqualTo(lead.getName());
+    assertThat(response.getEmail()).isEqualTo(lead.getEmail());
+    assertThat(response.getStatus()).isEqualTo(map(lead.getStatus()));
+    assertThat(response.getCompanyId()).isEqualTo(lead.getCompany().getId());
+    assertThat(response.getCompanyName()).isEqualTo(lead.getCompany().getName());
   }
 
   @Test
   void shouldUpdateLead() {
     UpdateLeadRequest request =
-        new UpdateLeadRequest("Billy", "test@test.ru", null, LeadStatus.NEW);
+        new UpdateLeadRequest(
+            "Billy", "test@test.ru", ru.mentee.power.crm.spring.dto.generated.LeadStatus.NEW);
 
     Lead lead = new Lead("Anna", "updated@test.ru", null, LeadStatus.NEW);
 
@@ -58,6 +60,19 @@ class LeadMapperTest {
 
     assertThat(lead.getName()).isEqualTo(request.getName());
     assertThat(lead.getEmail()).isEqualTo(request.getEmail());
-    assertThat(lead.getStatus()).isEqualTo(request.getStatus());
+    assertThat(lead.getStatus()).isEqualTo(map(request.getStatus()));
+  }
+
+  // вспомогательные методы
+  private ru.mentee.power.crm.model.LeadStatus map(
+      ru.mentee.power.crm.spring.dto.generated.LeadStatus status) {
+    return status == null ? null : ru.mentee.power.crm.model.LeadStatus.valueOf(status.name());
+  }
+
+  private ru.mentee.power.crm.spring.dto.generated.LeadStatus map(
+      ru.mentee.power.crm.model.LeadStatus status) {
+    return status == null
+        ? null
+        : ru.mentee.power.crm.spring.dto.generated.LeadStatus.valueOf(status.name());
   }
 }
