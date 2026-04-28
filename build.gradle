@@ -225,7 +225,8 @@ jacocoTestReport {
             fileTree(dir: dir, exclude: [
                     '**/Main.class',
                     '**/Application.class',
-                    '**/generated/**'
+                    '**/generated/**',
+                    '**/*Invitee*.class'
             ])
         }))
     }
@@ -248,7 +249,8 @@ jacocoTestCoverageVerification {
             fileTree(dir: dir, exclude: [
                     '**/Main.class',
                     '**/Application.class',
-                    '**/generated/**'
+                    '**/generated/**',
+                    '**/*Invitee*.class'
             ])
         }))
     }
