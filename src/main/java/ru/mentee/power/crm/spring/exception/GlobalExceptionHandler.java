@@ -46,6 +46,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     return ResponseEntity.badRequest().body(errorResponse);
   }
 
+  @ExceptionHandler(InvalidStatusException.class)
+  public ResponseEntity<ErrorResponse> handleInvalidStatus(
+      InvalidStatusException ex, WebRequest request) {
+    ErrorResponse errorResponse =
+        new ErrorResponse(
+            LocalDateTime.now(),
+            HttpStatus.CONFLICT.value(),
+            HttpStatus.CONFLICT.getReasonPhrase(),
+            ex.getMessage(),
+            request.getDescription(false).substring(4));
+
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+  }
+
   @ExceptionHandler(EntityNotFoundException.class)
   public ResponseEntity<ErrorResponse> handleEntityNotFound(
       EntityNotFoundException ex, WebRequest request) {
@@ -59,6 +73,19 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     LOG.warn("Entity not found: " + ex.getMessage());
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+  }
+
+  @ExceptionHandler(EmailAlreadyExistsException.class)
+  public ResponseEntity<ErrorResponse> handleEmailExists(
+      EmailAlreadyExistsException ex, WebRequest request) {
+    ErrorResponse errorResponse =
+        new ErrorResponse(
+            LocalDateTime.now(),
+            HttpStatus.CONFLICT.value(), // 409 Conflict (бизнес-ошибка, не server error)
+            HttpStatus.CONFLICT.getReasonPhrase(), // 409 Conflict (бизнес-ошибка, не server error)
+            ex.getMessage(),
+            request.getDescription(false).substring(4));
+    return ResponseEntity.status(409).body(errorResponse);
   }
 
   @ExceptionHandler(Exception.class)
