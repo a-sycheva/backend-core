@@ -35,7 +35,8 @@ public class LeadRestController implements LeadManagementApi {
   @Override
   public ResponseEntity<LeadResponse> createLead(CreateLeadRequest request) {
     Lead lead = leadMapper.toEntity(request);
-    Lead savedLead = leadService.addLead(lead.getName(), lead.getEmail(), lead.getCompany(), lead.getStatus());
+    Lead savedLead =
+        leadService.addLead(lead.getName(), lead.getEmail(), lead.getCompany(), lead.getStatus());
     LeadResponse response = leadMapper.toResponse(savedLead);
     URI uri = URI.create("/api/leads/" + savedLead.getId());
 

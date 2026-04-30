@@ -85,7 +85,7 @@ public class LeadService {
             + "Creating lead without validation. Error: {}",
         ex.getMessage());
 
-    //не создавать без валидации при невалидном email
+    // не создавать без валидации при невалидном email
     Optional<Lead> existing = leadRepository.findByEmail(email);
     if (existing.isPresent()) {
       throw new EmailAlreadyExistsException("Email already exists!");
