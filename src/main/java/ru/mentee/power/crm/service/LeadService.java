@@ -27,6 +27,7 @@ import ru.mentee.power.crm.spring.client.EmailValidationFeignClient;
 import ru.mentee.power.crm.spring.client.EmailValidationResponse;
 import ru.mentee.power.crm.spring.dto.generated.LeadResponse;
 import ru.mentee.power.crm.spring.dto.generated.UpdateLeadRequest;
+import ru.mentee.power.crm.spring.exception.EmailAlreadyExistsException;
 import ru.mentee.power.crm.spring.exception.EntityNotFoundException;
 import ru.mentee.power.crm.spring.mapper.LeadMapper;
 
@@ -70,7 +71,7 @@ public class LeadService {
 
     Optional<Lead> existing = leadRepository.findByEmail(email);
     if (existing.isPresent()) {
-      throw new IllegalStateException("Lead with email already exists: " + email);
+      throw new EmailAlreadyExistsException("Email already exists!");
     }
 
     return leadRepository.save(lead);
@@ -84,6 +85,11 @@ public class LeadService {
             + "Creating lead without validation. Error: {}",
         ex.getMessage());
 
+    // не создавать без валидации при невалидном email
+    Optional<Lead> existing = leadRepository.findByEmail(email);
+    if (existing.isPresent()) {
+      throw new EmailAlreadyExistsException("Email already exists!");
+    }
     // Graceful degradation: создаём лида без валидации
     // В production можно: 1) пометить для последующей проверки
     //                     2) отправить в очередь на валидацию

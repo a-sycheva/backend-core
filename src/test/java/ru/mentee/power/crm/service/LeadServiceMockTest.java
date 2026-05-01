@@ -28,6 +28,7 @@ import ru.mentee.power.crm.repository.DealRepository;
 import ru.mentee.power.crm.repository.LeadRepository;
 import ru.mentee.power.crm.spring.client.EmailValidationFeignClient;
 import ru.mentee.power.crm.spring.client.EmailValidationResponse;
+import ru.mentee.power.crm.spring.exception.EmailAlreadyExistsException;
 
 @ExtendWith(MockitoExtension.class)
 class LeadServiceMockTest {
@@ -93,7 +94,7 @@ class LeadServiceMockTest {
 
     // When/Then: ожидаем исключение
     assertThatThrownBy(() -> service.addLead("Jane", "existing@example.com", null, LeadStatus.NEW))
-        .isInstanceOf(IllegalStateException.class);
+        .isInstanceOf(EmailAlreadyExistsException.class);
 
     // Then: save() НЕ должен быть вызван
     verify(mockRepository, never()).save(any(Lead.class));
@@ -335,7 +336,7 @@ class LeadServiceMockTest {
                     "test@test.ru",
                     new Company("Test Corp", "TestIndustry"),
                     LeadStatus.NEW))
-        .isInstanceOf(IllegalStateException.class);
+        .isInstanceOf(EmailAlreadyExistsException.class);
   }
 
   @Test

@@ -153,8 +153,7 @@ class LeadRestControllerUnitTest {
     Lead lead = new Lead(UUID.randomUUID(), "Anton", "test@example.ru", company, LeadStatus.NEW);
 
     when(leadMapper.toEntity(any())).thenReturn(lead);
-    when(leadService.addLead(lead.getName(), lead.getEmail(), null, lead.getStatus()))
-        .thenReturn(lead);
+    when(leadService.addLead(any(), any(), any(), any())).thenReturn(lead);
 
     LeadResponse response =
         new LeadResponse(
