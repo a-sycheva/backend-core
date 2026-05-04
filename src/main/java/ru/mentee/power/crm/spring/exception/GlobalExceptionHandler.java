@@ -81,8 +81,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ErrorResponse errorResponse =
         new ErrorResponse(
             LocalDateTime.now(),
-            HttpStatus.CONFLICT.value(), // 409 Conflict (бизнес-ошибка, не server error)
-            HttpStatus.CONFLICT.getReasonPhrase(), // 409 Conflict (бизнес-ошибка, не server error)
+            HttpStatus.CONFLICT.value(),
+            HttpStatus.CONFLICT.getReasonPhrase(),
             ex.getMessage(),
             request.getDescription(false).substring(4));
     return ResponseEntity.status(409).body(errorResponse);

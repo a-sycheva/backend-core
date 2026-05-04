@@ -20,11 +20,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode
 public class Invitee {
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
-  @EqualsAndHashCode.Include
   private UUID id;
 
   @Column(nullable = false)
